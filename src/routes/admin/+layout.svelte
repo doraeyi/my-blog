@@ -1,0 +1,39 @@
+<script lang="ts">
+	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
+	import MessageSquareText from '@lucide/svelte/icons/message-square-text';
+	import FolderGit2 from '@lucide/svelte/icons/folder-git-2';
+	import FilePen from '@lucide/svelte/icons/file-pen';
+
+	let { children } = $props();
+
+	const tabs = [
+		{ label: '留言審核', href: resolve('/admin/comments'), icon: MessageSquareText },
+		{ label: '作品集管理', href: resolve('/admin/projects'), icon: FolderGit2 },
+		{ label: '文章管理', href: resolve('/admin/posts'), icon: FilePen }
+	];
+</script>
+
+<div class="mx-auto max-w-4xl px-6 pt-28 pb-16">
+	<nav class="flex gap-1 border-b border-gray-200">
+		<!-- eslint-disable svelte/no-navigation-without-resolve -- tab.href is pre-resolved via resolve() in the tabs array above -->
+		{#each tabs as tab (tab.label)}
+			{@const Icon = tab.icon}
+			{@const active = page.url.pathname.startsWith(tab.href)}
+			<a
+				href={tab.href}
+				class="flex items-center gap-1.5 border-b-2 px-4 py-3 text-sm font-medium transition {active
+					? 'border-gray-900 text-gray-900'
+					: 'border-transparent text-gray-500 hover:text-gray-700'}"
+			>
+				<Icon class="size-4" />
+				{tab.label}
+			</a>
+		{/each}
+		<!-- eslint-enable svelte/no-navigation-without-resolve -->
+	</nav>
+
+	<div class="mt-6">
+		{@render children()}
+	</div>
+</div>

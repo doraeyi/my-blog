@@ -1,0 +1,93 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+@theme {
+	--font-display: 'Special Elite', ui-monospace, Menlo, monospace;
+	--font-mono-hack: 'Share Tech Mono', ui-monospace, Menlo, monospace;
+
+	--color-case-50: #fdfaf3;
+	--color-case-100: #f7efd9;
+	--color-case-200: #ecdfbd;
+	--color-case-300: #dcc89a;
+	--color-case-400: #c2a877;
+	--color-case-500: #a3865a;
+	--color-case-600: #8a6d45;
+	--color-case-700: #6b5336;
+	--color-case-800: #4a3925;
+	--color-case-900: #2c2118;
+	--color-case-950: #05070a;
+
+	--color-stamp-50: #fdf1ef;
+	--color-stamp-100: #f9d9d5;
+	--color-stamp-200: #f0b3ac;
+	--color-stamp-300: #e28277;
+	--color-stamp-400: #cf5a4c;
+	--color-stamp-500: #b3362b;
+	--color-stamp-600: #922a21;
+	--color-stamp-700: #74211a;
+
+	--color-cream-100: #f4ead2;
+
+	/* Fixed amber "CRT phosphor" tones for the always-dark terminal panel — not swapped by dark mode. */
+	--color-phosphor-300: #ffd98a;
+	--color-phosphor-400: #f0b429;
+	--color-phosphor-600: #b9860a;
+
+	--color-surface: var(--color-case-50);
+	--color-surface-alt: var(--color-case-100);
+	--color-ink: var(--color-case-900);
+	--color-ink-muted: var(--color-case-600);
+	--color-border-case: var(--color-case-300);
+	--color-accent: var(--color-stamp-500);
+	--color-accent-strong: var(--color-stamp-600);
+}
+
+:root {
+	color-scheme: light;
+}
+
+/* Explicit user choice (via ThemeToggle), always wins once set. */
+:root[data-theme='dark'] {
+	color-scheme: dark;
+	--color-surface: var(--color-case-950);
+	--color-surface-alt: var(--color-case-900);
+	--color-ink: var(--color-cream-100);
+	--color-ink-muted: var(--color-case-400);
+	--color-border-case: var(--color-case-700);
+	--color-accent: #e2574a;
+	--color-accent-strong: #f2795e;
+}
+
+/* No-JS / pre-hydration fallback: mirrors system preference until data-theme is set. */
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme]) {
+		color-scheme: dark;
+		--color-surface: var(--color-case-950);
+		--color-surface-alt: var(--color-case-900);
+		--color-ink: var(--color-cream-100);
+		--color-ink-muted: var(--color-case-400);
+		--color-border-case: var(--color-case-700);
+		--color-accent: #e2574a;
+		--color-accent-strong: #f2795e;
+	}
+}
+
+html {
+	background-color: var(--color-surface);
+	color: var(--color-ink);
+	scroll-behavior: smooth;
+}
+
+/* Clears the fixed navbar when jumping to an in-page anchor (TOC links, #comments). */
+[id] {
+	scroll-margin-top: 6rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+}

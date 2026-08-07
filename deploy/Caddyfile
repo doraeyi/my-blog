@@ -1,0 +1,9 @@
+your-domain.example {
+	reverse_proxy 127.0.0.1:3000
+
+	# Phase 2 seam: once a FastAPI service is added for a specific feature,
+	# proxy its path here instead of touching the SvelteKit route/service layer, e.g.:
+	# handle_path /api/py/* {
+	# 	reverse_proxy 127.0.0.1:8000
+	# }
+}

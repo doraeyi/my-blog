@@ -1,0 +1,22 @@
+[Unit]
+Description=my-blog (SvelteKit, adapter-node)
+After=network.target
+
+[Service]
+Type=simple
+User=myblog
+Group=myblog
+WorkingDirectory=/srv/my-blog/current
+EnvironmentFile=/srv/my-blog/shared/.env
+ExecStart=/usr/bin/node build/index.js
+Restart=on-failure
+RestartSec=5
+
+# Hardening (adjust if the app needs broader filesystem access)
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/my-blog
+
+[Install]
+WantedBy=multi-user.target
