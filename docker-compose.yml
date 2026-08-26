@@ -11,14 +11,8 @@ services:
       - DATABASE_URL=/data/local.db
     volumes:
       - ./data:/data
-    # No ports: published — cloudflared reaches it over the compose network by
-    # service name, nothing needs to be exposed on the VM's host interfaces.
-
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    restart: unless-stopped
-    command: tunnel run
-    environment:
-      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
-    depends_on:
-      - app
+    # Bound to localhost only — reached by the VM's existing host-level
+    # cloudflared process (same tunnel already serving gitstats/streak/activity),
+    # not exposed to the network. No separate cloudflared container here.
+    ports:
+      - '127.0.0.1:3000:3000'
