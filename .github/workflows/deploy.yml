@@ -36,31 +36,25 @@ jobs:
 
   deploy:
     needs: build-and-push
-    runs-on: ubuntu-latest
+    # Runs directly on the VM via a self-hosted runner — the VM polls GitHub for
+    # jobs over an outbound connection, so nothing needs to accept inbound SSH.
+    # Register it once: repo Settings → Actions → Runners → New self-hosted runner.
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
-
-      # Keeps the VM's compose file in sync with this repo. .env and data/ on the
-      # VM are never touched — they're not tracked here and this only copies
-      # docker-compose.yml itself.
-      - uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.VM_HOST }}
-          username: ${{ secrets.VM_USER }}
-          key: ${{ secrets.VM_SSH_KEY }}
-          port: ${{ secrets.VM_SSH_PORT || 22 }}
-          source: docker-compose.yml
-          target: /srv/my-blog
+          sparse-checkout: |
+            docker-compose.yml
+          sparse-checkout-cone-mode: false
 
-      - uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.VM_HOST }}
-          username: ${{ secrets.VM_USER }}
-          key: ${{ secrets.VM_SSH_KEY }}
-          port: ${{ secrets.VM_SSH_PORT || 22 }}
-          script: |
-            set -euo pipefail
-            cd /srv/my-blog
-            docker compose pull
-            docker compose up -d --remove-orphans
-            docker image prune -f
+      # .env and data/ in /srv/my-blog are untouched — they're not tracked in
+      # this repo, only docker-compose.yml gets synced.
+      - name: Sync compose file and redeploy
+        run: |
+          set -euo pipefail
+          mkdir -p /srv/my-blog
+          cp docker-compose.yml /srv/my-blog/docker-compose.yml
+          cd /srv/my-blog
+          docker compose pull
+          docker compose up -d --remove-orphans
+          docker image prune -f
