@@ -9,7 +9,7 @@
 
 	const name = 'Liam';
 	const tagline = 'meaningful products';
-	const description = 'A FULL-STACK ENGINEER BUILDING THINGS FOR THE WEB.';
+	const description = '前端工程師，在 MSI 打造好用的東西。';
 
 	const profileFields = [
 		{ label: 'Name', value: '李俊逸' },
