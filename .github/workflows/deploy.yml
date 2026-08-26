@@ -47,14 +47,15 @@ jobs:
             docker-compose.yml
           sparse-checkout-cone-mode: false
 
-      # .env and data/ in /srv/my-blog are untouched — they're not tracked in
-      # this repo, only docker-compose.yml gets synced.
+      # .env and data/ in ~/my-blog are untouched — they're not tracked in this
+      # repo, only docker-compose.yml gets synced. Lives under the runner
+      # user's home dir (not /srv) so no sudo/root is needed to write here.
       - name: Sync compose file and redeploy
         run: |
           set -euo pipefail
-          mkdir -p /srv/my-blog
-          cp docker-compose.yml /srv/my-blog/docker-compose.yml
-          cd /srv/my-blog
+          mkdir -p "$HOME/my-blog"
+          cp docker-compose.yml "$HOME/my-blog/docker-compose.yml"
+          cd "$HOME/my-blog"
           docker compose pull
           docker compose up -d --remove-orphans
           docker image prune -f
