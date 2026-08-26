@@ -12,8 +12,8 @@
 	let containerEl: HTMLDivElement | undefined = $state();
 	let canvasEl: HTMLCanvasElement | undefined = $state();
 
-	const MAX_PARTICLES = 7000;
-	const SAMPLE_STEP = 2;
+	const MAX_PARTICLES = 16000;
+	const SAMPLE_STEP = 1;
 	const INITIAL_HOLD_MS = 2600;
 	const COLLAPSE_MS = 900;
 	const HOLD_MS = 180;
@@ -42,8 +42,22 @@
 	function easeOutCubic(t: number) {
 		return 1 - Math.pow(1 - t, 3);
 	}
-	function boost(channel: number) {
-		return Math.min(255, Math.round(channel * 1.3 + 80));
+	/** Lifts only genuinely dark channels so hair/jacket survive against the near-black
+	 *  backdrop, without flattening the mid-tone shading (eyes, nose, mouth) that makes
+	 *  a face read as a face. */
+	function liftShadow(channel: number, luminance: number) {
+		const threshold = 90;
+		if (luminance >= threshold) return channel;
+		const t = 1 - luminance / threshold;
+		return Math.min(255, Math.round(channel + t * 90));
+	}
+
+	/** Most portrait photos are lit flat/even, so the raw shading around eyes, nose,
+	 *  and mouth is too subtle to survive being reduced to dots. Stretching contrast
+	 *  around mid-gray exaggerates that shading before it's thrown away. */
+	const FACE_CONTRAST = 1.45;
+	function stretchContrast(channel: number) {
+		return Math.min(255, Math.max(0, Math.round((channel - 128) * FACE_CONTRAST + 128)));
 	}
 
 	function loadImage(src: string) {
@@ -115,10 +129,18 @@
 
 				if (!keep) continue;
 
-				// Photo pixels (dark hair/jacket especially) get lifted so they stay
-				// visible against the panel's near-black backdrop instead of vanishing into it.
 				if (mode === 'edge-distance') {
-					points.push({ x, y, r: boost(r), g: boost(g), b: boost(b) });
+					const cr = stretchContrast(r);
+					const cg = stretchContrast(g);
+					const cb = stretchContrast(b);
+					const lum = 0.2126 * cr + 0.7152 * cg + 0.0722 * cb;
+					points.push({
+						x,
+						y,
+						r: liftShadow(cr, lum),
+						g: liftShadow(cg, lum),
+						b: liftShadow(cb, lum)
+					});
 				} else {
 					points.push({ x, y, r, g, b });
 				}
@@ -183,7 +205,7 @@
 
 			const ctx = canvasEl.getContext('2d');
 			if (!ctx) return;
-			const dotSize = Math.max(2.2, (w / 220) * 2.8);
+			const dotSize = Math.max(1.3, (w / 220) * 1.6);
 
 			function draw(progress: number) {
 				if (!ctx) return;

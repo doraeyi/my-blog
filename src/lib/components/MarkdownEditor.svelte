@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { mermaidDiagrams } from '$lib/actions/mermaid';
+
 	let { name = 'body', initialValue = '' }: { name?: string; initialValue?: string } = $props();
 
 	// Intentional one-time seed: the page remounts this component on navigation
@@ -38,13 +40,14 @@
 		bind:value={body}
 		required
 		rows="20"
-		class="w-full rounded-lg border border-gray-300 p-3 font-mono text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+		class="w-full rounded-lg border border-border-case bg-surface p-3 font-mono text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent focus:outline-none"
 		placeholder="以 Markdown 撰寫內容..."></textarea>
 	<div
-		class="prose prose-sm max-w-none rounded-lg border border-gray-200 bg-white p-3 sm:prose-base"
+		class="prose prose-sm dark:prose-invert max-w-none rounded-lg border border-border-case bg-surface-alt p-3 sm:prose-base"
+		use:mermaidDiagrams={html}
 	>
 		{#if previewError}
-			<p class="text-sm text-red-600">{previewError}</p>
+			<p class="text-sm text-stamp-500 dark:text-stamp-300">{previewError}</p>
 		{:else}
 			<!-- eslint-disable-next-line svelte/no-at-html-tags -- html is server-rendered via renderMarkdown()+rehype-sanitize at /admin/posts/preview, admin-authored content -->
 			{@html html}

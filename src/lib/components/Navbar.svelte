@@ -63,6 +63,25 @@
 	let profileEl: HTMLElement | undefined = $state();
 	let buttonEls: Record<string, HTMLButtonElement> = $state({});
 	let indicatorStyle = $state('opacity:0');
+	let hideNav = $state(false);
+
+	$effect(() => {
+		let lastY = window.scrollY;
+		function onScroll() {
+			const y = window.scrollY;
+			if (y < 80) {
+				hideNav = false;
+			} else if (y > lastY) {
+				hideNav = true;
+				closeAll();
+			} else {
+				hideNav = false;
+			}
+			lastY = y;
+		}
+		window.addEventListener('scroll', onScroll, { passive: true });
+		return () => window.removeEventListener('scroll', onScroll);
+	});
 
 	const highlightGroup = $derived(openGroup ?? hoveredGroup);
 
@@ -105,7 +124,11 @@
 
 <svelte:window onclick={handleWindowClick} onkeydown={handleKeydown} />
 
-<header class="fixed inset-x-0 top-4 z-50 flex items-center justify-center gap-3 px-4">
+<header
+	class="fixed inset-x-0 top-4 z-50 flex items-center justify-center gap-3 px-4 transition-all duration-300 ease-out {hideNav
+		? 'pointer-events-none -translate-y-24 opacity-0'
+		: 'translate-y-0 opacity-100'}"
+>
 	<a
 		href={resolve('/')}
 		class="flex size-10 shrink-0 items-center justify-center rounded-full border border-border-case bg-surface/80 font-bold text-ink shadow-sm backdrop-blur-md"

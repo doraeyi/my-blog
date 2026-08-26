@@ -15,7 +15,7 @@
 </script>
 
 <div class="mx-auto max-w-4xl px-6 pt-28 pb-16">
-	<nav class="flex gap-1 border-b border-gray-200">
+	<nav class="flex gap-1 border-b border-border-case">
 		<!-- eslint-disable svelte/no-navigation-without-resolve -- tab.href is pre-resolved via resolve() in the tabs array above -->
 		{#each tabs as tab (tab.label)}
 			{@const Icon = tab.icon}
@@ -23,8 +23,8 @@
 			<a
 				href={tab.href}
 				class="flex items-center gap-1.5 border-b-2 px-4 py-3 text-sm font-medium transition {active
-					? 'border-gray-900 text-gray-900'
-					: 'border-transparent text-gray-500 hover:text-gray-700'}"
+					? 'border-ink text-ink'
+					: 'border-transparent text-ink-muted hover:text-ink'}"
 			>
 				<Icon class="size-4" />
 				{tab.label}

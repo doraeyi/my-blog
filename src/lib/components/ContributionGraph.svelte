@@ -59,10 +59,11 @@
 	];
 
 	const legendLevels = [0, 1, 2, 3, 4] as const;
+	// Sun..Sat — only Mon/Wed/Fri get a label, matching GitHub's own heatmap.
+	const dayLabels = ['', '一', '', '三', '', '五', ''];
 
 	const countByDate = $derived(new Map(data.map((d) => [d.date, d.count])));
 	const weeks = $derived(buildWeeks(countByDate));
-	const totalCount = $derived(data.reduce((sum, d) => sum + d.count, 0));
 
 	// Label the first week-column of each new month.
 	const monthLabels = $derived(
@@ -75,37 +76,42 @@
 	);
 </script>
 
-<div class="viz-root">
-	<p class="mb-2 text-sm text-[var(--text-secondary)]">過去一年共 {totalCount} 次 commit</p>
-
-	<div class="overflow-x-auto pb-2">
+<div class="viz-root flex flex-col items-center">
+	<div class="flex w-full justify-center overflow-x-auto pb-2">
 		<div class="inline-flex flex-col gap-1">
-			<div class="grid grid-flow-col gap-[3px] pl-[3px] text-[10px] text-[var(--text-secondary)]">
+			<div class="flex gap-[4px] pl-[19px] text-[10px] text-ink-muted">
 				{#each monthLabels as label, i (i)}
-					<span class="w-[11px]">{label}</span>
+					<span class="w-[15px]">{label}</span>
 				{/each}
 			</div>
-			<div class="grid grid-flow-col gap-[3px]">
-				{#each weeks as week, wi (wi)}
-					<div class="grid grid-rows-7 gap-[3px]">
-						{#each week as day (day.date)}
-							<button
-								type="button"
-								class="cell size-[11px] rounded-sm level-{day.level}"
-								aria-label="{day.date}：{day.count} 次 commit"
-								title="{day.date}：{day.count} 次 commit"
-							></button>
-						{/each}
-					</div>
-				{/each}
+			<div class="flex gap-[4px]">
+				<div class="grid grid-rows-7 gap-[4px] text-[10px] text-ink-muted">
+					{#each dayLabels as label, i (i)}
+						<span class="flex h-[15px] w-[15px] items-center justify-end">{label}</span>
+					{/each}
+				</div>
+				<div class="grid grid-flow-col gap-[4px]">
+					{#each weeks as week, wi (wi)}
+						<div class="grid grid-rows-7 gap-[4px]">
+							{#each week as day (day.date)}
+								<button
+									type="button"
+									class="cell size-[15px] rounded-sm level-{day.level}"
+									aria-label="{day.date}：{day.count} 次 commit"
+									title="{day.date}：{day.count} 次 commit"
+								></button>
+							{/each}
+						</div>
+					{/each}
+				</div>
 			</div>
 		</div>
 	</div>
 
-	<div class="mt-1 flex items-center gap-1 text-xs text-[var(--text-secondary)]">
+	<div class="mt-1 flex items-center gap-1 self-end text-xs text-ink-muted">
 		<span>少</span>
 		{#each legendLevels as level (level)}
-			<span class="size-[11px] rounded-sm level-{level}"></span>
+			<span class="size-[13px] rounded-sm level-{level}"></span>
 		{/each}
 		<span>多</span>
 	</div>
@@ -113,12 +119,29 @@
 
 <style>
 	.viz-root {
-		--text-secondary: #52514e;
-		--level-0: #e1e0d9;
-		--level-1: #b7d3f6;
-		--level-2: #6da7ec;
-		--level-3: #2a78d6;
-		--level-4: #184f95;
+		--level-0: #ebedf0;
+		--level-1: #9be9a8;
+		--level-2: #40c463;
+		--level-3: #30a14e;
+		--level-4: #216e39;
+	}
+
+	:global([data-theme='dark']) .viz-root {
+		--level-0: #161b22;
+		--level-1: #0e4429;
+		--level-2: #006d32;
+		--level-3: #26a641;
+		--level-4: #39d353;
+	}
+
+	@media (prefers-color-scheme: dark) {
+		:global(:root:not([data-theme])) .viz-root {
+			--level-0: #161b22;
+			--level-1: #0e4429;
+			--level-2: #006d32;
+			--level-3: #26a641;
+			--level-4: #39d353;
+		}
 	}
 
 	.level-0 {
@@ -145,7 +168,7 @@
 
 	.cell:hover,
 	.cell:focus-visible {
-		outline: 2px solid var(--text-secondary);
+		outline: 2px solid var(--color-ink-muted);
 		outline-offset: 1px;
 	}
 </style>

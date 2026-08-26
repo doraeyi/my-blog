@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { mermaidDiagrams } from '$lib/actions/mermaid';
 	import type { ActionData, PageData } from './$types';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -12,7 +13,10 @@
 			{data.post.createdAt.toLocaleDateString('zh-TW')}
 		</p>
 
-		<section class="prose prose-sm mt-8 max-w-none sm:prose-base dark:prose-invert">
+		<section
+			class="prose prose-sm mt-8 max-w-none sm:prose-base dark:prose-invert"
+			use:mermaidDiagrams={data.bodyHtml}
+		>
 			<!-- eslint-disable-next-line svelte/no-at-html-tags -- bodyHtml is rendered via renderMarkdown() + rehype-sanitize, admin-authored content, never raw user input -->
 			{@html data.bodyHtml}
 		</section>

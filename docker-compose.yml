@@ -1,0 +1,24 @@
+services:
+  app:
+    build: .
+    image: ghcr.io/doraeyi/my-blog:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PORT=3000
+      - HOST=0.0.0.0
+      - DATABASE_URL=/data/local.db
+    volumes:
+      - ./data:/data
+    # No ports: published — cloudflared reaches it over the compose network by
+    # service name, nothing needs to be exposed on the VM's host interfaces.
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    depends_on:
+      - app

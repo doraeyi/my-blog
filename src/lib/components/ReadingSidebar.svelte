@@ -68,22 +68,22 @@
 >
 	{#if toc.length}
 		<div>
-			<div class="h-1 w-full overflow-hidden rounded-full bg-gray-100">
+			<div class="h-1 w-full overflow-hidden rounded-full bg-surface-alt">
 				<div
-					class="h-full rounded-full bg-blue-600 transition-all duration-150"
+					class="h-full rounded-full bg-accent transition-all duration-150"
 					style="width: {progress}%"
 				></div>
 			</div>
-			<p class="mt-1 text-xs text-gray-400">已閱讀 {progress}%</p>
+			<p class="mt-1 text-xs text-ink-muted">已閱讀 {progress}%</p>
 		</div>
 
-		<nav aria-label="目錄" class="flex flex-col gap-1 border-l border-gray-200 pl-3 text-sm">
+		<nav aria-label="目錄" class="flex flex-col gap-1 border-l border-border-case pl-3 text-sm">
 			{#each toc as item (item.id)}
 				<a
 					href="#{item.id}"
 					class="truncate transition {activeId === item.id
-						? 'font-medium text-gray-900'
-						: 'text-gray-500 hover:text-gray-700'}"
+						? 'font-medium text-ink'
+						: 'text-ink-muted hover:text-ink'}"
 					style="padding-left: {(item.level - minLevel) * 0.75}rem"
 				>
 					{item.text}
@@ -93,7 +93,7 @@
 			{#each extraLinks as link (link.href)}
 				<a
 					href={link.href}
-					class="mt-1 border-t border-gray-100 pt-2 text-gray-500 hover:text-gray-700"
+					class="mt-1 border-t border-border-case pt-2 text-ink-muted hover:text-ink"
 				>
 					{link.label}
 				</a>
@@ -103,7 +103,7 @@
 	{/if}
 
 	{#if children}
-		<div class="flex flex-col gap-2 border-t border-gray-100 pt-4">
+		<div class="flex flex-col gap-2 border-t border-border-case pt-4">
 			{@render children()}
 		</div>
 	{/if}

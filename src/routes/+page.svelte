@@ -4,29 +4,33 @@
 	import DossierPanel from '$lib/components/DossierPanel.svelte';
 	import Sparkles from '@lucide/svelte/icons/sparkles';
 	import Mail from '@lucide/svelte/icons/mail';
-	import Rss from '@lucide/svelte/icons/rss';
 	import profilePhoto from '$lib/assets/profile.png';
 	import logo from '$lib/assets/logo.png';
 
-	// Placeholder content — swap tagline/description/links in once finalized.
 	const name = 'Liam';
 	const tagline = 'meaningful products';
 	const description = 'A FULL-STACK ENGINEER BUILDING THINGS FOR THE WEB.';
 
-	// Placeholder profile fields — swap in real bio + photo later.
 	const profileFields = [
-		{ label: 'Name', value: 'LIAM CHEN' },
-		{ label: 'Role', value: 'FULL-STACK ENGINEER' },
-		{ label: 'Location', value: 'TAIPEI, TW' },
-		{ label: 'Status', value: 'ACTIVE // OPEN TO WORK' },
+		{ label: 'Name', value: '李俊逸' },
+		{ label: 'Role', value: '前端工程師' },
+		{ label: 'Company', value: 'MSI 微星科技' },
+		{ label: 'Status', value: '在職中' },
 		{ label: 'Specialty', value: 'SVELTE / TYPESCRIPT / SYSTEM DESIGN' }
 	];
 
 	const socialLinks = [
-		{ name: 'GitHub', href: '#', icon: 'github' as const },
-		{ name: 'LinkedIn', href: '#', icon: 'linkedin' as const },
-		{ name: 'Instagram', href: '#', icon: 'instagram' as const },
-		{ name: 'Facebook', href: '#', icon: 'facebook' as const }
+		{ name: 'GitHub', href: 'https://github.com/doraeyi', icon: 'github' as const },
+		{
+			name: 'Instagram',
+			href: 'https://www.instagram.com/doraemonliam?igsi=MTUybW80NjNpZGJwNw%3D%3D&utm_source=qr',
+			icon: 'instagram' as const
+		},
+		{
+			name: 'Facebook',
+			href: 'https://www.facebook.com/share/1BpqdfKrbG/?mibextid=wwXIfr',
+			icon: 'facebook' as const
+		}
 	];
 
 	const greeting = `Hi, I'm ${name}`;
@@ -89,7 +93,7 @@
 
 		<div class="mt-8 flex gap-3">
 			{#each socialLinks as link (link.name)}
-				<!-- eslint-disable svelte/no-navigation-without-resolve -- placeholder external social links, not app routes -->
+				<!-- eslint-disable svelte/no-navigation-without-resolve -- external social links, not app routes -->
 				<a
 					href={link.href}
 					aria-label={link.name}
@@ -100,21 +104,12 @@
 				<!-- eslint-enable svelte/no-navigation-without-resolve -->
 			{/each}
 			<a
-				href="mailto:you@example.com"
+				href="mailto:ch855118@gmail.com"
 				aria-label="Email"
 				class="flex size-10 items-center justify-center rounded-full border border-border-case text-ink-muted transition hover:border-case-400 hover:bg-surface-alt hover:text-ink"
 			>
 				<Mail class="size-4" />
 			</a>
-			<!-- eslint-disable svelte/no-navigation-without-resolve -- placeholder until the RSS feed route exists -->
-			<a
-				href="/rss.xml"
-				aria-label="RSS"
-				class="flex size-10 items-center justify-center rounded-full border border-border-case text-ink-muted transition hover:border-case-400 hover:bg-surface-alt hover:text-ink"
-			>
-				<Rss class="size-4" />
-			</a>
-			<!-- eslint-enable svelte/no-navigation-without-resolve -->
 		</div>
 	</div>
 </section>
