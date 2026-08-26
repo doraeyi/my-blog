@@ -19,6 +19,18 @@ COPY . .
 # content-toolkit is a workspace dep of the app — must be built before `vite build`
 # resolves its dist/ output.
 RUN pnpm --filter @doraeyi/content-toolkit build
+
+# `vite build` runs SvelteKit's postbuild analyse step, which actually imports
+# server modules — $lib/server/db throws at import time if DATABASE_URL is
+# unset, and auth.ts (which imports db) constructs a betterAuth() instance at
+# module scope. None of these open real connections during analyse, they just
+# need to be set to *something* so the modules don't crash the build. Real
+# values come from docker-compose's env_file at runtime, not from here.
+ENV DATABASE_URL=/tmp/build-placeholder.db
+ENV ORIGIN=http://localhost:3000
+ENV BETTER_AUTH_SECRET=build-placeholder-not-used-at-runtime
+ENV GITHUB_CLIENT_ID=build-placeholder
+ENV GITHUB_CLIENT_SECRET=build-placeholder
 RUN pnpm build
 
 # ---- runtime ----
