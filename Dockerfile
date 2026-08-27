@@ -49,5 +49,13 @@ COPY --from=build /repo/packages/content-toolkit/dist ./packages/content-toolkit
 COPY --from=build /repo/packages/content-toolkit/package.json ./packages/content-toolkit/package.json
 COPY --from=build /repo/build ./build
 COPY --from=build /repo/package.json ./package.json
+# Needed at container startup, not at build time — drizzle-kit reads these to apply
+# any pending migrations against the real DATABASE_URL before the server starts.
+COPY --from=build /repo/drizzle ./drizzle
+COPY --from=build /repo/drizzle.config.ts ./drizzle.config.ts
 
-CMD ["node", "build/index.js"]
+# Applies any pending migrations against the mounted SQLite file before starting the
+# server, so a new schema (like this repo's drizzle/*.sql) always lands in production
+# without a manual migrate step. If migrate fails the container exits instead of
+# serving against a stale schema.
+CMD ["sh", "-c", "node_modules/.bin/drizzle-kit migrate && node build/index.js"]
