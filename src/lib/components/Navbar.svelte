@@ -16,6 +16,7 @@
 	import FolderGit2 from '@lucide/svelte/icons/folder-git-2';
 	import Feather from '@lucide/svelte/icons/feather';
 	import FilePen from '@lucide/svelte/icons/file-pen';
+	import Clapperboard from '@lucide/svelte/icons/clapperboard';
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 
 	let { user }: { user?: { name: string; role?: string | null } } = $props();
@@ -47,6 +48,7 @@
 			icon: LayoutGrid,
 			items: [
 				{ label: '作品集', href: resolve('/portfolio'), icon: FolderGit2 },
+				{ label: '追劇紀錄', href: resolve('/watch'), icon: Clapperboard },
 				{ label: '聯絡我', href: '#contact', icon: Mail },
 				{ label: '追蹤 RSS', href: '/rss.xml', icon: Rss }
 			]

@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
+import { integer, real, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 import { user } from './auth.schema';
 
 export const comment = sqliteTable('comment', {
@@ -136,6 +136,61 @@ export const post = sqliteTable(
 
 export const postRelations = relations(post, ({ one }) => ({
 	author: one(user, { fields: [post.authorId], references: [user.id] })
+}));
+
+export const watchItem = sqliteTable(
+	'watch_item',
+	{
+		id: text('id')
+			.primaryKey()
+			.$defaultFn(() => crypto.randomUUID()),
+		tmdbId: integer('tmdb_id').notNull(),
+		mediaType: text('media_type', { enum: ['movie', 'tv'] }).notNull(),
+		title: text('title').notNull(),
+		overview: text('overview'),
+		posterPath: text('poster_path'),
+		backdropPath: text('backdrop_path'),
+		releaseDate: text('release_date'),
+		voteAverage: real('vote_average'),
+		status: text('status', { enum: ['watching', 'watched'] })
+			.notNull()
+			.default('watching'),
+		currentSeason: integer('current_season'),
+		currentEpisode: integer('current_episode'),
+		totalSeasons: integer('total_seasons'),
+		totalEpisodes: integer('total_episodes'),
+		watchedAt: integer('watched_at', { mode: 'timestamp' }),
+		createdAt: integer('created_at', { mode: 'timestamp' })
+			.notNull()
+			.$defaultFn(() => new Date())
+	},
+	(t) => [uniqueIndex('watch_item_tmdb_idx').on(t.tmdbId, t.mediaType)]
+);
+
+export const watchItemCast = sqliteTable(
+	'watch_item_cast',
+	{
+		id: text('id')
+			.primaryKey()
+			.$defaultFn(() => crypto.randomUUID()),
+		watchItemId: text('watch_item_id')
+			.notNull()
+			.references(() => watchItem.id, { onDelete: 'cascade' }),
+		tmdbPersonId: integer('tmdb_person_id').notNull(),
+		name: text('name').notNull(),
+		character: text('character'),
+		profilePath: text('profile_path'),
+		sortOrder: integer('sort_order').notNull().default(0)
+	},
+	(t) => [uniqueIndex('watch_item_cast_idx').on(t.watchItemId, t.tmdbPersonId)]
+);
+
+export const watchItemRelations = relations(watchItem, ({ many }) => ({
+	cast: many(watchItemCast)
+}));
+
+export const watchItemCastRelations = relations(watchItemCast, ({ one }) => ({
+	item: one(watchItem, { fields: [watchItemCast.watchItemId], references: [watchItem.id] })
 }));
 
 export * from './auth.schema';
