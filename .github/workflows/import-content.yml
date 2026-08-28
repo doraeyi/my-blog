@@ -1,0 +1,25 @@
+name: Import content (one-off)
+
+# Manual-only: seeds production's database from a base64-encoded dump stored
+# in the IMPORT_CONTENT_B64 secret. Runs on the self-hosted runner (the VM
+# itself), so it reaches the running container directly — no SSH/scp needed.
+# Delete this workflow (and the secret) once the import is done.
+on:
+  workflow_dispatch:
+
+jobs:
+  import:
+    runs-on: self-hosted
+    steps:
+      - name: Decode and run import against the live container
+        env:
+          IMPORT_CONTENT_B64: ${{ secrets.IMPORT_CONTENT_B64 }}
+        run: |
+          set -euo pipefail
+          if [ -z "${IMPORT_CONTENT_B64:-}" ]; then
+            echo "IMPORT_CONTENT_B64 secret is not set" >&2
+            exit 1
+          fi
+          echo "$IMPORT_CONTENT_B64" | base64 -d > /tmp/import-content.cjs
+          docker exec -i my-blog-app-1 node < /tmp/import-content.cjs
+          rm -f /tmp/import-content.cjs
