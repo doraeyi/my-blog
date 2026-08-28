@@ -25,6 +25,11 @@ services:
       - 'traefik.http.routers.my-blog.rule=Host(`doraeyi.com`)'
       - 'traefik.http.routers.my-blog.entrypoints=web'
       - 'traefik.http.services.my-blog.loadbalancer.server.port=3000'
+      # This container is on two networks (default + web) — without this,
+      # Traefik can pick either one when resolving the container's IP, and
+      # picking `default` (which Traefik itself isn't attached to) means
+      # every request times out instead of connecting.
+      - 'traefik.docker.network=web'
 
 networks:
   # Pre-existing network the VM's standalone Traefik container is attached
