@@ -11,8 +11,23 @@ services:
       - DATABASE_URL=/data/local.db
     volumes:
       - ./data:/data
-    # Bound to localhost only — reached by the VM's existing host-level
-    # cloudflared process (same tunnel already serving gitstats/streak/activity),
-    # not exposed to the network. No separate cloudflared container here.
+    # Still published for local/debugging access on the VM itself — actual
+    # public traffic reaches this container through Traefik (see labels
+    # below), which routes by Host header over the `web` network, not
+    # through this port.
     ports:
       - '127.0.0.1:3000:3000'
+    networks:
+      - default
+      - web
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.my-blog.rule=Host(`doraeyi.com`)'
+      - 'traefik.http.routers.my-blog.entrypoints=web'
+      - 'traefik.http.services.my-blog.loadbalancer.server.port=3000'
+
+networks:
+  # Pre-existing network the VM's standalone Traefik container is attached
+  # to — created outside this compose project, so it's referenced, not owned.
+  web:
+    external: true
