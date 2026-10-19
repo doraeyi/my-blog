@@ -48,7 +48,16 @@ export async function syncProject(id: string) {
 	const [meta, readmeSource, collaborators, dailyCounts] = await Promise.all([
 		github.fetchRepoMeta(githubOwner, githubRepo),
 		github.fetchReadme(githubOwner, githubRepo).catch(() => ''),
-		github.fetchCollaborators(githubOwner, githubRepo),
+		// The collaborators endpoint needs an authenticated token even for public
+		// repos; without one, fall back to just the owner instead of failing the sync.
+		github.fetchCollaborators(githubOwner, githubRepo).catch(() => [
+			{
+				githubUsername: githubOwner,
+				avatarUrl: `https://github.com/${githubOwner}.png`,
+				profileUrl: `https://github.com/${githubOwner}`,
+				role: 'owner' as const
+			}
+		]),
 		github.fetchCommitDailyCounts(githubOwner, githubRepo, env.GITHUB_USERNAME)
 	]);
 
