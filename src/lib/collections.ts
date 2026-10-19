@@ -1,0 +1,39 @@
+/**
+ * Hand-maintained collections behind /setup and /bookshelf. Both pages render a
+ * tidy empty state until these have entries — fill them in whenever.
+ */
+
+export interface GearGroup {
+	name: string;
+	/** One-line flavour text under the group name. */
+	tagline?: string;
+	items: { name: string; spec?: string; note?: string }[];
+}
+
+// Example:
+// { name: '主力機', tagline: '每天寫 code 的那台', items: [{ name: 'MacBook Pro 14"', spec: 'M3 Pro / 36GB' }] }
+export const gear: GearGroup[] = [];
+
+export type BookStatus = 'read' | 'reading' | 'want';
+
+export interface Book {
+	title: string;
+	author: string;
+	status: BookStatus;
+	/** 1–5; leave out if unrated. */
+	rating?: number;
+	/** Cover image URL; without one the card draws a coloured spine instead. */
+	cover?: string;
+	/** A line or two of what stuck with you. */
+	note?: string;
+}
+
+// Example:
+// { title: '原子習慣', author: 'James Clear', status: 'read', rating: 4 }
+export const books: Book[] = [];
+
+export const bookStatusLabel: Record<BookStatus, string> = {
+	read: '已讀',
+	reading: '閱讀中',
+	want: '想讀'
+};

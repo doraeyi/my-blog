@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-19T18:00:00+08:00",
+  "title": "Design System: Liam's Case-File Cabinet",
+  "extensions": {
+    "colorMeta": {
+      "case-50": { "role": "neutral", "displayName": "Case Paper", "canonical": "#fdfaf3", "tonalRamp": ["#120d0a", "#2c2118", "#4a3925", "#6b5336", "#8a6d45", "#a3865a", "#c2a877", "#dcc89a", "#ecdfbd", "#f7efd9", "#fdfaf3"] },
+      "case-100": { "role": "neutral", "displayName": "Manila Wash", "canonical": "#f7efd9" },
+      "case-300": { "role": "neutral", "displayName": "Folder Edge", "canonical": "#dcc89a" },
+      "case-600": { "role": "neutral", "displayName": "Faded Ink", "canonical": "#8a6d45" },
+      "case-900": { "role": "neutral", "displayName": "Carbon Ink", "canonical": "#2c2118" },
+      "case-950": { "role": "neutral", "displayName": "Warm Night Ink", "canonical": "#120d0a" },
+      "cream-100": { "role": "neutral", "displayName": "Lamplit Cream", "canonical": "#f4ead2" },
+      "stamp-500": { "role": "primary", "displayName": "Rubber-Stamp Red", "canonical": "#b3362b", "tonalRamp": ["#74211a", "#922a21", "#b3362b", "#cf5a4c", "#e28277", "#f0b3ac", "#f9d9d5", "#fdf1ef"] },
+      "stamp-600": { "role": "primary", "displayName": "Pressed Stamp", "canonical": "#922a21" },
+      "stamp-night": { "role": "primary", "displayName": "Night Stamp", "canonical": "#e2574a" },
+      "stamp-night-strong": { "role": "primary", "displayName": "Night Stamp Strong", "canonical": "#f2795e" },
+      "phosphor-300": { "role": "secondary", "displayName": "Lamp Amber", "canonical": "#ffd98a", "tonalRamp": ["#b9860a", "#f0b429", "#ffd98a"] },
+      "phosphor-400": { "role": "secondary", "displayName": "Lamp Amber Deep", "canonical": "#f0b429" },
+      "phosphor-600": { "role": "secondary", "displayName": "Lamp Amber Burnt", "canonical": "#b9860a" },
+      "desk-manila": { "role": "tertiary", "displayName": "Manila", "canonical": "#d4ad6e", "tonalRamp": ["#3a2c14", "#5e4721", "#87683a", "#b08a52", "#d4ad6e", "#e2c48f", "#eed9b3", "#f8eedb"] },
+      "desk-paper": { "role": "tertiary", "displayName": "Pulled Manila", "canonical": "#f2e7cf" },
+      "manila-guide": { "role": "tertiary", "displayName": "Guide-Card Manila", "canonical": "#c9a465" },
+      "index-stock": { "role": "tertiary", "displayName": "Index Stock", "canonical": "#f8f1df", "tonalRamp": ["#e7dbc0", "#f8f1df"] },
+      "index-stock-night": { "role": "tertiary", "displayName": "Index Stock (dark theme)", "canonical": "#e7dbc0" },
+      "index-rule": { "role": "tertiary", "displayName": "Index Ruling", "canonical": "rgba(90, 130, 170, 0.18)" },
+      "note-yellow": { "role": "tertiary", "displayName": "Sticky-Note Yellow", "canonical": "#f3dc8a" },
+      "brass": { "role": "tertiary", "displayName": "Brass", "canonical": "#b8904f", "tonalRamp": ["#6b4f22", "#8a6a36", "#b8904f", "#d9b26a", "#f3d59a"] },
+      "brass-deep": { "role": "tertiary", "displayName": "Brass Shadow", "canonical": "#8a6a36" },
+      "desk-leather": { "role": "tertiary", "displayName": "Green Leather Blotter (3D only)", "canonical": "#1d5a43" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Typewriter Display", "purpose": "Hero name; types itself in." },
+      "headline": { "displayName": "Case Title", "purpose": "PageHeader titles (clip-path type-in) and prose h1-h3." },
+      "title": { "displayName": "Section Title", "purpose": "Home section headings in the display face." },
+      "card-title": { "displayName": "Card Head", "purpose": "Index-card heads and nav index-card headings." },
+      "tab": { "displayName": "Tab Label", "purpose": "Cabinet tabs (vertical-rl, upright) and blog guide tabs." },
+      "body": { "displayName": "Body", "purpose": "Excerpts, notes, testimony, descriptions in system sans." },
+      "label": { "displayName": "Typed Data", "purpose": "Date stamps, counts, card notes, inquiry labels, month guides in Share Tech Mono." }
+    },
+    "shadows": [
+      { "name": "card-rest", "value": "0 1px 0 rgba(255,255,255,0.6) inset, 0 18px 40px -18px rgba(20,12,6,0.55)", "purpose": "Every index card at rest." },
+      { "name": "card-pulled", "value": "0 1px 0 rgba(255,255,255,0.6) inset, 0 30px 40px -22px rgba(20,12,6,0.65)", "purpose": "Blog catalog card pulled out on hover; fanned home cards use 0 36px 50px -24px rgba(20,12,6,0.6)." },
+      { "name": "manila-tab", "value": "0 1px 0 rgba(255,255,255,0.35) inset, 0 6px 14px -8px rgba(44,33,24,0.55)", "purpose": "Cabinet tabs and the case label." },
+      { "name": "phone-tab", "value": "0 -8px 20px -10px rgba(44,33,24,0.6)", "purpose": "The phone '檔案' tab casting upward." },
+      { "name": "drawer-recess", "value": "inset 0 14px 18px -12px rgba(0,0,0,0.35), inset 0 -1px 0 rgba(255,255,255,0.05)", "purpose": "Blog drawer interior." },
+      { "name": "brass-frame", "value": "0 0 0 3px #b8904f, 0 0 0 4px #8a6a36, 0 8px 16px -8px rgba(0,0,0,0.5)", "purpose": "Footer label holder." },
+      { "name": "sticky-note", "value": "0 14px 24px -14px rgba(40,25,5,0.55)", "purpose": "Home sticky notes." },
+      { "name": "envelope", "value": "0 20px 40px -24px rgba(20,12,6,0.6)", "purpose": "Home contact envelope." },
+      { "name": "stamp-lift", "value": "0 8px 20px -8px color-mix(in srgb, var(--color-accent) 35%, transparent)", "purpose": "Legacy .case-card hover, with 2px rise and accent border." },
+      { "name": "lamp-halo", "value": "0 0 0 5px color-mix(in srgb, var(--color-accent) 12%, transparent), 0 10px 20px -10px color-mix(in srgb, var(--color-accent) 60%, transparent)", "purpose": "Round icon button hover." },
+      { "name": "ink-button", "value": "0 10px 24px -12px rgba(0,0,0,0.6)", "purpose": "Envelope mail button." }
+    ],
+    "motion": [
+      { "name": "ease-expo-out", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Entrances (rise+blur 0.8s), tab slide (0.35s), card pull (0.35-0.45s), file-in (0.6s), thread draw (1.6s), tilt settle." },
+      { "name": "stamp-press", "value": "0.45s at 0.95s delay, cubic-bezier(0.2, 0.9, 0.3, 1.2); scale 2.1 -> 0.96 -> 1, rotate -18deg -> -9deg", "purpose": "PageHeader rubber stamp coming down after the title." },
+      { "name": "title-type-in", "value": "0.9s steps(14, end) clip-path inset reveal", "purpose": "PageHeader title." },
+      { "name": "index-card-fly", "value": "in fly x:-16 260ms cubicOut; out x:-10 120ms; close delay 160ms", "purpose": "Drawer index card sliding out beside a cabinet tab." },
+      { "name": "file-in", "value": "translateY(28px) -> 0, 0.6s expo-out, delay n*70ms + 200ms (n capped at 8)", "purpose": "Blog catalog cards filing into the drawer." },
+      { "name": "spring-lift", "value": "cubic-bezier(0.25, 1.35, 0.5, 1)", "purpose": "Round icon button lift (0.35s) and icon wobble (0.45s)." },
+      { "name": "spring-magnetic", "value": "cubic-bezier(0.34, 1.56, 0.64, 1)", "purpose": "Magnetic envelope buttons release (0.7s)." },
+      { "name": "page-rack-focus", "value": "out 0.22s blur(6px) translateY(-8px) scale(.99); in 0.28s from blur(8px) translateY(10px) scale(1.01)", "purpose": "View Transitions page change." },
+      { "name": "lamp-flicker", "value": "off 350ms, 0.7, 0.1, 0.9, 0.3, ramp to 1 by ~940ms", "purpose": "Hero desk lamp intro; cover opens at 800ms." },
+      { "name": "reveal", "value": "opacity + translateY(8-24px) 0.5s ease, 80-90ms stagger", "purpose": "Scroll-in for home sections and objects." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px", "note": "Cabinet tabs and case label appear; phone '檔案' tab hides." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Cabinet Tab with Index Card",
+      "kind": "nav",
+      "refersTo": "cabinet-tab",
+      "description": "Vertical manila index tab on the left edge; hover pulls it out and slides the drawer's ruled index card beside it.",
+      "html": "<nav class=\"ds-cabinet\"><div class=\"ds-drawer\"><a class=\"ds-tab\" href=\"#\">封面</a></div><div class=\"ds-drawer\"><a class=\"ds-tab is-active\" href=\"#\">案件簿</a><div class=\"ds-nav-card\"><p class=\"ds-nav-card-head\"><span>案件簿</span><small>2 份</small></p><a class=\"ds-line\" href=\"#\"><b>全部案件</b><i>所有寫下的東西，依時間歸檔</i></a><a class=\"ds-line\" href=\"#\"><b>標籤索引</b><i>依線索分類</i></a><span class=\"ds-punch\"></span></div></div><div class=\"ds-drawer\"><a class=\"ds-tab\" href=\"#\">證詞</a></div></nav>",
+      "css": ".ds-cabinet { display: flex; flex-direction: column; gap: 6px; padding: 8px 0; } .ds-drawer { position: relative; } .ds-tab { display: block; width: max-content; writing-mode: vertical-rl; text-orientation: upright; letter-spacing: 0.2em; font-family: 'Special Elite', 'LXGW WenKai TC', ui-monospace, monospace; font-size: 0.9rem; padding: 0.9rem 0.55rem 0.9rem 0.75rem; border-radius: 0 6px 6px 0; background: #d4ad6e; color: #2c2118; text-decoration: none; box-shadow: 0 1px 0 rgba(255,255,255,0.35) inset, 0 6px 14px -8px rgba(44,33,24,0.55); transform: translateX(-10px); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); } .ds-tab:hover, .ds-tab:focus-visible { transform: translateX(0); } .ds-tab:focus-visible { outline: 2px solid var(--color-accent, #b3362b); outline-offset: 3px; } .ds-tab.is-active { position: relative; transform: translateX(4px); background: #f2e7cf; } .ds-tab.is-active::after { content: ''; position: absolute; left: 0.25rem; top: 50%; width: 5px; height: 5px; border-radius: 50%; background: #b3362b; transform: translateY(-50%); } .ds-nav-card { position: absolute; top: 0; left: calc(100% + 8px); width: 16rem; padding: 1rem 1.25rem 1.25rem; border-radius: 4px; background: repeating-linear-gradient(to bottom, transparent 0, transparent 27px, rgba(90,130,170,0.18) 27px, rgba(90,130,170,0.18) 28px), #f8f1df; color: #2c2118; box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 18px 40px -18px rgba(20,12,6,0.55); } .ds-nav-card-head { display: flex; justify-content: space-between; align-items: baseline; margin: 0; padding-bottom: 0.5rem; border-bottom: 2px solid color-mix(in srgb, #cf5a4c 70%, transparent); font-family: 'Special Elite', 'LXGW WenKai TC', monospace; font-size: 1.125rem; } .ds-nav-card-head small { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; color: #8a6d45; } .ds-line { display: block; padding: 0.5rem 0; text-decoration: none; transition: transform 0.2s ease; } .ds-line:hover { transform: translateX(4px); } .ds-line b { display: block; font-size: 0.875rem; font-weight: 500; color: #2c2118; } .ds-line:hover b { color: #922a21; } .ds-line i { display: block; font-style: normal; font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; color: #8a6d45; } .ds-punch { position: absolute; left: 50%; bottom: 8px; width: 12px; height: 12px; border-radius: 50%; transform: translateX(-50%); background: var(--color-surface-alt, #f7efd9); box-shadow: inset 0 1px 2px rgba(0,0,0,0.35); } @media (prefers-reduced-motion: reduce) { .ds-tab, .ds-line { transition: none; } }"
+    },
+    {
+      "name": "Case-File Cover (Page Header)",
+      "kind": "custom",
+      "refersTo": "page-stamp",
+      "description": "Left-aligned typed title with a paper clip, a rubber stamp that presses down after it, and a perforation line.",
+      "html": "<header class=\"ds-cover\"><div class=\"ds-cover-row\"><svg class=\"ds-clip\" viewBox=\"0 0 20 48\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"M6 44V10a4 4 0 0 1 8 0v30a6 6 0 0 1-12 0V8a8 8 0 0 1 16 0v28\"/></svg><h1><span class=\"ds-title-ink\">參考卷宗</span></h1><span class=\"ds-stamp\">館藏</span></div><p>讀過的、正在讀的、還在清單上的。</p><span class=\"ds-perf\"></span></header>",
+      "css": ".ds-cover { padding: 2.5rem 1rem 1.5rem 2rem; } .ds-cover-row { position: relative; display: inline-block; padding-right: 9rem; } .ds-clip { position: absolute; top: -1.5rem; left: -1.75rem; width: 1.25rem; height: 3rem; color: #a3865a; } .ds-cover h1 { margin: 0; font-family: 'Special Elite', 'LXGW WenKai TC', ui-monospace, monospace; font-weight: 400; font-size: 3rem; line-height: 1.25; color: var(--color-ink, #2c2118); } .ds-title-ink { display: inline-block; animation: ds-type 0.9s steps(14, end) both; } .ds-stamp { position: absolute; right: 0; top: 50%; padding: 0.15rem 0.6rem; border: 3px double var(--color-accent, #b3362b); border-radius: 4px; color: var(--color-accent, #b3362b); font-family: 'Special Elite', 'LXGW WenKai TC', monospace; font-size: 1.1rem; letter-spacing: 0.25em; white-space: nowrap; opacity: 0.85; transform: translateY(-50%) rotate(-9deg); animation: ds-stamp 0.45s 0.95s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; } .ds-cover p { margin: 1rem 0 0; max-width: 42rem; font-size: 1rem; line-height: 1.625; color: var(--color-ink-muted, #8a6d45); } .ds-perf { display: block; margin-top: 2rem; height: 2px; background-image: radial-gradient(circle, var(--color-border-case, #dcc89a) 1.2px, transparent 1.6px); background-size: 10px 2px; background-repeat: repeat-x; } @keyframes ds-type { from { clip-path: inset(-0.4em 100% -0.4em -0.2em); } 99% { clip-path: inset(-0.4em -0.2em -0.4em -0.2em); } to { clip-path: none; } } @keyframes ds-stamp { 0% { opacity: 0; transform: translateY(-50%) rotate(-18deg) scale(2.1); } 70% { opacity: 0.95; transform: translateY(-50%) rotate(-8deg) scale(0.96); } 100% { opacity: 0.85; transform: translateY(-50%) rotate(-9deg) scale(1); } } @media (prefers-reduced-motion: reduce) { .ds-title-ink, .ds-stamp { animation: none; } }"
+    },
+    {
+      "name": "Index Card",
+      "kind": "card",
+      "refersTo": "index-card",
+      "description": "Ruled cream card with a stamp-red head rule, red date stamp and punch hole; pulls up out of the drawer on hover.",
+      "html": "<article class=\"ds-index-card\"><div class=\"ds-ic-head\"><h2><a href=\"#\">用 SvelteKit 打造個人部落格</a></h2><span class=\"ds-date-stamp\">2026.07.18</span></div><p class=\"ds-ic-meta\">技術文章 · #sveltekit #design</p><p class=\"ds-ic-excerpt\">這篇文章記錄一些架構決定，以及為什麼最後選了這樣做。</p><span class=\"ds-punch\"></span></article>",
+      "css": ".ds-index-card { position: relative; max-width: 36rem; padding: 1rem 1.75rem 1.75rem; border-radius: 4px; background: repeating-linear-gradient(to bottom, transparent 0, transparent 27px, rgba(90,130,170,0.18) 27px, rgba(90,130,170,0.18) 28px), #f8f1df; color: #2c2118; box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 18px 40px -18px rgba(20,12,6,0.55); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease; } .ds-index-card:hover { transform: translateY(-14px) rotate(-0.4deg); box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 30px 40px -22px rgba(20,12,6,0.65); } .ds-ic-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid color-mix(in srgb, #cf5a4c 60%, transparent); } .ds-ic-head h2 { margin: 0; font-family: 'Special Elite', 'LXGW WenKai TC', monospace; font-weight: 400; font-size: 1.25rem; line-height: 1.375; } .ds-ic-head a { color: #2c2118; text-decoration: none; } .ds-ic-head a::after { content: ''; position: absolute; inset: 0; } .ds-ic-head a:focus-visible { outline: 2px solid #b3362b; outline-offset: 3px; } .ds-date-stamp { flex-shrink: 0; display: inline-block; padding: 0.1rem 0.45rem; border: 1.5px solid #b3362b; border-radius: 3px; color: #b3362b; font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em; transform: rotate(-4deg); opacity: 0.85; } .ds-ic-meta { margin: 0.5rem 0 0; font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; color: #8a6d45; } .ds-ic-excerpt { margin: 0.5rem 0 0; font-size: 0.875rem; line-height: 1.75; color: #4a3925; } .ds-punch { position: absolute; left: 50%; bottom: 8px; width: 12px; height: 12px; border-radius: 50%; transform: translateX(-50%); background: var(--color-surface-alt, #f7efd9); box-shadow: inset 0 1px 2px rgba(0,0,0,0.35); } @media (prefers-reduced-motion: reduce) { .ds-index-card { transition: none; } .ds-index-card:hover { transform: none; } }"
+    },
+    {
+      "name": "Drawer with Guide Tabs",
+      "kind": "custom",
+      "refersTo": "guide-tab",
+      "description": "Category guide tabs standing out of a recessed drawer, with a month guide card whose tab carries the month.",
+      "html": "<div class=\"ds-guides\"><a class=\"ds-guide-tab is-on\" href=\"#\">全部 <small>42</small></a><a class=\"ds-guide-tab\" href=\"#\">技術文章 <small>18</small></a><a class=\"ds-guide-tab\" href=\"#\">心情 <small>9</small></a></div><div class=\"ds-drawer-box\"><div class=\"ds-guide-card\"><span class=\"ds-guide-label\">2026 · 07</span></div><div class=\"ds-drawer-card\">用 SvelteKit 打造個人部落格</div></div>",
+      "css": ".ds-guides { display: flex; align-items: flex-end; gap: 4px; padding: 0 8px; } .ds-guide-tab { position: relative; top: 1px; padding: 0.45rem 0.9rem 0.35rem; border: 1px solid var(--color-border-case, #dcc89a); border-bottom: 0; border-radius: 6px 6px 0 0; background: color-mix(in srgb, #d4ad6e 55%, var(--color-surface-alt, #f7efd9)); color: #2c2118; font-family: 'Special Elite', 'LXGW WenKai TC', monospace; font-size: 0.9rem; text-decoration: none; transform: translateY(6px); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); } .ds-guide-tab small { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; opacity: 0.7; } .ds-guide-tab:hover { transform: translateY(2px); } .ds-guide-tab.is-on { background: #d4ad6e; transform: translateY(0); } .ds-guide-tab:focus-visible { outline: 2px solid var(--color-accent, #b3362b); outline-offset: 3px; } .ds-drawer-box { padding: 2.25rem 1.5rem 2rem; border: 1px solid var(--color-border-case, #dcc89a); border-top: 0; border-radius: 0 0 8px 8px; background: var(--color-surface-alt, #f7efd9); box-shadow: inset 0 14px 18px -12px rgba(0,0,0,0.35), inset 0 -1px 0 rgba(255,255,255,0.05); } .ds-guide-card { position: relative; height: 0.9rem; margin-bottom: -0.2rem; border-radius: 3px 3px 0 0; background: #c9a465; } .ds-guide-label { position: absolute; bottom: 100%; left: 1.25rem; padding: 0.2rem 0.75rem; border-radius: 5px 5px 0 0; background: #c9a465; color: #2c2118; font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; letter-spacing: 0.15em; } .ds-drawer-card { position: relative; padding: 1rem 1.5rem; border-radius: 4px; background: #f8f1df; color: #2c2118; font-family: 'Special Elite', 'LXGW WenKai TC', monospace; box-shadow: 0 18px 40px -18px rgba(20,12,6,0.55); }"
+    },
+    {
+      "name": "Inquiry Form Field",
+      "kind": "input",
+      "refersTo": "input-inquiry",
+      "description": "Typed form line: mono label, dashed underline field, accent on focus; sorts as plain words with an accent underline.",
+      "html": "<div class=\"ds-inquiry\"><label class=\"ds-inq-row\"><span>查詢：</span><input type=\"search\" placeholder=\"標題、內容或線索…\" /></label><p class=\"ds-inq-row\"><span>排序：</span><a class=\"is-on\" href=\"#\">最新</a> / <a href=\"#\">最舊</a> / <a href=\"#\">最常被翻閱</a></p><p class=\"ds-inq-row\"><span>線索：</span><a class=\"ds-clue is-on\" href=\"#\">#svelte</a><a class=\"ds-clue\" href=\"#\">#css</a></p></div>",
+      "css": ".ds-inquiry { display: grid; gap: 1rem; font-family: 'Share Tech Mono', ui-monospace, monospace; font-size: 0.875rem; color: var(--color-ink-muted, #8a6d45); } .ds-inq-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 0.75rem; margin: 0; } .ds-inq-row > span { letter-spacing: 0.1em; } .ds-inquiry input { flex: 1; min-width: 12rem; border: 0; border-bottom: 1px dashed var(--color-border-case, #dcc89a); background: transparent; padding: 0.25rem 0; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 1rem; color: var(--color-ink, #2c2118); outline: none; transition: border-color 0.15s; } .ds-inquiry input:focus { border-bottom-color: var(--color-accent, #b3362b); } .ds-inq-row a { color: inherit; text-decoration: none; text-underline-offset: 4px; } .ds-inq-row a:hover { color: var(--color-ink, #2c2118); } .ds-inq-row a.is-on:not(.ds-clue) { color: var(--color-ink, #2c2118); text-decoration: underline 2px var(--color-accent, #b3362b); } .ds-clue.is-on { color: var(--color-accent, #b3362b); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--color-accent, #b3362b) 60%, transparent); } .ds-inq-row a:focus-visible { outline: 2px solid var(--color-accent, #b3362b); outline-offset: 3px; }"
+    },
+    {
+      "name": "Tool Button",
+      "kind": "button",
+      "refersTo": "tool-button",
+      "description": "Small stamped square for search, theme and account in the top-right corner.",
+      "html": "<button class=\"ds-tool\" type=\"button\" aria-label=\"搜尋\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg></button>",
+      "css": ".ds-tool { display: flex; width: 2.5rem; height: 2.5rem; align-items: center; justify-content: center; border-radius: 6px; border: 1px solid var(--color-border-case, #dcc89a); background: color-mix(in srgb, var(--color-surface, #fdfaf3) 85%, transparent); color: var(--color-ink, #2c2118); cursor: pointer; transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease; } .ds-tool:hover { transform: translateY(-2px) rotate(-3deg); border-color: var(--color-accent, #b3362b); } .ds-tool:focus-visible { outline: 2px solid var(--color-accent, #b3362b); outline-offset: 3px; } @media (prefers-reduced-motion: reduce) { .ds-tool { transition: none; } .ds-tool:hover { transform: none; } }"
+    },
+    {
+      "name": "Icon Button",
+      "kind": "button",
+      "refersTo": "icon-button",
+      "description": "40px round social button (hero, footer); springs up with a lamp-lit halo on hover.",
+      "html": "<a class=\"ds-icon-btn\" href=\"#\" aria-label=\"Email\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect width=\"20\" height=\"16\" x=\"2\" y=\"4\" rx=\"2\"/><path d=\"m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7\"/></svg></a>",
+      "css": ".ds-icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 2.5rem; height: 2.5rem; border-radius: 9999px; border: 1px solid var(--color-border-case, #dcc89a); background: color-mix(in srgb, var(--color-surface, #fdfaf3) 70%, transparent); color: var(--color-ink-muted, #8a6d45); transition: transform 0.35s cubic-bezier(0.25, 1.35, 0.5, 1), color 0.2s ease, border-color 0.2s ease, box-shadow 0.3s ease; } .ds-icon-btn > svg { transition: transform 0.45s cubic-bezier(0.25, 1.35, 0.5, 1); } .ds-icon-btn:hover { transform: translateY(-4px); color: var(--color-accent, #b3362b); border-color: color-mix(in srgb, var(--color-accent, #b3362b) 55%, transparent); background: var(--color-surface, #fdfaf3); box-shadow: 0 0 0 5px color-mix(in srgb, var(--color-accent, #b3362b) 12%, transparent), 0 10px 20px -10px color-mix(in srgb, var(--color-accent, #b3362b) 60%, transparent); } .ds-icon-btn:hover > svg { transform: scale(1.15) rotate(-8deg); } .ds-icon-btn:active { transform: translateY(-1px) scale(0.92); transition-duration: 0.08s; } .ds-icon-btn:focus-visible { outline: 2px solid var(--color-accent, #b3362b); outline-offset: 3px; }"
+    },
+    {
+      "name": "Envelope with Ink and Outline Buttons",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Manila envelope with a folded flap holding the contact buttons (magnetic in the live site).",
+      "html": "<div class=\"ds-envelope\"><p class=\"ds-env-to\">TO: Liam · 線索收件</p><p class=\"ds-env-line\">有線索、想合作，或只是想打聲招呼？</p><div class=\"ds-env-actions\"><a class=\"ds-btn-ink\" href=\"#\">寄信</a><a class=\"ds-btn-outline\" href=\"#\">留下證詞</a></div></div>",
+      "css": ".ds-envelope { position: relative; overflow: hidden; max-width: 28rem; padding: 3rem 1.75rem 2rem; border-radius: 6px; background: #d4ad6e; box-shadow: 0 20px 40px -24px rgba(20,12,6,0.6); } .ds-envelope::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 2.2rem; background: linear-gradient(170deg, #c49b58 50%, transparent 50.5%), linear-gradient(190deg, #c49b58 50%, transparent 50.5%); background-size: 50% 100%; background-repeat: no-repeat; background-position: left, right; opacity: 0.9; } .ds-env-to { margin: 0; font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; letter-spacing: 0.25em; color: #6b5336; } .ds-env-line { margin: 0.75rem 0 0; font-family: 'Special Elite', 'LXGW WenKai TC', monospace; font-size: 1.5rem; color: #2c2118; } .ds-env-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; } .ds-btn-ink { display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 4px; background: #2c2118; color: #f4ead2; padding: 0.625rem 1.25rem; font-size: 0.875rem; font-weight: 500; text-decoration: none; box-shadow: 0 10px 24px -12px rgba(0,0,0,0.6); } .ds-btn-outline { display: inline-flex; align-items: center; border-radius: 4px; border: 1px solid color-mix(in srgb, #6b5336 50%, transparent); color: #2c2118; padding: 0.625rem 1.25rem; font-size: 0.875rem; font-weight: 500; text-decoration: none; transition: color 0.15s, border-color 0.15s; } .ds-btn-outline:hover { border-color: #b3362b; color: #922a21; } .ds-btn-ink:focus-visible, .ds-btn-outline:focus-visible { outline: 2px solid #b3362b; outline-offset: 3px; }"
+    },
+    {
+      "name": "Stamp Submit Button",
+      "kind": "button",
+      "refersTo": "button-stamp",
+      "description": "Comment submit; the largest filled use of stamp red.",
+      "html": "<button class=\"ds-btn-stamp\" type=\"button\">送出證詞</button>",
+      "css": ".ds-btn-stamp { border: 0; border-radius: 9999px; background: var(--color-accent, #b3362b); color: #fff; padding: 0.375rem 1rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: background-color 0.15s; } .ds-btn-stamp:hover { background: var(--color-accent-strong, #922a21); } .ds-btn-stamp:focus-visible { outline: 2px solid var(--color-accent, #b3362b); outline-offset: 3px; } .ds-btn-stamp:disabled { opacity: 0.6; }"
+    },
+    {
+      "name": "Case Card (incumbent page UI)",
+      "kind": "card",
+      "refersTo": "case-card",
+      "description": "Flat translucent paper card on older index pages; lifts with an accent-tinted shadow and accent border on hover.",
+      "html": "<a class=\"ds-case-card\" href=\"#\"><span class=\"ds-case-meta\">2026-07-18 · 1 分鐘閱讀</span><span class=\"ds-case-title\">用 SvelteKit 打造個人部落格</span><span class=\"ds-case-excerpt\">這篇文章記錄一些架構決定。</span></a>",
+      "css": ".ds-case-card { display: block; border-radius: 1rem; border: 1px solid color-mix(in srgb, var(--color-border-case, #dcc89a) 70%, transparent); background: color-mix(in srgb, var(--color-surface, #fdfaf3) 75%, transparent); padding: 1.25rem; text-decoration: none; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; } .ds-case-card:hover { transform: translateY(-2px); border-color: var(--color-accent, #b3362b); box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--color-accent, #b3362b) 35%, transparent); } .ds-case-card:focus-visible { outline: 2px solid var(--color-accent, #b3362b); outline-offset: 3px; } .ds-case-meta { display: block; font-family: 'Share Tech Mono', ui-monospace, monospace; font-size: 0.75rem; color: var(--color-ink-muted, #8a6d45); } .ds-case-title { display: block; margin-top: 0.5rem; font-size: 1.125rem; font-weight: 700; line-height: 1.375; color: var(--color-ink, #2c2118); } .ds-case-card:hover .ds-case-title { color: var(--color-accent, #b3362b); } .ds-case-excerpt { display: block; margin-top: 0.5rem; font-size: 0.875rem; line-height: 1.625; color: var(--color-ink-muted, #8a6d45); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Case-File Cabinet",
+    "overview": "The site is a detective's filing cabinet. Every section is a drawer, every page is a case-file cover, and every post is a ruled index card filed in that drawer. Manila tabs stick out of the left edge of the screen, and red rubber stamps mark each file. The cover (homepage) still opens on the lamp-lit WebGL case desk: a green leather blotter with brass corners, a manila case file, a banker's lamp and a brass magnifier that reads Liam's dossier at 2.4x. Below the desk, the work is laid out as paper on that desk: fanned index cards, taped sticky notes, a red thread with brass pins, and a manila envelope. The craft is the proof. Interaction quality is part of what the site says.\n\nThe world is built from physical stationery, not app chrome. Paper objects (index cards, manila tabs, envelopes, sticky notes, brass fittings) keep their real colours in both themes, the way a card on a desk does not change colour when the room light changes. The page ground around them follows the theme. In light mode it is daylight on case paper. In dark mode it is warm night ink (case-950), with the lamp lighting the scene. Reading pages stay calm. Atmosphere (dust motes, the dark-mode flashlight) sits behind content and never covers text.\n\nThe user rejected the earlier floating pill navbar with hover mega-menus because it looked too much like koimsurai.com. The cabinet replaced it. The world also refuses the avatar-circle + gradient-blob hero. With the user's approval, the decorative CSS colour orbs, CRT scanlines, giant \"LIAM\" watermark and hero emoji were removed. AmbientBackground.svelte is still on disk but is not mounted, and it is not part of the system.\n\nDisclosures: no seed key exists for the original refinement, because the concept-seed direction roll was skipped for that refinement of an established, user-confirmed world, and the user chose the 3D direction (\"A 深夜辦案桌\") from three options. The cabinet restructuring was also a user-chosen direction: the user picked option A (\"case-file cabinet\") of three proposed own-world directions after saying the UI looked too much like koimsurai.com, with no concept-seed roll, and asked for detective-themed page names (URLs unchanged). Special Elite, Share Tech Mono and LXGW WenKai TC load from Google Fonts, matching existing delivery, and are not self-hosted. Known open item: the hero dossier's paper fibre and crease texture does not read at viewport scale; only the coffee ring and manila tone register. Shipped but not canonized: the typed overlines above titles (hero \"CASE FILE · No.… · 調查中\", PageHeader \"FILE № nnnn — drawer\", footer \"DRAWER · 檔案總覽\") are eyebrow lines the craft floor refuses; they are recorded as defects in the build, not as a pattern for new surfaces.",
+    "keyCharacteristics": [
+      "Navigation is a cabinet: vertical manila index tabs on the left edge, each pulling out a ruled index card of that drawer's contents.",
+      "Paper objects in fixed colours (cream index stock, manila, sticky-note yellow, brass) sit on a theme-aware page ground of warm case paper or night ink.",
+      "There is one chromatic accent, rubber-stamp red. It appears as stamps, head rules, date stamps, the red thread and interaction states. Lamp amber appears only as light.",
+      "Typewriter display (Special Elite, with LXGW WenKai TC for CJK) for every title and label on an object, system sans for reading, and Share Tech Mono for typed data.",
+      "Motion is physical: tabs slide out, cards file in and pull up out of the drawer, stamps press down, the thread draws itself. Every motion has a reduced-motion path."
+    ],
+    "rules": [
+      { "name": "The One Stamp Rule", "body": "Stamp red is the only chromatic accent. It marks stamps, head rules, threads and interaction, never large fills. Its largest fill is the small comment submit button. The faint blue ruling on index cards is a property of the paper, not an accent.", "section": "colors" },
+      { "name": "The Light Is Amber Rule", "body": "Phosphor amber appears only as light (glare, flashlight, lamp, progress glow). It never fills a surface or colours text.", "section": "colors" },
+      { "name": "The Object Stock Rule", "body": "Page grounds, page text and page chrome use the semantic tokens (surface, surface-alt, ink, ink-muted, border-case, accent), so dark mode swaps them in one place. Paper objects keep fixed stock colours in both themes, and the text printed on them uses fixed ramp steps (case-900, case-700, case-600), so a cream card stays a cream card with dark ink on a dark page.", "section": "colors" },
+      { "name": "The Typewriter Speaks Titles Rule", "body": "The display face is for titles, page headers, prose headings, tabs, stamps and index-card heads. Reading text, form input text and dense lists stay in system sans, and typed data stays in Share Tech Mono.", "section": "typography" },
+      { "name": "The Same Voice In Two Scripts Rule", "body": "Every display stack lists Special Elite first and LXGW WenKai TC second, so Latin and CJK in one title share a voice. Never put a system CJK face in a display role.", "section": "typography" },
+      { "name": "The One Site Map Rule", "body": "The cabinet tabs, the phone drawer sheet and the footer contents all read from the drawers list in src/lib/site-nav.ts. A page is registered once there, as a card in a drawer, and appears everywhere.", "section": "layout" },
+      { "name": "The Earned Lift Rule", "body": "Nothing rises at rest. Paper objects sit with a soft contact shadow, and flat UI sits with none. Rise, straightening and a deeper shadow appear only under the pointer.", "section": "elevation" },
+      { "name": "The Atmosphere Behind Text Rule", "body": "Dust, flashlight and desk layers sit at negative z or behind content, and are aria-hidden and pointer-transparent. Nothing atmospheric covers reading text.", "section": "elevation" },
+      { "name": "The Cut-Paper Corner Rule", "body": "New cabinet objects use 3 to 6px corners, rounded only where paper would be cut. A full pill is reserved for round icon buttons and the incumbent controls that already use it.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do register every new page once, as a card in a drawer in src/lib/site-nav.ts, so the tabs, phone sheet and footer stay in sync.",
+      "Do open every section page with the PageHeader case-file cover and give it a 2 to 4 character stamp word that fits the page.",
+      "Do present listed items as index cards: .index-card stock, a display head over a stamp-red rule, a .date-stamp, and a .punch hole.",
+      "Do keep paper objects in their fixed stock colours with fixed ink (case-900, case-700, case-600) in both themes, and build page grounds and page text from the semantic tokens.",
+      "Do keep stamp red for stamps, rules, threads and interaction, and lamp amber for depicted light only.",
+      "Do set titles, tabs and object heads in the display stack (Special Elite then LXGW WenKai TC) at weight 400, reading text in system sans, and typed data in Share Tech Mono.",
+      "Do keep 3 to 6px cut-paper corners on new cabinet objects.",
+      "Do let objects rest with a soft contact shadow and earn rise, straightening and deeper shadow under the pointer.",
+      "Do give every new motion a prefers-reduced-motion path that leaves content fully visible.",
+      "Do keep atmospheric layers aria-hidden, pointer-transparent and behind text.",
+      "Do feed the hero dossier real site data only, and depict real objects with their real materials when extending the 3D desk."
+    ],
+    "donts": [
+      "Don't bring back a floating pill navbar with hover mega-menus. The user rejected it as too close to koimsurai.com, and the cabinet replaced it.",
+      "Don't use an avatar circle with a gradient blob as a hero. The desk replaced it.",
+      "Don't reintroduce decorative colour orbs, CRT scanlines, giant name watermarks or emoji in the hero. These were removed with the user's approval.",
+      "Don't use manila, index stock or brass as a page ground or for page text. They are object stock for tabs, cards, labels and envelopes.",
+      "Don't let dust, flashlight or desk effects sit over reading text.",
+      "Don't invent metrics for the dossier. It shows only real post count, word count and active days."
+    ]
+  }
+}

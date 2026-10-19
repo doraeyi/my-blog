@@ -1,11 +1,16 @@
 <script lang="ts">
+	import { tilt } from '$lib/actions/tilt';
+	import Seo from '$lib/components/Seo.svelte';
 	import { resolve } from '$app/paths';
+	import { reveal } from '$lib/actions/reveal';
 	import Star from '@lucide/svelte/icons/star';
 	import Clapperboard from '@lucide/svelte/icons/clapperboard';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 </script>
+
+<Seo title="追劇紀錄" description="最近在看與看過的電影、影集。" />
 
 <div class="mx-auto max-w-5xl px-6 pt-28 pb-16">
 	<h1 class="text-3xl font-bold text-ink">追劇紀錄</h1>
@@ -15,8 +20,10 @@
 	{#if data.current}
 		{@const current = data.current}
 		<a
+			use:reveal
 			href={resolve('/watch/[id]', { id: current.id })}
-			class="group relative mt-4 flex overflow-hidden rounded-2xl border border-border-case bg-surface shadow-sm transition hover:shadow-md"
+			use:tilt
+			class="case-card group relative mt-4 flex overflow-hidden rounded-2xl border border-border-case bg-surface shadow-sm"
 		>
 			{#if current.backdropUrl}
 				<img
@@ -71,11 +78,12 @@
 	{/if}
 
 	<ul class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-		{#each data.watched as item (item.id)}
-			<li>
+		{#each data.watched as item, i (item.id)}
+			<li use:reveal={{ delay: i * 40 }}>
 				<a
 					href={resolve('/watch/[id]', { id: item.id })}
-					class="group flex flex-col overflow-hidden rounded-xl border border-border-case bg-surface shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+					use:tilt
+					class="case-card group flex flex-col overflow-hidden rounded-xl border border-border-case bg-surface shadow-sm"
 				>
 					{#if item.posterUrl}
 						<img src={item.posterUrl} alt={item.title} class="aspect-[2/3] w-full object-cover" />

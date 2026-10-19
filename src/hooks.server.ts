@@ -29,4 +29,18 @@ const handleBetterAuth: Handle = async ({ event, resolve }) => {
 	return svelteKitHandler({ event, resolve, auth, building });
 };
 
-export const handle: Handle = sequence(handleParaglide, handleBetterAuth);
+// Form actions don't run the admin layout's `load`, so its role check never
+// covers POSTs — without this, anyone could call /admin/*?/delete directly.
+const guardAdminWrites: Handle = ({ event, resolve }) => {
+	if (
+		event.url.pathname.startsWith('/admin') &&
+		event.request.method !== 'GET' &&
+		event.request.method !== 'HEAD' &&
+		event.locals.user?.role !== 'Liam'
+	) {
+		return new Response('Forbidden', { status: 403 });
+	}
+	return resolve(event);
+};
+
+export const handle: Handle = sequence(handleParaglide, handleBetterAuth, guardAdminWrites);

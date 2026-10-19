@@ -31,3 +31,12 @@ export async function toggle(postSlug: string, userId: string): Promise<boolean>
 	await db.insert(postReaction).values({ postSlug, userId });
 	return true;
 }
+
+/** Like count per post key, for list views. */
+export async function countsByKey(): Promise<Map<string, number>> {
+	const rows = await db
+		.select({ key: postReaction.postSlug, n: count() })
+		.from(postReaction)
+		.groupBy(postReaction.postSlug);
+	return new Map(rows.map((r) => [r.key, r.n]));
+}

@@ -29,6 +29,20 @@
       "when": 1787817291264,
       "tag": "0003_complete_nicolaos",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1790577103338,
+      "tag": "0004_slimy_proudstar",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1792342342304,
+      "tag": "0005_special_valeria_richards",
+      "breakpoints": true
     }
   ]
 }

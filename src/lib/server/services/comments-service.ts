@@ -1,4 +1,4 @@
-import { and, desc, eq } from 'drizzle-orm';
+import { and, count, desc, eq } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import { comment } from '$lib/server/db/schema';
 
@@ -31,4 +31,24 @@ export async function moderate(commentId: string, status: 'visible' | 'hidden') 
 
 export async function remove(commentId: string) {
 	await db.delete(comment).where(eq(comment.id, commentId));
+}
+
+/** Newest visible comments across the whole site — the homepage's "精選留言". */
+export async function latestVisible(limit: number) {
+	return db.query.comment.findMany({
+		where: eq(comment.status, 'visible'),
+		orderBy: desc(comment.createdAt),
+		limit,
+		with: { author: { columns: authorColumns } }
+	});
+}
+
+/** Visible-comment count per thread key, for list views. */
+export async function countsByKey(): Promise<Map<string, number>> {
+	const rows = await db
+		.select({ key: comment.postSlug, n: count() })
+		.from(comment)
+		.where(eq(comment.status, 'visible'))
+		.groupBy(comment.postSlug);
+	return new Map(rows.map((r) => [r.key, r.n]));
 }

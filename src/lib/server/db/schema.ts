@@ -120,6 +120,8 @@ export const post = sqliteTable(
 		title: text('title').notNull(),
 		excerpt: text('excerpt'),
 		body: text('body').notNull(),
+		tags: text('tags', { mode: 'json' }).$type<string[]>().notNull().default([]),
+		series: text('series'),
 		published: integer('published', { mode: 'boolean' }).notNull().default(false),
 		authorId: text('author_id')
 			.notNull()
@@ -133,6 +135,13 @@ export const post = sqliteTable(
 	},
 	(t) => [uniqueIndex('post_kind_slug_idx').on(t.kind, t.slug)]
 );
+
+// One row per piece of content, keyed the same way as comments/reactions
+// (`blog slug`, `article/<slug>`, `mood/<slug>`).
+export const pageView = sqliteTable('page_view', {
+	key: text('key').primaryKey(),
+	count: integer('count').notNull().default(0)
+});
 
 export const postRelations = relations(post, ({ one }) => ({
 	author: one(user, { fields: [post.authorId], references: [user.id] })
@@ -194,3 +203,16 @@ export const watchItemCastRelations = relations(watchItemCast, ({ one }) => ({
 }));
 
 export * from './auth.schema';
+
+// 碎念 — short, title-less posts (a thought, a link, a one-liner). Published as
+// soon as they're written; there's no draft state for something this small.
+export const thought = sqliteTable('thought', {
+	id: text('id')
+		.primaryKey()
+		.$defaultFn(() => crypto.randomUUID()),
+	body: text('body').notNull(),
+	linkUrl: text('link_url'),
+	createdAt: integer('created_at', { mode: 'timestamp' })
+		.notNull()
+		.$defaultFn(() => new Date())
+});

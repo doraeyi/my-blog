@@ -1,11 +1,16 @@
 <script lang="ts">
+	import { tilt } from '$lib/actions/tilt';
+	import Seo from '$lib/components/Seo.svelte';
 	import { resolve } from '$app/paths';
+	import { reveal } from '$lib/actions/reveal';
 	import Star from '@lucide/svelte/icons/star';
 	import FolderGit2 from '@lucide/svelte/icons/folder-git-2';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 </script>
+
+<Seo title="作品集" description="做過的專案與 GitHub 上的作品。" />
 
 <div class="mx-auto max-w-5xl px-6 pt-28 pb-16">
 	<h1 class="text-3xl font-bold text-ink">作品集</h1>
@@ -17,10 +22,11 @@
 
 	<ul class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 		{#each data.projects as project, index (project.id)}
-			<li>
+			<li use:reveal={{ delay: index * 60 }}>
 				<a
 					href={resolve('/portfolio/[id]', { id: project.id })}
-					class="group relative flex h-full flex-col rounded-lg border border-border-case bg-surface p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+					use:tilt
+					class="case-card group relative flex h-full flex-col rounded-lg border border-border-case bg-surface p-5 shadow-sm"
 				>
 					<span
 						aria-hidden="true"
