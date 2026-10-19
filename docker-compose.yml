@@ -22,7 +22,8 @@ services:
       - web
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.my-blog.rule=Host(`doraeyi.com`)'
+      # The blog lives on its own subdomain; doraeyi.com itself is a separate site.
+      - 'traefik.http.routers.my-blog.rule=Host(`blog.doraeyi.com`)'
       - 'traefik.http.routers.my-blog.entrypoints=web'
       - 'traefik.http.services.my-blog.loadbalancer.server.port=3000'
       # This container is on two networks (default + web) — without this,
