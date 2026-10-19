@@ -1,6 +1,16 @@
 import type { PageServerLoad } from './$types';
-import { listPostsByTag } from '$lib/content-service';
+import { kindLabel, listEntries } from '$lib/server/content-index';
 
-export const load: PageServerLoad = ({ params }) => {
-	return { tag: params.tag, posts: listPostsByTag(params.tag) };
+export const load: PageServerLoad = async ({ params }) => {
+	const entries = (await listEntries()).filter((e) => e.tags.includes(params.tag));
+	return {
+		tag: params.tag,
+		posts: entries.map((e) => ({
+			title: e.title,
+			path: e.path,
+			excerpt: e.excerpt,
+			date: e.date,
+			type: kindLabel[e.kind]
+		}))
+	};
 };

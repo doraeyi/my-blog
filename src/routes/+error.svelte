@@ -1,9 +1,12 @@
 <script lang="ts">
+	import Seo from '$lib/components/Seo.svelte';
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
 	import Lock from '@lucide/svelte/icons/lock';
 	import LogIn from '@lucide/svelte/icons/log-in';
 </script>
+
+<Seo title={`${page.status} 錯誤`} noindex />
 
 <div class="mx-auto max-w-4xl px-6 pt-28 pb-16">
 	<div

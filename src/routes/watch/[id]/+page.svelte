@@ -1,6 +1,8 @@
 <script lang="ts">
+	import Seo from '$lib/components/Seo.svelte';
 	import { enhance } from '$app/forms';
 	import { resolve } from '$app/paths';
+	import { reveal } from '$lib/actions/reveal';
 	import Star from '@lucide/svelte/icons/star';
 	import type { ActionData, PageData } from './$types';
 
@@ -10,6 +12,12 @@
 	let message = $derived(form && 'message' in form ? form.message : undefined);
 </script>
 
+<Seo
+	title={data.item.title}
+	description={data.item.overview}
+	image={data.item.backdropUrl ?? data.item.posterUrl ?? undefined}
+/>
+
 <div class="mx-auto max-w-4xl px-6 pt-28 pb-16">
 	{#if data.item.backdropUrl}
 		<div class="relative -mt-8 mb-6 overflow-hidden rounded-2xl">
@@ -17,7 +25,7 @@
 		</div>
 	{/if}
 
-	<div class="flex flex-col gap-6 sm:flex-row">
+	<div use:reveal class="flex flex-col gap-6 sm:flex-row">
 		{#if data.item.posterUrl}
 			<img
 				src={data.item.posterUrl}
@@ -73,8 +81,8 @@
 		<section class="mt-10">
 			<h2 class="text-lg font-semibold text-ink">演員</h2>
 			<ul class="mt-4 grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5">
-				{#each data.item.cast as member (member.id)}
-					<li class="text-center">
+				{#each data.item.cast as member, i (member.id)}
+					<li use:reveal={{ delay: Math.min(i * 30, 300), y: 10 }} class="text-center">
 						<a
 							href={resolve('/watch/actor/[personId]', { personId: String(member.tmdbPersonId) })}
 							class="group block"
@@ -109,8 +117,11 @@
 		<h2 class="text-lg font-semibold text-ink">留言（{data.comments.length}）</h2>
 
 		<ul class="mt-4 space-y-3">
-			{#each data.comments as comment (comment.id)}
-				<li class="rounded-xl border border-border-case bg-surface-alt p-4 shadow-sm">
+			{#each data.comments as comment, i (comment.id)}
+				<li
+					use:reveal={{ delay: i * 50, y: 8 }}
+					class="rounded-xl border border-border-case bg-surface-alt p-4 shadow-sm"
+				>
 					<span class="font-medium text-ink">{comment.author.name}</span>
 					<p class="mt-1 text-sm text-ink-muted">{comment.body}</p>
 				</li>

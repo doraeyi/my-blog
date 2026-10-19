@@ -11,6 +11,8 @@ export const actions: Actions = {
 		const title = formData.get('title')?.toString().trim();
 		const excerpt = formData.get('excerpt')?.toString().trim() || undefined;
 		const body = formData.get('body')?.toString() ?? '';
+		const tags = postsService.parseTags(formData.get('tags')?.toString());
+		const series = formData.get('series')?.toString().trim() || null;
 		const published = formData.get('published') === 'on';
 
 		if (kind !== 'article' && kind !== 'mood') return fail(400, { message: '請選擇文章類型' });
@@ -23,6 +25,8 @@ export const actions: Actions = {
 				title,
 				excerpt,
 				body,
+				tags,
+				series,
 				published,
 				authorId: locals.user!.id
 			});

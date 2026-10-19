@@ -1,10 +1,13 @@
 <script lang="ts">
+	import Seo from '$lib/components/Seo.svelte';
 	import { resolve } from '$app/paths';
 	import Clapperboard from '@lucide/svelte/icons/clapperboard';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 </script>
+
+<Seo title={data.person.name} description={data.person.biography} />
 
 <div class="mx-auto max-w-4xl px-6 pt-28 pb-16">
 	<div class="flex flex-col gap-6 sm:flex-row">

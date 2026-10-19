@@ -43,7 +43,11 @@
 					</span>
 				</div>
 				<p class="mt-1.5 font-medium text-ink">{post.title}</p>
-				<p class="mt-0.5 text-xs text-ink-muted">/{post.slug}</p>
+				<p class="mt-0.5 text-xs text-ink-muted">
+					/{post.slug} · {post.views} 次瀏覽{#if post.tags.length > 0}
+						· {post.tags.map((t) => `#${t}`).join(' ')}{/if}{#if post.series}
+						· 系列：{post.series}{/if}
+				</p>
 			</div>
 			<div class="flex items-center gap-4">
 				<a

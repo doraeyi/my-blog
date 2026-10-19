@@ -2,14 +2,17 @@ import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import * as commentsService from '$lib/server/services/comments-service';
 import * as likesService from '$lib/server/services/likes-service';
+import { loadPostExtras } from '$lib/server/post-extras';
 
-export const load: PageServerLoad = async ({ params, locals }) => {
-	const [comments, likeCount, liked] = await Promise.all([
+export const load: PageServerLoad = async (event) => {
+	const { params, locals } = event;
+	const [comments, likeCount, liked, extras] = await Promise.all([
 		commentsService.listForPost(params.slug),
 		likesService.countFor(params.slug),
-		locals.user ? likesService.hasLiked(params.slug, locals.user.id) : Promise.resolve(false)
+		locals.user ? likesService.hasLiked(params.slug, locals.user.id) : Promise.resolve(false),
+		loadPostExtras('blog', params.slug, event)
 	]);
-	return { comments, likeCount, liked };
+	return { comments, likeCount, liked, ...extras };
 };
 
 export const actions: Actions = {

@@ -1,6 +1,8 @@
 <script lang="ts">
+	import Seo from '$lib/components/Seo.svelte';
 	import { enhance } from '$app/forms';
 	import { mermaidDiagrams } from '$lib/actions/mermaid';
+	import { reveal } from '$lib/actions/reveal';
 	import ReadingSidebar from '$lib/components/ReadingSidebar.svelte';
 	import ContributionGraph from '$lib/components/ContributionGraph.svelte';
 	import Star from '@lucide/svelte/icons/star';
@@ -12,13 +14,17 @@
 	let readmeEl: HTMLElement | undefined = $state();
 </script>
 
+<Seo title={data.project.githubRepo} description={data.project.description} />
+
 <div class="mx-auto max-w-[90rem] px-6 pt-28 pb-16">
 	<div class="grid gap-10 lg:grid-cols-[1fr_220px]">
 		<article class="min-w-0">
-			<h1 class="text-3xl font-bold text-ink">{data.project.githubRepo}</h1>
-			{#if data.project.description}
-				<p class="mt-2 text-ink-muted">{data.project.description}</p>
-			{/if}
+			<div use:reveal>
+				<h1 class="text-3xl font-bold text-ink">{data.project.githubRepo}</h1>
+				{#if data.project.description}
+					<p class="mt-2 text-ink-muted">{data.project.description}</p>
+				{/if}
+			</div>
 
 			{#if data.project.collaborators.length}
 				<div class="mt-5 flex flex-wrap gap-3">
@@ -50,7 +56,8 @@
 			{#if data.project.readmeHtml}
 				<section
 					bind:this={readmeEl}
-					class="readme-content prose prose-sm dark:prose-invert mt-8 max-w-none rounded-xl border border-border-case bg-surface-alt p-6 shadow-sm sm:prose-base"
+					use:reveal={{ delay: 100 }}
+					class="readme-content prose prose-sm mt-8 max-w-none rounded-xl border border-border-case bg-surface-alt p-6 shadow-sm sm:prose-base dark:prose-invert"
 					use:mermaidDiagrams={data.project.readmeHtml}
 				>
 					<!-- eslint-disable-next-line svelte/no-at-html-tags -- readmeHtml is rendered via renderMarkdown() + rehype-sanitize at sync time, never raw user input -->
@@ -69,8 +76,11 @@
 				<h2 class="text-lg font-semibold text-ink">留言（{data.comments.length}）</h2>
 
 				<ul class="mt-4 space-y-3">
-					{#each data.comments as comment (comment.id)}
-						<li class="rounded-xl border border-border-case bg-surface-alt p-4 shadow-sm">
+					{#each data.comments as comment, i (comment.id)}
+						<li
+							use:reveal={{ delay: i * 50, y: 8 }}
+							class="rounded-xl border border-border-case bg-surface-alt p-4 shadow-sm"
+						>
 							<span class="font-medium text-ink">{comment.author.name}</span>
 							<p class="mt-1 text-sm text-ink-muted">{comment.body}</p>
 						</li>

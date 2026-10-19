@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Seo from '$lib/components/Seo.svelte';
 	import { enhance } from '$app/forms';
 	import LogIn from '@lucide/svelte/icons/log-in';
 	import Mail from '@lucide/svelte/icons/mail';
@@ -9,6 +10,8 @@
 
 	let { form }: { form: ActionData } = $props();
 </script>
+
+<Seo title="登入" noindex />
 
 <div class="mx-auto max-w-md px-6 pt-28 pb-16">
 	<div class="rounded-2xl border border-border-case bg-surface-alt p-8 shadow-sm">

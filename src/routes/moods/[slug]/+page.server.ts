@@ -2,17 +2,20 @@ import { error, fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { getPublishedBySlug, renderBody } from '$lib/server/services/posts-service';
 import * as commentsService from '$lib/server/services/comments-service';
+import { loadPostExtras } from '$lib/server/post-extras';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async (event) => {
+	const { params } = event;
 	const post = await getPublishedBySlug('mood', params.slug);
 	if (!post) throw error(404, 'Mood post not found');
 
-	const [bodyHtml, comments] = await Promise.all([
+	const [bodyHtml, comments, extras] = await Promise.all([
 		renderBody(post.body),
-		commentsService.listForPost(`mood/${params.slug}`)
+		commentsService.listForPost(`mood/${params.slug}`),
+		loadPostExtras('mood', params.slug, event)
 	]);
 
-	return { post, bodyHtml, comments };
+	return { post, bodyHtml, comments, ...extras };
 };
 
 export const actions: Actions = {

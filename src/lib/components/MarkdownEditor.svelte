@@ -43,7 +43,7 @@
 		class="w-full rounded-lg border border-border-case bg-surface p-3 font-mono text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent focus:outline-none"
 		placeholder="以 Markdown 撰寫內容..."></textarea>
 	<div
-		class="prose prose-sm dark:prose-invert max-w-none rounded-lg border border-border-case bg-surface-alt p-3 sm:prose-base"
+		class="prose prose-sm max-w-none rounded-lg border border-border-case bg-surface-alt p-3 sm:prose-base dark:prose-invert"
 		use:mermaidDiagrams={html}
 	>
 		{#if previewError}

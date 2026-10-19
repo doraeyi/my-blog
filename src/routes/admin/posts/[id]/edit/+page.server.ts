@@ -16,12 +16,14 @@ export const actions: Actions = {
 		const title = formData.get('title')?.toString().trim();
 		const excerpt = formData.get('excerpt')?.toString().trim() || null;
 		const body = formData.get('body')?.toString() ?? '';
+		const tags = postsService.parseTags(formData.get('tags')?.toString());
+		const series = formData.get('series')?.toString().trim() || null;
 		const published = formData.get('published') === 'on';
 
 		if (!slug || !title) return fail(400, { message: '請填寫標題與網址代稱' });
 
 		try {
-			await postsService.update(params.id, { slug, title, excerpt, body, published });
+			await postsService.update(params.id, { slug, title, excerpt, body, tags, series, published });
 		} catch (err) {
 			return fail(400, { message: err instanceof Error ? err.message : '更新失敗' });
 		}

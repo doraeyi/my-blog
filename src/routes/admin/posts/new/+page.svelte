@@ -43,6 +43,18 @@
 		placeholder="摘要（選填）"
 		class="w-full rounded-lg border border-border-case bg-surface px-3 py-2 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent focus:outline-none"
 	/>
+	<div class="grid gap-4 sm:grid-cols-2">
+		<input
+			name="tags"
+			placeholder="標籤，用逗號分隔（選填）"
+			class="w-full rounded-lg border border-border-case bg-surface px-3 py-2 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent focus:outline-none"
+		/>
+		<input
+			name="series"
+			placeholder="系列名稱（選填，同名的文章會串成一個系列）"
+			class="w-full rounded-lg border border-border-case bg-surface px-3 py-2 text-sm text-ink focus:border-accent focus:ring-2 focus:ring-accent focus:outline-none"
+		/>
+	</div>
 	<MarkdownEditor />
 	<button
 		type="submit"

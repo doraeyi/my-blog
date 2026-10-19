@@ -5,6 +5,7 @@ export interface PostMetadata {
 	date: string;
 	tags?: string[];
 	excerpt?: string;
+	series?: string;
 	published?: boolean;
 }
 
@@ -35,10 +36,6 @@ function allPosts(): PostSummary[] {
 
 export function listPosts(): PostSummary[] {
 	return allPosts();
-}
-
-export function listPostsByTag(tag: string): PostSummary[] {
-	return allPosts().filter((post) => post.tags?.includes(tag));
 }
 
 export function getPostBySlug(
