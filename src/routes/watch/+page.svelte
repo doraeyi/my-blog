@@ -41,12 +41,27 @@
 					/>
 				{/if}
 				<div class="min-w-0">
-					<span
-						class="inline-flex items-center gap-1 rounded-full border border-accent/50 px-2 py-0.5 text-xs text-accent"
-					>
-						<Clapperboard class="size-3.5" />
-						觀看中
-					</span>
+					{#if current.live}
+						<span
+							class="inline-flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-0.5 text-xs font-medium text-white"
+						>
+							<span class="relative flex size-2">
+								<span
+									class="absolute inline-flex size-full animate-ping rounded-full bg-white opacity-70"
+								></span>
+								<span class="relative inline-flex size-2 rounded-full bg-white"></span>
+							</span>
+							正在觀看{#if current.currentEpisode}
+								· 第 {current.currentEpisode} 集{/if}
+						</span>
+					{:else}
+						<span
+							class="inline-flex items-center gap-1 rounded-full border border-accent/50 px-2 py-0.5 text-xs text-accent"
+						>
+							<Clapperboard class="size-3.5" />
+							觀看中
+						</span>
+					{/if}
 					<h3 class="mt-2 font-display text-2xl font-semibold text-ink group-hover:underline">
 						{current.title}
 					</h3>

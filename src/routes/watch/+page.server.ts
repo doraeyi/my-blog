@@ -13,7 +13,8 @@ export const load: PageServerLoad = async () => {
 			? {
 					...current,
 					posterUrl: tmdb.posterUrl(current.posterPath, 'w500'),
-					backdropUrl: tmdb.posterUrl(current.backdropPath, 'w1280')
+					backdropUrl: tmdb.posterUrl(current.backdropPath, 'w1280'),
+					live: watchService.isLive(current.lastSeenAt)
 				}
 			: null,
 		watched: watched.map((item) => ({

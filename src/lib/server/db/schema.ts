@@ -169,6 +169,8 @@ export const watchItem = sqliteTable(
 		totalSeasons: integer('total_seasons'),
 		totalEpisodes: integer('total_episodes'),
 		watchedAt: integer('watched_at', { mode: 'timestamp' }),
+		/** Last "still watching" ping from the browser script — drives the live badge. */
+		lastSeenAt: integer('last_seen_at', { mode: 'timestamp' }),
 		createdAt: integer('created_at', { mode: 'timestamp' })
 			.notNull()
 			.$defaultFn(() => new Date())

@@ -58,6 +58,21 @@
 				卷宗 {data.stats.postCount} 份 · {wordCountLabel(data.stats.charCount)} · 辦案 {data.stats
 					.daysActive} 日
 			</p>
+			{#if data.nowWatching}
+				<a
+					href={resolve('/watch/[id]', { id: data.nowWatching.id })}
+					class="rise pointer-events-auto mt-3 inline-flex items-center gap-2 font-mono-hack text-xs text-ink-muted hover:text-accent"
+					style="--d: 420ms"
+				>
+					<span class="relative flex size-2">
+						<span
+							class="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-60"
+						></span>
+						<span class="relative inline-flex size-2 rounded-full bg-accent"></span>
+					</span>
+					{`此刻正在看：${data.nowWatching.title}${data.nowWatching.episode ? ` 第 ${data.nowWatching.episode} 集` : ''}`}
+				</a>
+			{/if}
 
 			<div class="rise pointer-events-auto mt-8 flex gap-3" style="--d: 480ms">
 				{#each socialLinks as link (link.name)}

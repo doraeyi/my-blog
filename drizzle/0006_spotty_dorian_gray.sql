@@ -1,0 +1,1 @@
+ALTER TABLE `watch_item` ADD `last_seen_at` integer;

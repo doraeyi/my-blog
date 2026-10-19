@@ -43,6 +43,13 @@
       "when": 1792342342304,
       "tag": "0005_special_valeria_richards",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1792403088795,
+      "tag": "0006_spotty_dorian_gray",
+      "breakpoints": true
     }
   ]
 }

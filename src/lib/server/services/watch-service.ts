@@ -179,3 +179,67 @@ export async function findLocalMatches(tmdbIds: number[]): Promise<Map<string, s
 	});
 	return new Map(rows.map((row) => [`${row.tmdbId}:${row.mediaType}`, row.id]));
 }
+
+/** A ping within this window means the show is playing right now. */
+export const LIVE_WINDOW_MS = 3 * 60 * 1000;
+
+// title → watch item id, so a heartbeat every ~45s doesn't hit TMDB each time.
+const titleCache = new Map<string, string>();
+
+async function resolveTitle(title: string): Promise<string> {
+	const cached = titleCache.get(title);
+	if (cached && (await db.query.watchItem.findFirst({ where: eq(watchItem.id, cached) }))) {
+		return cached;
+	}
+	// Series first (the common case for episodic pings), then films.
+	for (const mediaType of ['tv', 'movie'] as const) {
+		const found = await tmdb.searchTitle(title, mediaType);
+		if (!found) continue;
+		const existing = await db.query.watchItem.findFirst({
+			where: and(eq(watchItem.tmdbId, found.tmdbId), eq(watchItem.mediaType, mediaType))
+		});
+		const id = existing?.id ?? (await upsertFromTmdb(found.tmdbId, mediaType, 'watching'));
+		titleCache.set(title, id);
+		return id;
+	}
+	throw new Error(`TMDB 找不到「${title}」`);
+}
+
+/**
+ * "I'm watching this right now" from the browser script: makes the title the
+ * current watching item, records the episode, and stamps lastSeenAt.
+ */
+export async function recordHeartbeat(title: string, episode: number | null) {
+	const id = await resolveTitle(title);
+	const item = await db.query.watchItem.findFirst({ where: eq(watchItem.id, id) });
+	if (!item) throw new Error('Watch item vanished');
+
+	if (item.status !== 'watching') {
+		// Promote it, demoting whatever held the "watching" slot.
+		db.transaction((tx) => {
+			tx.update(watchItem)
+				.set({ status: 'watched', watchedAt: new Date() })
+				.where(and(eq(watchItem.status, 'watching'), ne(watchItem.id, id)))
+				.run();
+			tx.update(watchItem)
+				.set({ status: 'watching', watchedAt: null })
+				.where(eq(watchItem.id, id))
+				.run();
+		});
+	}
+
+	await db
+		.update(watchItem)
+		.set({
+			lastSeenAt: new Date(),
+			currentEpisode: episode ?? item.currentEpisode,
+			currentSeason: item.currentSeason ?? (item.mediaType === 'tv' ? 1 : null)
+		})
+		.where(eq(watchItem.id, id));
+
+	return { id, title: item.title };
+}
+
+export function isLive(lastSeenAt: Date | null | undefined, now = Date.now()): boolean {
+	return !!lastSeenAt && now - lastSeenAt.getTime() < LIVE_WINDOW_MS;
+}
