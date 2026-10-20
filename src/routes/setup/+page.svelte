@@ -6,6 +6,7 @@
 	import { gear } from '$lib/collections';
 	import Monitor from '@lucide/svelte/icons/monitor';
 	import PhoneModel from '$lib/components/PhoneModel.svelte';
+	import KeyboardModel from '$lib/components/KeyboardModel.svelte';
 
 	const total = gear.reduce((n, g) => n + g.items.length, 0);
 	let active = $state<string>('all');
@@ -59,13 +60,25 @@
 					<ul class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
 						{#each group.items as item, i (item.name)}
 							{#if item.model}
+								{@const wide = item.model.kind === 'gpro-x-tkl'}
 								<li
 									use:reveal={{ delay: i * 40, y: 8 }}
-									class="exhibit grid overflow-hidden rounded-sm border border-border-case sm:col-span-2 md:grid-cols-[1.2fr_1fr] lg:col-span-3"
+									class="exhibit grid overflow-hidden rounded-sm border border-border-case sm:col-span-2 lg:col-span-3 {wide
+										? ''
+										: 'md:grid-cols-[1.2fr_1fr]'}"
 								>
-									<div class="stage relative h-[26rem] md:h-[30rem]">
-										<span aria-hidden="true" class="plinth"></span>
-										<PhoneModel finish={item.model.finish} label={item.name} />
+									<!-- Wide objects (keyboards) take the full width; tall ones sit beside their label. -->
+									<div
+										class="stage relative {wide
+											? 'h-[22rem] md:h-[28rem]'
+											: 'h-[26rem] md:h-[30rem]'}"
+									>
+										<span aria-hidden="true" class="plinth" class:wide></span>
+										{#if item.model.kind === 'iphone-15-pro'}
+											<PhoneModel finish={item.model.finish} label={item.name} />
+										{:else}
+											<KeyboardModel keycaps={item.model.keycaps} label={item.name} />
+										{/if}
 									</div>
 									<div class="flex flex-col justify-center gap-3 px-7 py-8">
 										<p class="font-mono-hack text-xs tracking-[0.3em] text-ink-muted">
@@ -124,5 +137,9 @@
 		transform: translateX(-50%);
 		background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.45), transparent 70%);
 		pointer-events: none;
+	}
+	.plinth.wide {
+		width: 80%;
+		bottom: 14%;
 	}
 </style>

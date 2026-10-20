@@ -5,8 +5,11 @@
 
 export type PhoneFinish = 'natural' | 'blue' | 'white' | 'black';
 
+export type KeycapSet = 'stock' | 'purple-cheer';
+
 /** Items with a `model` get a spinnable 3D render instead of a plain card. */
-export type GearModel = { kind: 'iphone-15-pro'; finish: PhoneFinish };
+export type GearModel =
+	{ kind: 'iphone-15-pro'; finish: PhoneFinish } | { kind: 'gpro-x-tkl'; keycaps: KeycapSet };
 
 export interface GearItem {
 	name: string;
@@ -33,6 +36,18 @@ export const gear: GearGroup[] = [
 				name: 'iPhone 15 Pro',
 				spec: '藍色鈦金屬',
 				model: { kind: 'iphone-15-pro', finish: 'blue' }
+			}
+		]
+	},
+	{
+		name: '桌面',
+		tagline: '每天敲的那把',
+		items: [
+			{
+				name: 'Logitech G PRO X TKL LIGHTSPEED',
+				spec: '黑 · 茶軸 · 有線 / LIGHTSPEED / 藍牙',
+				note: '換上了李珠珢紫色應援鍵帽，空白鍵是金色的 KEEP PLAYING。',
+				model: { kind: 'gpro-x-tkl', keycaps: 'purple-cheer' }
 			}
 		]
 	}
