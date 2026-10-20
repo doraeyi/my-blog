@@ -46,6 +46,7 @@ export const gear: GearGroup[] = [
 			{
 				name: 'Logitech G PRO X TKL LIGHTSPEED',
 				spec: '黑 · 茶軸 · 有線 / LIGHTSPEED / 藍牙',
+				note: '有換上李珠珢的紫色應援鍵帽。',
 				model: { kind: 'gpro-x-tkl', keycaps: 'stock' }
 			}
 		]
