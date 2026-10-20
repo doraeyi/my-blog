@@ -102,20 +102,18 @@ html {
 		animation: case-fade-in 0.28s ease-out forwards;
 	}
 
-	/* Pages pull out of focus and back in, like a lens racking between exhibits. */
+	/* Pages slide out and back in. No blur: filtering a full-page snapshot stalls weak GPUs. */
 	@keyframes case-fade-out {
 		to {
 			opacity: 0;
-			transform: translateY(-8px) scale(0.99);
-			filter: blur(6px);
+			transform: translateY(-8px);
 		}
 	}
 
 	@keyframes case-fade-in {
 		from {
 			opacity: 0;
-			transform: translateY(10px) scale(1.01);
-			filter: blur(8px);
+			transform: translateY(10px);
 		}
 	}
 }
@@ -243,19 +241,30 @@ html {
 /* ───────── Dark mode: the cursor is a flashlight ───────── */
 .flashlight {
 	position: fixed;
-	inset: 0;
+	left: 0;
+	top: 0;
 	z-index: -8;
+	width: 840px;
+	height: 840px;
+	margin: -420px 0 0 -420px;
 	pointer-events: none;
 	opacity: 0;
+	border-radius: 50%;
+	/* Moved with transform only (see GlobalFx) — composited, never repainted. */
+	transform: translate3d(var(--fx, 50vw), var(--fy, 40vh), 0);
+	will-change: transform;
 	transition: opacity 0.6s ease;
 	background: radial-gradient(
-		420px circle at var(--fx, 50%) var(--fy, 40%),
+		circle closest-side,
 		color-mix(in srgb, var(--color-phosphor-400) 9%, transparent),
-		transparent 70%
+		transparent
 	);
 }
 :root[data-theme='dark'] .flashlight {
 	opacity: 1;
+}
+:root[data-lite='1'] .flashlight {
+	display: none;
 }
 
 /* ───────── Reading progress ───────── */

@@ -56,7 +56,12 @@
 			} catch {
 				return;
 			}
-			renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isNarrow ? 1.5 : 2));
+			// Capped below the screen's native ratio: two passes per frame (desk + loupe) add up fast.
+			renderer.setPixelRatio(
+				document.documentElement.dataset.lite === '1'
+					? 1
+					: Math.min(window.devicePixelRatio || 1, isNarrow ? 1.25 : 1.5)
+			);
 			renderer.outputColorSpace = THREE.SRGBColorSpace;
 			renderer.toneMapping = THREE.ACESFilmicToneMapping;
 
@@ -498,8 +503,8 @@
 			const tilt = new THREE.Group();
 			glass.add(tilt);
 			const R = 0.62;
-			const LOUPE_RES = isNarrow ? 384 : 640;
-			const loupeTarget = new THREE.WebGLRenderTarget(LOUPE_RES, LOUPE_RES, { samples: 4 });
+			const LOUPE_RES = isNarrow ? 320 : 512;
+			const loupeTarget = new THREE.WebGLRenderTarget(LOUPE_RES, LOUPE_RES, { samples: 2 });
 			const loupeCam = new THREE.PerspectiveCamera(30, 1, 0.05, 10);
 			const MAGNIFY = 2.4;
 			// Soft darkening toward the rim, like looking through real glass.
@@ -564,10 +569,18 @@
 				renderer.toneMappingExposure = dark ? 1.15 : 1;
 			}
 			applyTheme();
-			const themeObserver = new MutationObserver(applyTheme);
+			const themeObserver = new MutationObserver(() => {
+				applyTheme();
+				// Light-effects mode: drop to 1x so each frame costs a fraction.
+				if (document.documentElement.dataset.lite === '1' && renderer.getPixelRatio() > 1) {
+					renderer.setPixelRatio(1);
+					frame();
+				}
+				kick();
+			});
 			themeObserver.observe(document.documentElement, {
 				attributes: true,
-				attributeFilter: ['data-theme']
+				attributeFilter: ['data-theme', 'data-lite']
 			});
 
 			// ---------- framing ----------
@@ -600,7 +613,10 @@
 				camera.updateProjectionMatrix();
 			}
 			frame();
-			const ro = new ResizeObserver(frame);
+			const ro = new ResizeObserver(() => {
+				frame();
+				kick();
+			});
 			ro.observe(host);
 
 			// ---------- interaction ----------
@@ -628,12 +644,14 @@
 			}
 			const onMove = (e: PointerEvent) => {
 				updatePointer(e);
+				kick();
 				raycaster.setFromCamera(ndc, camera);
 				hoverFile = raycaster.intersectObjects([back, dossier, cover], false).length > 0;
 			};
 			const onLeave = () => {
 				pointerInside = false;
 				hoverFile = false;
+				kick();
 			};
 			const onClick = (e: MouseEvent) => {
 				updatePointer(e as PointerEvent);
@@ -641,6 +659,7 @@
 				if (raycaster.intersectObjects([back, dossier, cover], false).length) {
 					coverOpen = !coverOpen;
 					coverTarget = coverOpen ? 1.95 : 0.02;
+					kick();
 				}
 			};
 			host.addEventListener('pointermove', onMove, { passive: true });
@@ -650,12 +669,19 @@
 			let heroProgress = 0;
 			const onScroll = () => {
 				const r = host!.getBoundingClientRect();
-				heroProgress = Math.min(1, Math.max(0, -r.top / r.height));
+				const next = Math.min(1, Math.max(0, -r.top / r.height));
+				if (next !== heroProgress) {
+					heroProgress = next;
+					kick();
+				}
 			};
 			window.addEventListener('scroll', onScroll, { passive: true });
 
 			let visible = true;
-			const io = new IntersectionObserver(([en]) => (visible = en.isIntersecting));
+			const io = new IntersectionObserver(([en]) => {
+				visible = en.isIntersecting;
+				if (visible) kick();
+			});
 			io.observe(host);
 
 			// ---------- render loop ----------
@@ -676,7 +702,6 @@
 			function render() {
 				clock.update();
 				const dt = Math.min(clock.getDelta(), 0.05);
-				const t = clock.getElapsed();
 				const ms = performance.now() - start;
 
 				if (!reduced) {
@@ -703,11 +728,8 @@
 						glassTarget.copy(file.localToWorld(local)).setY(0.95);
 					}
 				} else if (!reduced) {
-					glassTarget.set(
-						rest.x + Math.sin(t * 0.5) * 0.25,
-						rest.y + Math.sin(t * 1.1) * 0.05,
-						rest.z + Math.cos(t * 0.4) * 0.15
-					);
+					// Settle back to rest and stay still, so the scene can stop rendering.
+					glassTarget.copy(rest);
 				}
 				const before = glass.position.clone();
 				glass.position.lerp(glassTarget, reduced ? 1 : Math.min(1, dt * 7));
@@ -739,12 +761,31 @@
 				renderer.setRenderTarget(null);
 
 				renderer.render(scene, camera);
+
+				// Still moving? Keep frames coming; otherwise go idle until the next input.
+				return (
+					(!reduced && ms < 1400) ||
+					Math.abs(coverTarget - coverAngle) > 0.002 ||
+					glass.position.distanceToSquared(glassTarget) > 1e-6 ||
+					Math.abs(glass.rotation.x) + Math.abs(glass.rotation.z) > 1e-3
+				);
 			}
 
+			// On-demand rendering: a frame is drawn only while something changes
+			// (intro, pointer, scroll, cover, theme, resize), never while the desk is idle.
+			let scheduled = false;
 			function loop() {
-				if (visible && !document.hidden) render();
-				if (!destroyed) rafId = requestAnimationFrame(loop);
+				scheduled = false;
+				if (destroyed || !visible || document.hidden) return;
+				if (render()) kick();
 			}
+			function kick() {
+				if (scheduled || destroyed) return;
+				scheduled = true;
+				rafId = requestAnimationFrame(loop);
+			}
+			const onVisibility = () => kick();
+			document.addEventListener('visibilitychange', onVisibility);
 			if (reduced) {
 				render();
 				ro.disconnect();
@@ -755,12 +796,13 @@
 				ro2.observe(host);
 				cleanupExtra = () => ro2.disconnect();
 			} else {
-				rafId = requestAnimationFrame(loop);
+				kick();
 			}
 			ready = true;
 
 			cleanup = () => {
 				cleanupExtra?.();
+				document.removeEventListener('visibilitychange', onVisibility);
 				themeObserver.disconnect();
 				ro.disconnect();
 				io.disconnect();

@@ -29,13 +29,15 @@ export const tilt: Action<HTMLElement, TiltOptions | undefined> = (node, options
 		node.style.setProperty('--gy', `${y * 100}%`);
 	}
 
+	const lite = () => document.documentElement.dataset.lite === '1';
+
 	function enter(e: PointerEvent) {
-		if (e.pointerType !== 'mouse') return;
+		if (e.pointerType !== 'mouse' || lite()) return;
 		rect = node.getBoundingClientRect();
 		node.style.transition = 'transform 0.15s ease-out';
 	}
 	function move(e: PointerEvent) {
-		if (e.pointerType !== 'mouse') return;
+		if (e.pointerType !== 'mouse' || !rect) return;
 		cancelAnimationFrame(frame);
 		frame = requestAnimationFrame(() => apply(e));
 	}

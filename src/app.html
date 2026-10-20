@@ -26,6 +26,8 @@
 								? 'dark'
 								: 'light';
 					document.documentElement.setAttribute('data-theme', theme);
+					// Devices that measured slow before start straight in light-effects mode.
+					if (localStorage.getItem('fx-lite') === '1') document.documentElement.dataset.lite = '1';
 				} catch (e) {}
 			})();
 		</script>

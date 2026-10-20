@@ -20,6 +20,18 @@
 
 	onMount(() => {
 		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+		// Pure atmosphere — not worth a GPU budget on modest devices or data-saver.
+		const nav = navigator as Navigator & {
+			deviceMemory?: number;
+			connection?: { saveData?: boolean };
+		};
+		if (
+			(nav.hardwareConcurrency ?? 8) <= 4 ||
+			(nav.deviceMemory ?? 8) <= 4 ||
+			nav.connection?.saveData ||
+			document.documentElement.dataset.lite === '1'
+		)
+			return;
 
 		let destroyed = false;
 		let rafId = 0;
@@ -53,7 +65,8 @@
 			} catch {
 				return;
 			}
-			renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+			// Tiny soft points read the same at 1x; a full-screen canvas at 2x is pure cost.
+			renderer.setPixelRatio(1);
 
 			const scene = new THREE.Scene();
 			const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 40);
@@ -167,8 +180,15 @@
 				}
 				renderer.render(scene, camera);
 			}
+			// Drifting dust doesn't need 60fps: draw every other frame (~30fps).
+			let odd = false;
 			function loop() {
-				if (!document.hidden) render();
+				if (document.documentElement.dataset.lite === '1') {
+					active = false;
+					return;
+				}
+				odd = !odd;
+				if (odd && !document.hidden) render();
 				if (!destroyed) rafId = requestAnimationFrame(loop);
 			}
 			rafId = requestAnimationFrame(loop);
