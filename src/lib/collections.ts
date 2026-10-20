@@ -9,7 +9,9 @@ export type KeycapSet = 'stock' | 'purple-cheer';
 
 /** Items with a `model` get a spinnable 3D render instead of a plain card. */
 export type GearModel =
-	{ kind: 'iphone-15-pro'; finish: PhoneFinish } | { kind: 'gpro-x-tkl'; keycaps: KeycapSet };
+	| { kind: 'iphone-15-pro'; finish: PhoneFinish }
+	| { kind: 'gpro-x-tkl'; keycaps: KeycapSet }
+	| { kind: 'g502-lightspeed' };
 
 export interface GearItem {
 	name: string;
@@ -41,13 +43,18 @@ export const gear: GearGroup[] = [
 	},
 	{
 		name: '桌面',
-		tagline: '每天敲的那把',
+		tagline: '每天敲、每天點的那幾樣',
 		items: [
 			{
 				name: 'Logitech G PRO X TKL LIGHTSPEED',
 				spec: '黑 · 茶軸 · 有線 / LIGHTSPEED / 藍牙',
 				note: '有換上李珠珢的紫色應援鍵帽。',
 				model: { kind: 'gpro-x-tkl', keycaps: 'stock' }
+			},
+			{
+				name: 'Logitech G502 LIGHTSPEED',
+				spec: '黑 · HERO 25K · LIGHTSPEED 無線',
+				model: { kind: 'g502-lightspeed' }
 			}
 		]
 	}

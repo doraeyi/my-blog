@@ -7,6 +7,7 @@
 	import Monitor from '@lucide/svelte/icons/monitor';
 	import PhoneModel from '$lib/components/PhoneModel.svelte';
 	import KeyboardModel from '$lib/components/KeyboardModel.svelte';
+	import MouseModel from '$lib/components/MouseModel.svelte';
 
 	const total = gear.reduce((n, g) => n + g.items.length, 0);
 	let active = $state<string>('all');
@@ -76,8 +77,10 @@
 										<span aria-hidden="true" class="plinth" class:wide></span>
 										{#if item.model.kind === 'iphone-15-pro'}
 											<PhoneModel finish={item.model.finish} label={item.name} />
-										{:else}
+										{:else if item.model.kind === 'gpro-x-tkl'}
 											<KeyboardModel keycaps={item.model.keycaps} label={item.name} />
+										{:else}
+											<MouseModel label={item.name} />
 										{/if}
 									</div>
 									<div class="flex flex-col justify-center gap-3 px-7 py-8">
