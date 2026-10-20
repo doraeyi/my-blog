@@ -260,7 +260,8 @@
 
 			// ── camera plateau with three lenses, flash, LiDAR ──
 			const camGroup = new THREE.Group();
-			camGroup.position.set(-W / 2 + 0.35 + 1.85, H / 2 - 0.35 - 1.85, -D / 2 - 0.005);
+			// +x here is the top-left corner when you look at the back, where the real plateau sits.
+			camGroup.position.set(W / 2 - 0.35 - 1.85, H / 2 - 0.35 - 1.85, -D / 2 - 0.005);
 			camGroup.rotation.y = Math.PI;
 			phone.add(camGroup);
 			const plateauGeom = new THREE.ExtrudeGeometry(roundedRect(3.7, 3.7, 0.95), {
