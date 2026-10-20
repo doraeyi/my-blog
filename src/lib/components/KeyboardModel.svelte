@@ -354,7 +354,7 @@
 				gold: []
 			};
 			const legendGeoms: BufferGeometry[] = [];
-			 
+
 			// Scratch cache while building the board, never reactive state.
 			// eslint-disable-next-line svelte/prefer-svelte-reactivity
 			const capCache = new Map<number, BufferGeometry>();
@@ -446,35 +446,118 @@
 			glow.position.set(0, CASE_H + 0.02, zFn + 3.25 * U);
 			board.add(glow);
 
-			// ── top band: G mark, two round buttons, media keys, volume roller ──
+			// ── top band: lit G mark, game-mode + brightness buttons, four round media buttons ──
 			const bandZ = -CASE_D / 2 + 0.9;
-			const markTex = (() => {
+
+			// One small atlas for the G mark and every button icon (7 cells of 128px).
+			const ICONS = ['g', 'game', 'sun', 'prev', 'play', 'next', 'mute'] as const;
+			const iconTex = (() => {
 				const c = document.createElement('canvas');
-				c.width = c.height = 128;
+				c.width = 128 * ICONS.length;
+				c.height = 128;
 				const ctx = c.getContext('2d')!;
-				// Geometric "G": an open ring with a bar into the centre.
-				ctx.strokeStyle = ctx.fillStyle = '#e8e8ec';
-				ctx.lineWidth = 18;
-				ctx.beginPath();
-				ctx.arc(64, 64, 42, Math.PI * 0.08, Math.PI * 1.92, false);
-				ctx.stroke();
-				ctx.fillRect(64, 55, 52, 18);
+				ctx.fillStyle = ctx.strokeStyle = '#ffffff';
+				ctx.lineCap = 'butt';
+				const tri = (x: number, y: number, w: number, h: number, dir: 1 | -1) => {
+					ctx.beginPath();
+					ctx.moveTo(x, y - h / 2);
+					ctx.lineTo(x + dir * w, y);
+					ctx.lineTo(x, y + h / 2);
+					ctx.closePath();
+					ctx.fill();
+				};
+				ICONS.forEach((icon, i) => {
+					const cx = i * 128 + 64;
+					const cy = 64;
+					if (icon === 'g') {
+						// Logitech G: a heavy ring open in its upper-right quarter, with a
+						// bar running in from the right edge to the centre.
+						ctx.lineWidth = 20;
+						ctx.beginPath();
+						ctx.arc(cx, cy, 42, 0, Math.PI * 1.68, false);
+						ctx.stroke();
+						ctx.fillRect(cx, cy - 10, 52, 20);
+					} else if (icon === 'game') {
+						ctx.lineWidth = 7;
+						ctx.beginPath();
+						ctx.arc(cx, cy, 26, 0, Math.PI * 2);
+						ctx.stroke();
+					} else if (icon === 'sun') {
+						ctx.beginPath();
+						ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+						ctx.fill();
+						ctx.lineWidth = 6;
+						for (let r = 0; r < 8; r++) {
+							const ang = (r * Math.PI) / 4;
+							ctx.beginPath();
+							ctx.moveTo(cx + Math.cos(ang) * 22, cy + Math.sin(ang) * 22);
+							ctx.lineTo(cx + Math.cos(ang) * 32, cy + Math.sin(ang) * 32);
+							ctx.stroke();
+						}
+					} else if (icon === 'prev') {
+						ctx.fillRect(cx - 30, cy - 18, 6, 36);
+						tri(cx, cy, 24, 36, -1);
+						tri(cx + 24, cy, 24, 36, -1);
+					} else if (icon === 'play') {
+						tri(cx - 26, cy, 26, 38, 1);
+						ctx.fillRect(cx + 6, cy - 18, 7, 36);
+						ctx.fillRect(cx + 19, cy - 18, 7, 36);
+					} else if (icon === 'next') {
+						tri(cx - 24, cy, 24, 36, 1);
+						tri(cx, cy, 24, 36, 1);
+						ctx.fillRect(cx + 24, cy - 18, 6, 36);
+					} else if (icon === 'mute') {
+						ctx.fillRect(cx - 30, cy - 10, 12, 20);
+						ctx.beginPath();
+						ctx.moveTo(cx - 18, cy - 10);
+						ctx.lineTo(cx - 2, cy - 24);
+						ctx.lineTo(cx - 2, cy + 24);
+						ctx.lineTo(cx - 18, cy + 10);
+						ctx.closePath();
+						ctx.fill();
+						ctx.lineWidth = 6;
+						ctx.beginPath();
+						ctx.moveTo(cx + 8, cy - 12);
+						ctx.lineTo(cx + 30, cy + 12);
+						ctx.moveTo(cx + 30, cy - 12);
+						ctx.lineTo(cx + 8, cy + 12);
+						ctx.stroke();
+					}
+				});
 				const t = new THREE.CanvasTexture(c);
 				t.colorSpace = THREE.SRGBColorSpace;
+				t.anisotropy = renderer.capabilities.getMaxAnisotropy();
 				return t;
 			})();
-			const mark = new THREE.Mesh(
-				new THREE.PlaneGeometry(0.85, 0.85),
-				new THREE.MeshStandardMaterial({
-					map: markTex,
+			const iconMats: InstanceType<typeof THREE.MeshBasicMaterial>[] = [];
+			function icon(
+				name: (typeof ICONS)[number],
+				size: number,
+				x: number,
+				y: number,
+				z: number,
+				color: string
+			) {
+				const geo = new THREE.PlaneGeometry(size, size);
+				const i = ICONS.indexOf(name);
+				const uv = geo.attributes.uv;
+				for (let j = 0; j < uv.count; j++) uv.setX(j, (i + uv.getX(j)) / ICONS.length);
+				const mat = new THREE.MeshBasicMaterial({
+					map: iconTex,
+					color,
 					transparent: true,
-					metalness: 0.6,
-					roughness: 0.3
-				})
-			);
-			mark.rotation.x = -Math.PI / 2;
-			mark.position.set(x0 + 0.5 * U, CASE_H + 0.006, bandZ);
-			board.add(mark);
+					toneMapped: false,
+					depthWrite: false
+				});
+				iconMats.push(mat);
+				const m = new THREE.Mesh(geo, mat);
+				m.rotation.x = -Math.PI / 2;
+				m.position.set(x, y, z);
+				board.add(m);
+			}
+
+			// The G mark is RGB-lit like the keys.
+			icon('g', 0.95, x0 + 0.5 * U, CASE_H + 0.006, bandZ, '#7cc4ff');
 
 			const knobMat = new THREE.MeshStandardMaterial({
 				color: '#1d1d21',
@@ -482,21 +565,27 @@
 				metalness: 0.4
 			});
 			const xOf = (label: string) => placed.find((p) => p.label === label)!.x;
-			// Game-mode and brightness buttons sit above F3 and F4.
-			for (const label of ['F3', 'F4']) {
-				const b = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.44, 0.22, 36), knobMat);
-				b.position.set(xOf(label), CASE_H + 0.11, bandZ);
-				board.add(b);
-			}
-			// Media keys (previous, play/pause, next, mute) above F9–F12.
-			for (const label of ['F9', 'F10', 'F11', 'F12']) {
-				const mk = new THREE.Mesh(slab(1.1, 0.78, 0.24, 0.3, 0.06), knobMat);
-				mk.position.set(xOf(label), CASE_H, bandZ);
-				board.add(mk);
-			}
+			const KNOB_TOP = CASE_H + 0.22;
+			// Game-mode button above F3 (larger), brightness above F4.
+			const gameKnob = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.52, 0.22, 40), knobMat);
+			gameKnob.position.set(xOf('F3'), CASE_H + 0.11, bandZ);
+			board.add(gameKnob);
+			icon('game', 0.55, xOf('F3'), KNOB_TOP + 0.003, bandZ, '#d9d9de');
+			const lightKnob = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.42, 0.22, 36), knobMat);
+			lightKnob.position.set(xOf('F4'), CASE_H + 0.11, bandZ);
+			board.add(lightKnob);
+			icon('sun', 0.5, xOf('F4'), KNOB_TOP + 0.003, bandZ, '#d9d9de');
+			// Four round media buttons above F9–F12.
+			(['prev', 'play', 'next', 'mute'] as const).forEach((name, i) => {
+				const x = xOf(`F${9 + i}`);
+				const btn = new THREE.Mesh(new THREE.CylinderGeometry(0.44, 0.46, 0.22, 36), knobMat);
+				btn.position.set(x, CASE_H + 0.11, bandZ);
+				board.add(btn);
+				icon(name, 0.5, x, KNOB_TOP + 0.003, bandZ, '#d9d9de');
+			});
 
 			// A three-quarter view that shows off the depth of the caps.
-			board.rotation.y = -0.32;
+			board.rotation.y = -0.12;
 
 			// ── controls / framing ──
 			const controls = new OrbitControls(camera, canvasEl);
@@ -506,12 +595,12 @@
 			controls.dampingFactor = 0.08;
 			controls.rotateSpeed = 0.6;
 			controls.minPolarAngle = Math.PI * 0.12;
-			controls.maxPolarAngle = Math.PI * 0.46; // never from underneath
+			controls.maxPolarAngle = Math.PI * 0.4; // never low enough to hide the top band
 			// A long, flat object reads badly edge-on, so instead of a full turn it
 			// sways gently around the front three-quarter view while idle.
 			let sway = !reduced && !lite();
 			let dragging = false;
-			const SWAY_BASE = -0.32;
+			const SWAY_BASE = -0.12;
 			const swayStart = performance.now();
 			controls.target.set(0, 1.2, 0.6);
 
@@ -522,7 +611,7 @@
 				camera.aspect = w / h;
 				const hHalf = Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect);
 				const dist = Math.max((CASE_W * 0.72) / Math.tan(hHalf), 40);
-				const dir = new THREE.Vector3(0, 0.62, 0.78).normalize();
+				const dir = new THREE.Vector3(0, 0.88, 0.62).normalize();
 				camera.position.copy(controls.target).addScaledVector(dir, dist);
 				camera.updateProjectionMatrix();
 				controls.update();
@@ -538,7 +627,7 @@
 				const moving = controls.update();
 				if (sway && !dragging) {
 					const t = (performance.now() - swayStart) / 1000;
-					board.rotation.y = SWAY_BASE + Math.sin(t * 0.35) * 0.32;
+					board.rotation.y = SWAY_BASE + Math.sin(t * 0.35) * 0.16;
 				}
 				renderer.render(scene, camera);
 				if (moving || (sway && !dragging)) kick();
@@ -595,7 +684,7 @@
 						(Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => m.dispose());
 					}
 				});
-				for (const t of [atlasTex, glowTex, markTex, envTex]) t.dispose();
+				for (const t of [atlasTex, glowTex, iconTex, envTex]) t.dispose();
 				renderer.dispose();
 			};
 		})();
