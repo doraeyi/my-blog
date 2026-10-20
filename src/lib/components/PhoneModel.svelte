@@ -20,7 +20,7 @@
 
 	const FINISHES: Record<PhoneFinish, { frame: string; glass: string }> = {
 		natural: { frame: '#8f8a81', glass: '#bdb7ad' },
-		blue: { frame: '#3f4b5c', glass: '#36404d' },
+		blue: { frame: '#36404e', glass: '#28313d' },
 		white: { frame: '#d9d7d2', glass: '#e7e5e0' },
 		black: { frame: '#3a3a3c', glass: '#3f3f42' }
 	};
@@ -58,6 +58,7 @@
 			const pmrem = new THREE.PMREMGenerator(renderer);
 			const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 			scene.environment = envTex;
+			scene.environmentIntensity = 0.7;
 			pmrem.dispose();
 
 			const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
@@ -189,11 +190,12 @@
 				alphaMap: logoTex,
 				alphaTest: 0.5,
 				metalness: 1,
-				roughness: 0.12,
+				roughness: 0.22,
 				clearcoat: 1
 			});
-			const logo = new THREE.Mesh(new THREE.PlaneGeometry(1.75, 1.75), logoMat);
-			logo.position.set(0, 0.15, -D / 2 - 0.008);
+			const logo = new THREE.Mesh(new THREE.PlaneGeometry(2.95, 2.95), logoMat);
+			// Sized like the real mark: about a third of the back's width, dead centre.
+			logo.position.set(0, 0, -D / 2 - 0.008);
 			logo.rotation.y = Math.PI;
 			phone.add(logo);
 
