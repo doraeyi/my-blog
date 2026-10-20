@@ -70,40 +70,50 @@
 			const toX = (u: number) => (u - 0.5) * W;
 			const toZ = (v: number) => (v - 0.5) * L;
 			// Outline traced off the official top-down shot, u: left→right, v: front→back.
+			// Front: two pointed buttons with the wheel notch between; left: the G8/G7
+			// corner, then the thumb-rest bulge; rear: a round palm.
 			const OUTLINE: [number, number][] = [
-				[0.19, 0.06], [0.26, 0.025], [0.42, 0.03], [0.47, 0.07], [0.58, 0.06], [0.62, 0.02],
-				[0.78, 0.03], [0.86, 0.08], [0.9, 0.18], [0.97, 0.3], [1.0, 0.45], [0.99, 0.62],
-				[0.95, 0.75], [0.9, 0.85], [0.83, 0.93], [0.72, 0.985], [0.6, 1.0], [0.5, 0.99],
-				[0.42, 0.96], [0.3, 0.9], [0.12, 0.86], [0.0, 0.8], [0.02, 0.6], [0.06, 0.52],
-				[0.08, 0.45], [0.06, 0.32], [0.1, 0.18], [0.15, 0.1]
+				[0.14, 0.07], [0.2, 0.04], [0.32, 0.02], [0.45, 0.012], [0.555, 0.03], [0.595, 0.1],
+				[0.635, 0.012], [0.73, 0.004], [0.82, 0.025], [0.9, 0.075], [0.955, 0.18], [0.985, 0.33],
+				[1.0, 0.5], [0.995, 0.64], [0.97, 0.76], [0.91, 0.865], [0.82, 0.94], [0.7, 0.985],
+				[0.56, 1.0], [0.42, 0.99], [0.28, 0.955], [0.15, 0.895], [0.055, 0.815], [0.005, 0.7],
+				[-0.01, 0.58], [0.005, 0.47], [0.04, 0.39], [0.04, 0.3], [0.035, 0.24], [0.07, 0.14]
 			];
 			const outlinePts = OUTLINE.map(([u, v]) => new THREE.Vector2(toX(u), toZ(v)));
 			const outlineCurve = new THREE.SplineCurve([...outlinePts, outlinePts[0]]);
-			const CENTER = new THREE.Vector2(toX(0.52), toZ(0.56));
+			const CENTER = new THREE.Vector2(toX(0.55), toZ(0.55));
 
-			/** Height in units at a top-view point, from the side profile: ~14 mm at the button tips, ~40 mm on the palm hump. */
+			/** Height at a top-view point, from the side shot: ~13 mm at the button tips, ~40 mm on the palm hump, a steeper fall at the rear. */
 			function crown(x: number, z: number) {
 				const u = x / W + 0.5;
 				const v = z / L + 0.5;
-				const along = 1.3 + 2.7 * Math.exp(-(((v - 0.62) / 0.36) ** 2));
-				const across = 1 - 0.18 * ((u - 0.52) / 0.5) ** 2;
+				const spread = v < 0.62 ? 0.36 : 0.27;
+				const along = 1.25 + 2.75 * Math.exp(-(((v - 0.62) / spread) ** 2));
+				const across = 1 - 0.2 * ((u - 0.56) / 0.5) ** 2;
 				return along * across;
 			}
 
-			// ── shell: radial loft ──
+			// ── shell: an undercut side wall topped by a radial-loft dome ──
 			const RINGS = 40;
-			const SEGS = 160;
+			const SEGS = 200;
+			const WALL_K = 10;
+			const edges = Array.from({ length: SEGS + 1 }, (_, s) => outlineCurve.getPoint((s % SEGS) / SEGS));
+			// The wall rises to ~45% of the crown, then the dome rounds over to the top.
+			const wallTop = edges.map((e) => crown(e.x, e.y) * 0.45);
+			// How far the wall tucks in at the floor: deep under the palm and thumb rest, shallow at the button tips.
+			const undercut = edges.map((e) => 0.12 + 0.38 * Math.min(1, Math.max(0, (e.y / L + 0.5 - 0.25) / 0.4)));
+
 			const pos: number[] = [];
 			const uvs: number[] = [];
 			const idx: number[] = [];
 			for (let r = 0; r <= RINGS; r++) {
 				const t = r / RINGS;
 				for (let s = 0; s <= SEGS; s++) {
-					const edge = outlineCurve.getPoint((s % SEGS) / SEGS);
-					const x = CENTER.x + (edge.x - CENTER.x) * t;
-					const z = CENTER.y + (edge.y - CENTER.y) * t;
-					// Rounded shoulder: holds the crown height, then falls steeply to the edge.
-					const y = crown(x, z) * Math.sqrt(Math.max(0, 1 - t ** 5));
+					const e = edges[s];
+					const x = CENTER.x + (e.x - CENTER.x) * t;
+					const z = CENTER.y + (e.y - CENTER.y) * t;
+					const c = crown(x, z);
+					const y = wallTop[s] + (c - wallTop[s]) * Math.sqrt(Math.max(0, 1 - t ** 5));
 					pos.push(x, y, z);
 					uvs.push(x / W + 0.5, 1 - (z / L + 0.5)); // projected straight down
 				}
@@ -121,18 +131,49 @@
 			shellGeo.setIndex(idx);
 			shellGeo.computeVertexNormals();
 
-			// ── top-view paint: colour + glow maps ──
+			// Side wall: from the dome's rim down to a tucked-in floor line; uv = (around, up).
+			const wallPos: number[] = [];
+			const wallUv: number[] = [];
+			const wallIdx: number[] = [];
+			const floor: InstanceType<typeof THREE.Vector2>[] = [];
+			for (let k = 0; k <= WALL_K; k++) {
+				const h = k / WALL_K;
+				for (let s = 0; s <= SEGS; s++) {
+					const e = edges[s];
+					const dir = new THREE.Vector2(e.x - CENTER.x, e.y - CENTER.y).normalize();
+					const tuck = undercut[s] * (1 - h) ** 2;
+					const x = e.x - dir.x * tuck;
+					const z = e.y - dir.y * tuck;
+					wallPos.push(x, wallTop[s] * h, z);
+					wallUv.push(s / SEGS, h);
+					if (k === 0 && s < SEGS) floor.push(new THREE.Vector2(x, z));
+				}
+			}
+			for (let k = 0; k < WALL_K; k++) {
+				for (let s = 0; s < SEGS; s++) {
+					const a = k * (SEGS + 1) + s;
+					const b = a + SEGS + 1;
+					wallIdx.push(a, b, a + 1, a + 1, b, b + 1);
+				}
+			}
+			const wallGeo = new THREE.BufferGeometry();
+			wallGeo.setAttribute('position', new THREE.Float32BufferAttribute(wallPos, 3));
+			wallGeo.setAttribute('uv', new THREE.Float32BufferAttribute(wallUv, 2));
+			wallGeo.setIndex(wallIdx);
+			wallGeo.computeVertexNormals();
+
+			// ── paint: top colour + glow maps, side-wall grip ──
 			const TW = 750;
 			const TH = 1320;
 			const px = (u: number) => u * TW;
 			const py = (v: number) => v * TH;
-			function canvas2d(draw: (ctx: CanvasRenderingContext2D) => void, srgb = true) {
+			function canvas2d(w: number, h: number, draw: (ctx: CanvasRenderingContext2D) => void) {
 				const c = document.createElement('canvas');
-				c.width = TW;
-				c.height = TH;
+				c.width = w;
+				c.height = h;
 				draw(c.getContext('2d')!);
 				const t = new THREE.CanvasTexture(c);
-				if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+				t.colorSpace = THREE.SRGBColorSpace;
 				t.anisotropy = renderer.capabilities.getMaxAnisotropy();
 				return t;
 			}
@@ -140,95 +181,103 @@
 				ctx.strokeStyle = color;
 				ctx.lineWidth = width;
 				ctx.lineJoin = 'round';
+				ctx.lineCap = 'round';
 				ctx.beginPath();
 				pts.forEach(([u, v], i) => (i ? ctx.lineTo(px(u), py(v)) : ctx.moveTo(px(u), py(v))));
 				ctx.stroke();
 			};
-			const SPLIT_PALM: [number, number][] = [[0.1, 0.585], [0.45, 0.56], [0.63, 0.5], [0.95, 0.465]];
-			const colorTex = canvas2d((ctx) => {
-				ctx.fillStyle = '#17171a';
+			// A dark groove with a thin lit lip, for every seam between parts.
+			const groove = (ctx: CanvasRenderingContext2D, pts: [number, number][]) => {
+				line(ctx, pts, 13, '#030304');
+				line(ctx, pts.map(([u, v]) => [u, v + 0.006] as [number, number]), 3, '#55555d');
+			};
+			// Where the two main buttons end and the palm shell begins.
+			const SPLIT_PALM: [number, number][] = [[0.0, 0.6], [0.2, 0.575], [0.46, 0.56], [0.64, 0.52], [1.0, 0.49]];
+			const colorTex = canvas2d(TW, TH, (ctx) => {
+				ctx.fillStyle = '#161619';
 				ctx.fillRect(0, 0, TW, TH);
-				// Glossy palm cap vs. matte buttons: a slightly lighter, smoother rear.
-				const g = ctx.createLinearGradient(0, py(0.5), 0, TH);
-				g.addColorStop(0, '#1c1c20');
-				g.addColorStop(1, '#141417');
-				ctx.fillStyle = g;
+				// The palm shell is a touch lighter than the matte buttons.
+				ctx.fillStyle = '#1b1b1f';
 				ctx.beginPath();
-				ctx.moveTo(0, py(0.6));
-				SPLIT_PALM.forEach(([u, v]) => ctx.lineTo(px(u), py(v)));
-				ctx.lineTo(TW, py(0.46));
+				SPLIT_PALM.forEach(([u, v], i) => (i ? ctx.lineTo(px(u), py(v)) : ctx.moveTo(px(u), py(v))));
 				ctx.lineTo(TW, TH);
 				ctx.lineTo(0, TH);
 				ctx.fill();
+				// Glossy strip down the left of the left button, where the DPI LEDs sit.
+				ctx.fillStyle = '#202026';
+				ctx.beginPath();
+				ctx.moveTo(px(0.04), py(0.33));
+				ctx.lineTo(px(0.19), py(0.31));
+				ctx.lineTo(px(0.2), py(0.58));
+				ctx.lineTo(px(0.02), py(0.6));
+				ctx.fill();
 				// Wheel channel and the two buttons beneath the wheel.
-				ctx.fillStyle = '#0a0a0b';
+				ctx.fillStyle = '#09090a';
 				ctx.beginPath();
-				ctx.roundRect(px(0.445), py(0.06), px(0.155), py(0.47), 18);
+				ctx.roundRect(px(0.465), py(0.05), px(0.175), py(0.5), 16);
 				ctx.fill();
-				ctx.fillStyle = '#1e1e22';
-				ctx.beginPath();
-				ctx.roundRect(px(0.475), py(0.345), px(0.095), py(0.06), 12);
-				ctx.fill();
-				ctx.beginPath();
-				ctx.roundRect(px(0.475), py(0.43), px(0.095), py(0.065), 12);
-				ctx.fill();
-				ctx.strokeStyle = '#8a8a90';
+				ctx.fillStyle = '#1f1f23';
+				for (const v of [0.365, 0.44]) {
+					ctx.beginPath();
+					ctx.roundRect(px(0.49), py(v), px(0.125), py(0.062), 10);
+					ctx.fill();
+				}
+				ctx.strokeStyle = ctx.fillStyle = '#85858c';
 				ctx.lineWidth = 4;
 				ctx.beginPath();
-				ctx.arc(px(0.5225), py(0.375), 12, 0, Math.PI * 2);
+				ctx.arc(px(0.5525), py(0.396), 11, 0, Math.PI * 2);
 				ctx.stroke();
-				ctx.fillStyle = '#8a8a90';
-				ctx.font = '600 22px "Segoe UI", sans-serif';
+				ctx.font = '600 20px "Segoe UI", sans-serif';
 				ctx.textAlign = 'center';
 				ctx.textBaseline = 'middle';
-				ctx.fillText('G6', px(0.5225), py(0.4625));
-				// Button splits: grooves with a thin lit edge.
-				for (const pts of [
-					[[0.44, 0.04], [0.44, 0.56]],
-					[[0.6, 0.04], [0.6, 0.5]],
-					SPLIT_PALM
-				] as [number, number][][]) {
-					line(ctx, pts, 10, '#050506');
-					line(ctx, pts.map(([u, v]) => [u, v + 0.004] as [number, number]), 2, '#3a3a40');
-				}
-				// G8 / G7 beside the left button.
-				for (const [v, name] of [[0.2, 'G8'], [0.27, 'G7']] as const) {
-					ctx.fillStyle = '#202024';
+				ctx.fillText('DPI', px(0.5525), py(0.471));
+				// Button splits and the rear palm seam.
+				groove(ctx, [[0.465, 0.03], [0.465, 0.56]]);
+				groove(ctx, [[0.64, 0.0], [0.64, 0.52]]);
+				groove(ctx, [[0.13, 0.08], [0.19, 0.31], [0.2, 0.575]]);
+				groove(ctx, SPLIT_PALM);
+				groove(ctx, [[0.12, 0.88], [0.3, 0.86], [0.5, 0.865], [0.66, 0.83], [0.82, 0.76]]);
+				// G8 / G7: angled buttons on the left corner.
+				for (const [v, name] of [[0.185, 'G8'], [0.245, 'G7']] as const) {
+					ctx.fillStyle = '#1f1f24';
 					ctx.beginPath();
-					ctx.roundRect(px(0.07), py(v), px(0.1), py(0.055), 10);
+					ctx.moveTo(px(0.06), py(v + 0.008));
+					ctx.lineTo(px(0.17), py(v));
+					ctx.lineTo(px(0.18), py(v + 0.052));
+					ctx.lineTo(px(0.05), py(v + 0.058));
 					ctx.fill();
-					ctx.fillStyle = '#6e6e75';
-					ctx.font = '600 22px "Segoe UI", sans-serif';
-					ctx.fillText(name, px(0.12), py(v + 0.028));
+					ctx.fillStyle = '#6a6a72';
+					ctx.font = '600 18px "Segoe UI", sans-serif';
+					ctx.fillText(name, px(0.115), py(v + 0.03));
 				}
-				// Scroll-mode arrows either side of the wheel.
-				ctx.fillStyle = '#5a5a60';
-				for (const [u, dir] of [[0.4, -1], [0.64, 1]] as const) {
+				// Tilt arrows either side of the wheel.
+				ctx.fillStyle = '#56565c';
+				for (const [u, dir] of [[0.39, -1], [0.71, 1]] as const) {
 					ctx.beginPath();
-					ctx.moveTo(px(u), py(0.2) - 9);
-					ctx.lineTo(px(u) + dir * 11, py(0.2));
-					ctx.lineTo(px(u), py(0.2) + 9);
+					ctx.moveTo(px(u), py(0.25) - 9);
+					ctx.lineTo(px(u) + dir * 11, py(0.25));
+					ctx.lineTo(px(u), py(0.25) + 9);
 					ctx.fill();
 				}
 			});
-			const glowTex = canvas2d((ctx) => {
+			const glowTex = canvas2d(TW, TH, (ctx) => {
 				ctx.fillStyle = '#000';
 				ctx.fillRect(0, 0, TW, TH);
 				ctx.strokeStyle = ctx.fillStyle = '#29b6f6';
-				// Three DPI LEDs: short slanted bars down the left edge.
-				ctx.lineWidth = 9;
+				// Three DPI LEDs: short slanted bars on the glossy strip.
+				ctx.lineWidth = 8;
 				ctx.lineCap = 'round';
 				for (let i = 0; i < 3; i++) {
-					const v = 0.45 + i * 0.045;
+					const v = 0.48 + i * 0.037;
 					ctx.beginPath();
-					ctx.moveTo(px(0.095), py(v));
-					ctx.lineTo(px(0.125), py(v - 0.018));
+					ctx.moveTo(px(0.105), py(v));
+					ctx.lineTo(px(0.14), py(v - 0.02));
 					ctx.stroke();
 				}
 				// Logitech G on the palm: heavy ring open at the upper right, bar to centre.
-				const cx = px(0.37);
-				const cy = py(0.665);
-				const r = px(0.07);
+				const cx = px(0.36);
+				const cy = py(0.69);
+				const r = px(0.068);
 				ctx.lineWidth = r * 0.48;
 				ctx.lineCap = 'butt';
 				ctx.beginPath();
@@ -236,50 +285,69 @@
 				ctx.stroke();
 				ctx.fillRect(cx, cy - r * 0.24, r * 1.24, r * 0.48);
 			});
+			// Side wall: matte, with the dotted grip panels on the thumb side and the ring-finger side.
+			const wallTex = canvas2d(2048, 128, (ctx) => {
+				ctx.fillStyle = '#121214';
+				ctx.fillRect(0, 0, 2048, 128);
+				ctx.fillStyle = '#28282d';
+				edges.forEach((e, s) => {
+					if (s % 2) return;
+					const u = e.x / W + 0.5;
+					const v = e.y / L + 0.5;
+					const thumb = u < 0.3 && v > 0.42 && v < 0.9;
+					const ring = u > 0.7 && v > 0.3 && v < 0.85;
+					if (!thumb && !ring) return;
+					const x = (s / SEGS) * 2048;
+					for (let row = 0; row < 7; row++) {
+						ctx.beginPath();
+						ctx.arc(x, 28 + row * 13 + (s % 4 ? 6 : 0), 3.2, 0, Math.PI * 2);
+						ctx.fill();
+					}
+				});
+			});
 
 			const shellMat = new THREE.MeshPhysicalMaterial({
 				map: colorTex,
 				emissiveMap: glowTex,
 				emissive: '#ffffff',
 				emissiveIntensity: 1.6,
-				roughness: 0.45,
-				metalness: 0.1,
-				clearcoat: 0.35,
-				clearcoatRoughness: 0.4,
+				roughness: 0.55,
+				metalness: 0.05,
+				clearcoat: 0.15,
+				clearcoatRoughness: 0.5,
 				side: THREE.DoubleSide
 			});
 			const mouse = new THREE.Group();
 			scene.add(mouse);
 			mouse.add(new THREE.Mesh(shellGeo, shellMat));
-			// Flat base under the shell.
-			const baseShape = new THREE.Shape(outlineCurve.getPoints(SEGS));
+			mouse.add(
+				new THREE.Mesh(
+					wallGeo,
+					new THREE.MeshStandardMaterial({ map: wallTex, roughness: 0.75, side: THREE.DoubleSide })
+				)
+			);
+			// Flat base under the tucked-in floor line.
 			const base = new THREE.Mesh(
-				new THREE.ShapeGeometry(baseShape, 1),
-				new THREE.MeshStandardMaterial({ color: '#0e0e10', roughness: 0.9 })
+				new THREE.ShapeGeometry(new THREE.Shape(floor), 1),
+				new THREE.MeshStandardMaterial({ color: '#0e0e10', roughness: 0.9, side: THREE.DoubleSide })
 			);
 			base.rotation.x = Math.PI / 2;
 			base.position.y = 0.001;
 			mouse.add(base);
 
-			// ── scroll wheel: metal core, knurled rubber tread ──
-			const treadTex = (() => {
-				const c = document.createElement('canvas');
-				c.width = 256;
-				c.height = 16;
-				const ctx = c.getContext('2d')!;
+			// ── scroll wheel: metal rims, knurled rubber tread ──
+			const treadTex = canvas2d(256, 16, (ctx) => {
 				ctx.fillStyle = '#2a2a2e';
 				ctx.fillRect(0, 0, 256, 16);
 				ctx.fillStyle = '#0d0d0f';
 				for (let x = 0; x < 256; x += 8) ctx.fillRect(x, 0, 4, 16);
-				const t = new THREE.CanvasTexture(c);
-				t.colorSpace = THREE.SRGBColorSpace;
-				return t;
-			})();
-			const wheelX = toX(0.5225);
-			const wheelZ = toZ(0.2);
-			const wheelY = crown(wheelX, wheelZ) - 0.15;
+			});
+			const wheelX = toX(0.5525);
+			const wheelZ = toZ(0.245);
+			const WHEEL_R = 0.95;
+			const wheelY = crown(wheelX, wheelZ) - WHEEL_R + 0.42;
 			const tread = new THREE.Mesh(
-				new THREE.CylinderGeometry(0.62, 0.62, 0.62, 48, 1, true),
+				new THREE.CylinderGeometry(WHEEL_R, WHEEL_R, 0.7, 56, 1, true),
 				new THREE.MeshStandardMaterial({ map: treadTex, roughness: 0.7, side: THREE.DoubleSide })
 			);
 			tread.rotation.z = Math.PI / 2;
@@ -287,24 +355,33 @@
 			mouse.add(tread);
 			const metal = new THREE.MeshStandardMaterial({ color: '#8d8f96', metalness: 1, roughness: 0.28 });
 			for (const side of [-1, 1]) {
-				const rimDisc = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 0.06, 48), metal);
+				const rimDisc = new THREE.Mesh(
+					new THREE.CylinderGeometry(WHEEL_R - 0.03, WHEEL_R - 0.03, 0.08, 56),
+					metal
+				);
 				rimDisc.rotation.z = Math.PI / 2;
-				rimDisc.position.set(wheelX + side * 0.33, wheelY, wheelZ);
+				rimDisc.position.set(wheelX + side * 0.38, wheelY, wheelZ);
 				mouse.add(rimDisc);
 			}
 
-			// ── thumb buttons (G4, G5) and the sniper button on the left flank ──
-			const sideMat = new THREE.MeshPhysicalMaterial({ color: '#1d1d21', roughness: 0.3, clearcoat: 0.6 });
-			const sideEdgeX = toX(0.065);
-			for (const [v, len] of [[0.43, 0.9], [0.5, 0.9]] as const) {
-				const b = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.42, len), sideMat);
-				b.position.set(sideEdgeX - 0.05, crown(sideEdgeX, toZ(v)) * 0.62, toZ(v));
-				b.rotation.y = 0.12;
+			// ── thumb buttons (G4, G5) along the top of the left wall, sniper button below ──
+			const sideMat = new THREE.MeshPhysicalMaterial({ color: '#1c1c20', roughness: 0.3, clearcoat: 0.6 });
+			/** The left-wall outline point nearest depth v. */
+			const leftEdge = (v: number) =>
+				edges
+					.filter((e) => e.x < CENTER.x)
+					.reduce((best, e) => (Math.abs(e.y - toZ(v)) < Math.abs(best.y - toZ(v)) ? e : best));
+			for (const v of [0.36, 0.45]) {
+				const e = leftEdge(v);
+				const b = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.38, 1.0), sideMat);
+				b.position.set(e.x - 0.04, crown(e.x, e.y) * 0.45 - 0.22, e.y);
+				b.rotation.y = 0.08;
 				mouse.add(b);
 			}
-			const sniper = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.5, 0.85), sideMat);
-			sniper.position.set(toX(0.07) - 0.08, 1.05, toZ(0.33));
-			sniper.rotation.set(0, 0.15, -0.25);
+			const e6 = leftEdge(0.31);
+			const sniper = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.55, 0.8), sideMat);
+			sniper.position.set(e6.x - 0.02, 0.62, e6.y);
+			sniper.rotation.set(0, 0.2, -0.2);
 			mouse.add(sniper);
 
 			// Front three-quarter from the left: the side buttons and the lit G both show.
@@ -321,7 +398,7 @@
 			controls.maxPolarAngle = Math.PI * 0.46;
 			controls.autoRotate = !reduced && !lite();
 			controls.autoRotateSpeed = 1.4;
-			controls.target.set(0, 1.9, 0);
+			controls.target.set(0, 2.7, 0);
 
 			function resize() {
 				const w = host!.clientWidth;
@@ -391,7 +468,7 @@
 						(Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => m.dispose());
 					}
 				});
-				for (const t of [colorTex, glowTex, treadTex, envTex]) t.dispose();
+				for (const t of [colorTex, glowTex, wallTex, treadTex, envTex]) t.dispose();
 				renderer.dispose();
 			};
 		})();
