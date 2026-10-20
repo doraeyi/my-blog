@@ -167,8 +167,8 @@
 				roughness: 0.22,
 				clearcoat: 1
 			});
-			const logo = new THREE.Mesh(new THREE.PlaneGeometry(3.25, 3.25), logoMat);
-			// Sized like the real mark: about a third of the back's width, dead centre.
+			const logo = new THREE.Mesh(new THREE.PlaneGeometry(2.22, 2.22), logoMat);
+			// Real mark is ~16 mm wide (~23% of the back), dead centre; artwork fills ~73% of the plane.
 			logo.position.set(0, 0, -D / 2 - 0.008);
 			logo.rotation.y = Math.PI;
 			phone.add(logo);
