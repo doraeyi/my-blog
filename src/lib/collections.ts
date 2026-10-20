@@ -3,16 +3,40 @@
  * tidy empty state until these have entries — fill them in whenever.
  */
 
+export type PhoneFinish = 'natural' | 'blue' | 'white' | 'black';
+
+/** Items with a `model` get a spinnable 3D render instead of a plain card. */
+export type GearModel = { kind: 'iphone-15-pro'; finish: PhoneFinish };
+
+export interface GearItem {
+	name: string;
+	spec?: string;
+	note?: string;
+	model?: GearModel;
+}
+
 export interface GearGroup {
 	name: string;
 	/** One-line flavour text under the group name. */
 	tagline?: string;
-	items: { name: string; spec?: string; note?: string }[];
+	items: GearItem[];
 }
 
 // Example:
 // { name: '主力機', tagline: '每天寫 code 的那台', items: [{ name: 'MacBook Pro 14"', spec: 'M3 Pro / 36GB' }] }
-export const gear: GearGroup[] = [];
+export const gear: GearGroup[] = [
+	{
+		name: '隨身',
+		tagline: '口袋裡的那台',
+		items: [
+			{
+				name: 'iPhone 15 Pro',
+				spec: '藍色鈦金屬',
+				model: { kind: 'iphone-15-pro', finish: 'blue' }
+			}
+		]
+	}
+];
 
 export type BookStatus = 'read' | 'reading' | 'want';
 

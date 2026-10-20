@@ -5,6 +5,7 @@
 	import { reveal } from '$lib/actions/reveal';
 	import { gear } from '$lib/collections';
 	import Monitor from '@lucide/svelte/icons/monitor';
+	import PhoneModel from '$lib/components/PhoneModel.svelte';
 
 	const total = gear.reduce((n, g) => n + g.items.length, 0);
 	let active = $state<string>('all');
@@ -57,19 +58,44 @@
 					</div>
 					<ul class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
 						{#each group.items as item, i (item.name)}
-							<li
-								use:reveal={{ delay: i * 40, y: 8 }}
-								use:tilt
-								class="case-card rounded-2xl border border-border-case/70 bg-surface-alt/50 p-4"
-							>
-								<p class="font-medium text-ink">{item.name}</p>
-								{#if item.spec}
-									<p class="mt-1 font-mono-hack text-xs text-ink-muted">{item.spec}</p>
-								{/if}
-								{#if item.note}
-									<p class="mt-2 text-sm text-ink-muted">{item.note}</p>
-								{/if}
-							</li>
+							{#if item.model}
+								<li
+									use:reveal={{ delay: i * 40, y: 8 }}
+									class="exhibit grid overflow-hidden rounded-sm border border-border-case sm:col-span-2 md:grid-cols-[1.2fr_1fr] lg:col-span-3"
+								>
+									<div class="stage relative h-[26rem] md:h-[30rem]">
+										<span aria-hidden="true" class="plinth"></span>
+										<PhoneModel finish={item.model.finish} label={item.name} />
+									</div>
+									<div class="flex flex-col justify-center gap-3 px-7 py-8">
+										<p class="font-mono-hack text-xs tracking-[0.3em] text-ink-muted">
+											EXHIBIT {String(i + 1).padStart(2, '0')}
+										</p>
+										<p class="font-display text-3xl text-ink sm:text-4xl">{item.name}</p>
+										{#if item.spec}
+											<p class="font-mono-hack text-sm text-ink-muted">{item.spec}</p>
+										{/if}
+										{#if item.note}
+											<p class="text-sm leading-relaxed text-ink-muted">{item.note}</p>
+										{/if}
+										<span class="date-stamp mt-2 self-start">已登記</span>
+									</div>
+								</li>
+							{:else}
+								<li
+									use:reveal={{ delay: i * 40, y: 8 }}
+									use:tilt
+									class="case-card rounded-2xl border border-border-case/70 bg-surface-alt/50 p-4"
+								>
+									<p class="font-medium text-ink">{item.name}</p>
+									{#if item.spec}
+										<p class="mt-1 font-mono-hack text-xs text-ink-muted">{item.spec}</p>
+									{/if}
+									{#if item.note}
+										<p class="mt-2 text-sm text-ink-muted">{item.note}</p>
+									{/if}
+								</li>
+							{/if}
 						{/each}
 					</ul>
 				</section>
@@ -77,3 +103,26 @@
 		</div>
 	{/if}
 </div>
+
+<style>
+	.exhibit {
+		background: var(--color-surface-alt);
+	}
+	/* Evidence pedestal: a pool of light under the object, darker toward the edges. */
+	.stage {
+		background:
+			radial-gradient(ellipse 60% 45% at 50% 42%, rgba(255, 238, 200, 0.16), transparent 70%),
+			linear-gradient(to bottom, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.32));
+	}
+	.plinth {
+		position: absolute;
+		left: 50%;
+		bottom: 9%;
+		width: 46%;
+		height: 9%;
+		border-radius: 50%;
+		transform: translateX(-50%);
+		background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.45), transparent 70%);
+		pointer-events: none;
+	}
+</style>
