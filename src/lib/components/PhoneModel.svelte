@@ -147,6 +147,56 @@
 			back.rotation.y = Math.PI;
 			phone.add(back);
 
+			// ── Apple logo: polished mark centred on the back glass ──
+			const logoTex = canvasTex(256, 256, (ctx) => {
+				ctx.fillStyle = '#fff';
+				// body: two upper lobes, two lower lobes, filled between them
+				for (const [x, y, r] of [
+					[98, 150, 70],
+					[158, 150, 70],
+					[106, 192, 54],
+					[150, 192, 54]
+				]) {
+					ctx.beginPath();
+					ctx.arc(x, y, r, 0, Math.PI * 2);
+					ctx.fill();
+				}
+				ctx.fillRect(100, 120, 56, 120);
+				ctx.globalCompositeOperation = 'destination-out';
+				// the dip at the top and the bite on the right
+				ctx.beginPath();
+				ctx.arc(128, 74, 20, 0, Math.PI * 2);
+				ctx.fill();
+				ctx.beginPath();
+				ctx.arc(238, 150, 42, 0, Math.PI * 2);
+				ctx.fill();
+				// the narrow pinch at the bottom
+				ctx.beginPath();
+				ctx.arc(128, 262, 22, 0, Math.PI * 2);
+				ctx.fill();
+				ctx.globalCompositeOperation = 'source-over';
+				// leaf
+				ctx.save();
+				ctx.translate(150, 44);
+				ctx.rotate(0.7);
+				ctx.beginPath();
+				ctx.ellipse(0, 0, 14, 32, 0, 0, Math.PI * 2);
+				ctx.fill();
+				ctx.restore();
+			});
+			const logoMat = new THREE.MeshPhysicalMaterial({
+				color: colors.frame,
+				alphaMap: logoTex,
+				alphaTest: 0.5,
+				metalness: 1,
+				roughness: 0.12,
+				clearcoat: 1
+			});
+			const logo = new THREE.Mesh(new THREE.PlaneGeometry(1.75, 1.75), logoMat);
+			logo.position.set(0, 0.15, -D / 2 - 0.008);
+			logo.rotation.y = Math.PI;
+			phone.add(logo);
+
 			// ── front: lock screen with the Dynamic Island ──
 			const screenTex = canvasTex(706, 1466, (ctx) => {
 				const w = 706;
@@ -377,6 +427,7 @@
 					}
 				});
 				screenTex.dispose();
+				logoTex.dispose();
 				envTex.dispose();
 				renderer.dispose();
 			};
