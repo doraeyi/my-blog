@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Seo from '$lib/components/Seo.svelte';
+	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { resolve } from '$app/paths';
 	import { reveal } from '$lib/actions/reveal';
 	import { now } from '$lib/now';
@@ -22,20 +23,18 @@
 
 <Seo title="現在" description="我最近在做什麼、學什麼、看什麼。" />
 
-<div class="mx-auto max-w-3xl px-6 pt-28 pb-16">
-	<p class="font-mono-hack text-xs tracking-[0.3em] text-accent uppercase">
-		Live Surveillance // 現況回報
-	</p>
-	<h1 class="mt-2 font-display text-3xl font-bold text-ink">現在</h1>
-	<p class="mt-2 flex items-center gap-2 font-mono-hack text-xs text-ink-muted">
-		<span class="relative flex size-2">
-			<span
-				class="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-60 motion-reduce:animate-none"
-			></span>
-			<span class="relative inline-flex size-2 rounded-full bg-emerald-500"></span>
-		</span>
-		最後更新 {now.updatedAt} · {now.location}
-	</p>
+<div class="mx-auto max-w-3xl px-6 pb-16">
+	<PageHeader title="現在" stamp="監聽" description="我最近在做什麼、學什麼、看什麼。">
+		<p class="flex items-center gap-2 font-mono-hack text-xs text-ink-muted">
+			<span class="relative flex size-2">
+				<span
+					class="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-60 motion-reduce:animate-none"
+				></span>
+				<span class="relative inline-flex size-2 rounded-full bg-accent"></span>
+			</span>
+			REC · 最後更新 {now.updatedAt} · {now.location}
+		</p>
+	</PageHeader>
 
 	<div class="mt-10 space-y-8">
 		{#each lists as list, i (list.title)}

@@ -1,0 +1,13 @@
+{
+	"name": "Liam — 前端工程師的偵探手記",
+	"short_name": "Liam 偵探手記",
+	"icons": [
+		{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+		{ "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+		{ "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+	],
+	"theme_color": "#120d0a",
+	"background_color": "#f8f1df",
+	"display": "standalone",
+	"start_url": "/"
+}

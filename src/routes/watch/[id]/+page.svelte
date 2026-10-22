@@ -38,12 +38,12 @@
 			<span class="rounded-full border border-border-case px-2 py-0.5 text-xs text-ink-muted">
 				{data.item.mediaType === 'movie' ? '電影' : '影集'}
 			</span>
-			<h1 class="mt-2 text-3xl font-bold text-ink">{data.item.title}</h1>
+			<h1 class="mt-2 font-display text-3xl text-ink sm:text-4xl">{data.item.title}</h1>
 
 			<div class="mt-2 flex flex-wrap items-center gap-3 text-sm text-ink-muted">
 				{#if data.item.voteAverage}
 					<span class="flex items-center gap-1">
-						<Star class="size-4 text-yellow-500" />
+						<Star class="size-4 fill-brass text-brass" />
 						{data.item.voteAverage.toFixed(1)} / TMDB
 					</span>
 				{/if}
@@ -70,7 +70,7 @@
 
 	{#if data.item.cast.length}
 		<section class="mt-10">
-			<h2 class="text-lg font-semibold text-ink">演員</h2>
+			<h2 class="section-title">演員</h2>
 			<ul class="mt-4 grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5">
 				{#each data.item.cast as member, i (member.id)}
 					<li use:reveal={{ delay: Math.min(i * 30, 300), y: 10 }} class="text-center">
@@ -105,7 +105,7 @@
 	{/if}
 
 	<section id="comments" class="mt-10">
-		<h2 class="text-lg font-semibold text-ink">留言（{data.comments.length}）</h2>
+		<h2 class="section-title">留言（{data.comments.length}）</h2>
 
 		<ul class="mt-4 space-y-3">
 			{#each data.comments as comment, i (comment.id)}

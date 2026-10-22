@@ -19,7 +19,7 @@
 			<span class="flex size-12 items-center justify-center rounded-full bg-surface">
 				<LogIn class="size-5 text-ink-muted" />
 			</span>
-			<h1 class="text-xl font-bold text-ink">登入</h1>
+			<h1 class="font-display text-2xl text-ink">登入</h1>
 			<p class="text-sm text-ink-muted">歡迎回來</p>
 		</div>
 

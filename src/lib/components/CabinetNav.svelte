@@ -14,6 +14,7 @@
 	import { drawers, drawerFor, onRoute, type Drawer } from '$lib/site-nav';
 	import { search } from '$lib/search.svelte';
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+	import seal from '$lib/assets/brand/seal.svg';
 	import Search from '@lucide/svelte/icons/search';
 	import User from '@lucide/svelte/icons/user';
 	import X from '@lucide/svelte/icons/x';
@@ -98,8 +99,9 @@
 <!-- Case label (brand) -->
 <a
 	href={resolve('/')}
-	class="case-label fixed top-4 left-4 z-50 hidden items-center gap-2 rounded-sm px-3 py-1.5 lg:flex"
+	class="case-label fixed top-4 left-4 z-50 hidden items-center gap-2 rounded-sm py-1.5 pr-3 pl-1.5 lg:flex"
 >
+	<img src={seal} alt="" width="26" height="26" class="brand-seal" />
 	<span class="font-mono-hack text-[0.65rem] tracking-widest text-case-600">No.{caseNo}</span>
 	<span class="font-display text-sm text-case-900">Liam 偵探手記</span>
 </a>
@@ -292,6 +294,20 @@
 
 	/* ── manila stock shared by tabs, labels and index cards ── */
 	.tab,
+	/* The name seal on the brand label; pressed a little harder on hover, like a stamp. */
+	.brand-seal {
+		transform: rotate(-6deg);
+		transition: transform 0.25s cubic-bezier(0.2, 1.4, 0.4, 1);
+	}
+	.case-label:hover .brand-seal {
+		transform: rotate(-2deg) scale(1.08);
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.brand-seal {
+			transition: none;
+		}
+	}
+
 	.case-label,
 	.mobile-tab {
 		background:

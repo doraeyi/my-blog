@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { tilt } from '$lib/actions/tilt';
 	import Seo from '$lib/components/Seo.svelte';
+	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { resolve } from '$app/paths';
 	import { reveal } from '$lib/actions/reveal';
 	import type { PageData } from './$types';
@@ -12,9 +13,8 @@
 
 <Seo title="標籤" description="依主題瀏覽所有文章。" />
 
-<div class="mx-auto max-w-3xl px-6 pt-28 pb-16">
-	<p class="font-mono-hack text-xs tracking-[0.3em] text-accent uppercase">Evidence Index</p>
-	<h1 class="mt-2 font-display text-3xl font-bold text-ink">標籤</h1>
+<div class="mx-auto max-w-3xl px-6 pb-16">
+	<PageHeader title="標籤" stamp="索引" description="依主題瀏覽所有文章。" />
 
 	{#if data.tags.length === 0}
 		<p class="mt-8 text-sm text-ink-muted">還沒有任何標籤。</p>

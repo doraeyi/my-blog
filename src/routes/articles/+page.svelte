@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { tilt } from '$lib/actions/tilt';
 	import Seo from '$lib/components/Seo.svelte';
+	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { resolve } from '$app/paths';
 	import { reveal } from '$lib/actions/reveal';
 	import type { PageData } from './$types';
@@ -10,8 +11,8 @@
 
 <Seo title="技術文章" description="前端、SvelteKit 與各種工程筆記。" />
 
-<div class="mx-auto max-w-3xl px-6 pt-28 pb-16">
-	<h1 class="font-display text-3xl font-bold text-ink">技術文章</h1>
+<div class="mx-auto max-w-3xl px-6 pb-16">
+	<PageHeader title="技術文章" stamp="技術" description="前端、SvelteKit 與各種工程筆記。" />
 
 	{#if data.posts.length === 0}
 		<p class="mt-8 text-sm text-ink-muted">還沒有文章。</p>

@@ -46,7 +46,7 @@
 	/>
 
 	<section use:reveal={{ delay: 80 }}>
-		<h2 class="text-lg font-semibold text-ink">目前的朋友</h2>
+		<h2 class="section-title">目前的朋友</h2>
 		{#if friends.length === 0}
 			<p
 				class="mt-4 rounded-2xl border border-dashed border-border-case py-10 text-center text-sm text-ink-muted"
@@ -92,7 +92,7 @@
 	</section>
 
 	<section class="mt-12" use:reveal={{ delay: 120 }}>
-		<h2 class="text-lg font-semibold text-ink">想交換友鏈？</h2>
+		<h2 class="section-title">想交換友鏈？</h2>
 		<ul class="mt-4 space-y-2 text-sm text-ink-muted">
 			{#each requirements as r (r)}
 				<li class="flex gap-2"><span class="text-accent">✦</span>{r}</li>

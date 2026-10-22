@@ -31,7 +31,7 @@
 </script>
 
 <section id="comments" class="mt-16">
-	<h2 class="flex items-center gap-2 text-lg font-semibold text-ink">
+	<h2 class="flex items-center gap-2 section-title">
 		<MessagesSquare class="size-5 text-accent" />
 		{title}
 		<span class="font-mono-hack text-sm font-normal text-ink-muted">{comments.length}</span>
@@ -98,7 +98,7 @@
 	{/if}
 
 	{#if message}
-		<p class="mt-2 text-sm text-red-600">{message}</p>
+		<p class="mt-2 text-sm text-accent">{message}</p>
 	{/if}
 
 	{#if comments.length === 0}

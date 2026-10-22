@@ -55,7 +55,7 @@
 		{/if}
 
 		<section id="comments" class="mt-12">
-			<h2 class="text-lg font-semibold text-ink">留言（{data.comments.length}）</h2>
+			<h2 class="section-title">留言（{data.comments.length}）</h2>
 
 			<ul class="mt-4 space-y-3">
 				{#each data.comments as comment, i (comment.id)}
@@ -85,7 +85,7 @@
 				</button>
 			</form>
 			{#if form?.message}
-				<p class="mt-2 text-sm text-red-600">{form.message}</p>
+				<p class="mt-2 text-sm text-accent">{form.message}</p>
 			{/if}
 		</section>
 	</article>

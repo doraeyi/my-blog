@@ -1,5 +1,8 @@
 import satori from 'satori';
 import { Resvg } from '@resvg/resvg-js';
+import seal from '$lib/assets/brand/seal.svg?raw';
+
+const SEAL_SRC = `data:image/svg+xml;base64,${Buffer.from(seal).toString('base64')}`;
 
 /**
  * Share-card renderer. Fonts come from Google Fonts subset to exactly the
@@ -42,7 +45,7 @@ export async function renderOgImage(card: OgCard, cacheKey: string): Promise<Uin
 
 	const subtitle =
 		card.subtitle && card.subtitle.length > 90 ? card.subtitle.slice(0, 88) + '…' : card.subtitle;
-	const allText = `${card.eyebrow}${card.title}${subtitle ?? ''}${card.footer}CASE FILE CLASSIFIED LIAM`;
+	const allText = `${card.eyebrow}${card.title}${subtitle ?? ''}${card.footer}CASE FILE CLASSIFIED LIAM 偵探手記`;
 
 	const [sans, sansBold, elite] = await Promise.all([
 		loadGoogleFont('Noto Sans TC', 400, allText),
@@ -128,8 +131,13 @@ export async function renderOgImage(card: OgCard, cacheKey: string): Promise<Uin
 			},
 			h(
 				'div',
-				{ display: 'flex', fontFamily: 'Special Elite', letterSpacing: 4, color: '#f4ead2' },
-				'LIAM'
+				{ display: 'flex', alignItems: 'center', gap: 16, color: '#f4ead2' },
+				{
+					type: 'img',
+					props: { src: SEAL_SRC, width: 56, height: 56, style: { transform: 'rotate(-4deg)' } }
+				},
+				h('div', { display: 'flex', fontFamily: 'Special Elite', letterSpacing: 4 }, 'LIAM'),
+				h('div', { display: 'flex', fontWeight: 700 }, '偵探手記')
 			),
 			h('div', { display: 'flex' }, card.footer)
 		)

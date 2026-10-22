@@ -20,7 +20,7 @@
 	<div class="grid gap-10 lg:grid-cols-[1fr_220px]">
 		<article class="min-w-0">
 			<div use:reveal>
-				<h1 class="text-3xl font-bold text-ink">{data.project.githubRepo}</h1>
+				<h1 class="font-display text-3xl text-ink sm:text-4xl">{data.project.githubRepo}</h1>
 				{#if data.project.description}
 					<p class="mt-2 text-ink-muted">{data.project.description}</p>
 				{/if}
@@ -66,14 +66,14 @@
 			{/if}
 
 			<section class="mt-8 rounded-xl border border-border-case bg-surface-alt p-5 shadow-sm">
-				<h2 class="text-base font-semibold text-ink">Commit 熱力圖</h2>
+				<h2 class="section-title">Commit 熱力圖</h2>
 				<div class="mt-3">
 					<ContributionGraph data={data.project.commitDaily} />
 				</div>
 			</section>
 
 			<section id="comments" class="mt-8">
-				<h2 class="text-lg font-semibold text-ink">留言（{data.comments.length}）</h2>
+				<h2 class="section-title">留言（{data.comments.length}）</h2>
 
 				<ul class="mt-4 space-y-3">
 					{#each data.comments as comment, i (comment.id)}
@@ -112,7 +112,7 @@
 			<span
 				class="flex items-center gap-1 rounded-full border border-border-case px-3 py-1 text-sm text-ink-muted"
 			>
-				<Star class="size-3.5 text-yellow-500" />
+				<Star class="size-3.5 fill-brass text-brass" />
 				{data.project.starCount}
 			</span>
 			<!-- eslint-disable svelte/no-navigation-without-resolve -- external GitHub/homepage URLs -->

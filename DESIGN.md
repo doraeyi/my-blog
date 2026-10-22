@@ -214,7 +214,7 @@ The palette is aged paper and ink with one red stamp. Manila, cream card stock a
 - **Guide-Card Manila** (`manila-guide`): month guide cards and their tabs in the blog drawer.
 - **Index Stock** (`index-stock`; `index-stock-night` in dark mode): ruled index cards, the nav's index cards, the profile menu, and the footer label holder. Ruled with `index-rule` lines every 28px.
 - **Sticky-Note Yellow** (`note-yellow`): the 現場筆記 notes on the homepage.
-- **Brass** (`brass`, `brass-deep`): the footer label-holder frame and drawer handle, and the pin heads on the case line.
+- **Brass** (`brass`, `brass-deep`): the footer label-holder frame and drawer handle, the pin heads on the case line, and rating stars (`text-brass` / `fill-brass`, the `--color-brass` token). Stars were yellow-500/amber-400 before; those were off-system.
 - **Green Leather** (`desk-leather`): the 3D blotter only.
 
 ### Neutral
@@ -233,6 +233,13 @@ The palette is aged paper and ink with one red stamp. Manila, cream card stock a
 
 **The Object Stock Rule.** Page grounds, page text and page chrome use the semantic tokens (`surface`, `surface-alt`, `ink`, `ink-muted`, `border-case`, `accent`), so dark mode swaps them in one place. Paper objects keep fixed stock colours in both themes, and the text printed on them uses fixed ramp steps (`case-900`, `case-700`, `case-600`), so a cream card stays a cream card with dark ink on a dark page.
 
+## Brand Mark
+
+**The Name Seal.** The brand mark is a square red name seal (姓名印): a `stamp-500` block, cream inner frame, and the letters L I / A M in a 2×2 grid cut from Special Elite outlines (no font needed). It is the same rubber-stamp language as the PageHeader stamps, and it is the only logo. It appears as the favicon (SVG, plus 16/32/48 PNG and ICO), the apple-touch and PWA icons (seal on index stock), the top-left case label (rotated −6°, pressed slightly on hover), the bottom-left of every share card, and the site logo in the JSON-LD.
+
+- Sources live in `src/lib/assets/brand/` (`seal.svg`, a heavier-framed `seal-small.svg` for 16–48px, and `app-icon.svg`). `python scripts/make-seal.py .` regenerates them from the font; `node scripts/build-icons.mjs` rasterises every size into `static/`.
+- The proposals that led here (stamp roundel, magnifier, folder, typewriter key, index-card caret and their combinations) are kept in `docs/logo-options.html` and `docs/logo-options-2.html`.
+
 ## Typography
 
 **Display Font:** Special Elite, with LXGW WenKai TC for CJK glyphs (fallback ui-monospace, Menlo, monospace)
@@ -242,6 +249,8 @@ The palette is aged paper and ink with one red stamp. Manila, cream card stock a
 **Character:** A worn typewriter for anything printed or typed on a file: titles, tabs, card heads, stamps. A hand-brushed 文楷 carries Chinese at the same pitch. A neutral system sans carries reading text, so long posts never fight the costume.
 
 ### Hierarchy
+- **Section title** (`section-title` utility: display face, 400, 1.25rem): every in-page `h2` (留言, 演員, 正在觀看, FAQ blocks). Never system-sans semibold or synthetic bold on the typewriter face.
+- **Index-page covers**: every list page (技術文章, 心情, 作品集, 追劇紀錄, 標籤, 案件時間軸, 現在) opens on `PageHeader`; no ad-hoc `h1` with eyebrow lines.
 - **Display** (400, 3rem rising to 4.5rem at `sm`, line-height 1): the hero name, typed in by the Typewriter component.
 - **Headline** (400, 2.25rem rising to 3rem at `sm`, leading tight): PageHeader titles, which type in by clip-path steps. Post-body `h1` to `h3` in `.prose` use the display face at weight 400 with letter-spacing 0.
 - **Title** (400, 1.5rem rising to 1.875rem at `sm`, display face): home section headings (最新卷宗, 現場筆記, 案件線, 最新證詞). Older index pages still use system sans bold here.

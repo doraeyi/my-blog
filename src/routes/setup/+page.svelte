@@ -141,7 +141,7 @@
 			{#each shown as group (group.name)}
 				<section use:reveal>
 					<div class="flex items-baseline gap-3 border-b border-border-case/60 pb-3">
-						<h2 class="text-xl font-bold text-ink">{group.name}</h2>
+						<h2 class="section-title">{group.name}</h2>
 						{#if group.tagline}
 							<p class="text-sm text-ink-muted">{group.tagline}</p>
 						{/if}
@@ -166,7 +166,9 @@
 											<div class="min-w-0">
 												<p class="font-medium text-ink">{item.name}</p>
 												{#if item.spec}
-													<p class="mt-1 truncate font-mono-hack text-xs text-ink-muted">{item.spec}</p>
+													<p class="mt-1 truncate font-mono-hack text-xs text-ink-muted">
+														{item.spec}
+													</p>
 												{/if}
 												{#if item.note}
 													<p class="mt-2 text-sm text-ink-muted">{item.note}</p>

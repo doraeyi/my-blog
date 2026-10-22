@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { tilt } from '$lib/actions/tilt';
 	import Seo from '$lib/components/Seo.svelte';
+	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { resolve } from '$app/paths';
 	import { reveal } from '$lib/actions/reveal';
 	import type { PageData } from './$types';
@@ -10,12 +11,13 @@
 
 <Seo title="#{data.tag}" description="標籤「{data.tag}」下的所有文章。" />
 
-<div class="mx-auto max-w-3xl px-6 pt-28 pb-16">
-	<a href={resolve('/tags')} class="font-mono-hack text-xs tracking-[0.3em] text-accent uppercase"
-		>← Evidence Index</a
-	>
-	<h1 class="mt-2 font-display text-3xl font-bold text-ink">#{data.tag}</h1>
-	<p class="mt-1 text-sm text-ink-muted">共 {data.posts.length} 篇</p>
+<div class="mx-auto max-w-3xl px-6 pb-16">
+	<PageHeader title={`#${data.tag}`} stamp="證物" description={`共 ${data.posts.length} 篇`}>
+		<a
+			href={resolve('/tags')}
+			class="font-mono-hack text-xs tracking-widest text-accent hover:underline">← 所有標籤</a
+		>
+	</PageHeader>
 
 	<!-- eslint-disable svelte/no-navigation-without-resolve -- paths come from the server-built content index -->
 	<ul class="mt-8 space-y-4">

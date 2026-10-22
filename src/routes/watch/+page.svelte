@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { tilt } from '$lib/actions/tilt';
 	import Seo from '$lib/components/Seo.svelte';
+	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { resolve } from '$app/paths';
 	import { reveal } from '$lib/actions/reveal';
 	import Star from '@lucide/svelte/icons/star';
@@ -12,11 +13,10 @@
 
 <Seo title="追劇紀錄" description="最近在看與看過的電影、影集。" />
 
-<div class="mx-auto max-w-5xl px-6 pt-28 pb-16">
-	<h1 class="text-3xl font-bold text-ink">追劇紀錄</h1>
-	<p class="mt-2 text-ink-muted">我看過的電影與影集</p>
+<div class="mx-auto max-w-5xl px-6 pb-16">
+	<PageHeader title="追劇紀錄" stamp="監視" description="我看過的電影與影集。" />
 
-	<h2 class="mt-10 text-lg font-semibold text-ink">正在觀看</h2>
+	<h2 class="mt-10 section-title">正在觀看</h2>
 	{#if data.current}
 		{@const current = data.current}
 		<a
@@ -67,7 +67,7 @@
 					</h3>
 					{#if current.voteAverage}
 						<p class="mt-1.5 flex items-center gap-1 text-sm text-ink-muted">
-							<Star class="size-4 text-yellow-500" />
+							<Star class="size-4 fill-brass text-brass" />
 							{current.voteAverage.toFixed(1)}
 						</p>
 					{/if}
@@ -87,7 +87,7 @@
 		<p class="mt-4 text-sm text-ink-muted">目前沒有正在觀看的作品。</p>
 	{/if}
 
-	<h2 class="mt-12 text-lg font-semibold text-ink">看過的</h2>
+	<h2 class="mt-12 section-title">看過的</h2>
 	{#if data.watched.length === 0}
 		<p class="mt-4 text-sm text-ink-muted">還沒有紀錄。</p>
 	{/if}
@@ -113,7 +113,7 @@
 						</h3>
 						{#if item.voteAverage}
 							<p class="mt-auto flex items-center gap-1 text-xs text-ink-muted">
-								<Star class="size-3 text-yellow-500" />
+								<Star class="size-3 fill-brass text-brass" />
 								{item.voteAverage.toFixed(1)}
 							</p>
 						{/if}

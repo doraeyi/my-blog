@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Seo from '$lib/components/Seo.svelte';
+	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { reveal } from '$lib/actions/reveal';
 	import BookOpen from '@lucide/svelte/icons/book-open';
 	import Feather from '@lucide/svelte/icons/feather';
@@ -37,10 +38,8 @@
 
 <Seo title="案件時間軸" description="文章、心情、作品與追劇，依時間排列的完整紀錄。" />
 
-<div class="mx-auto max-w-3xl px-6 pt-28 pb-16">
-	<p class="font-mono-hack text-xs tracking-[0.3em] text-accent uppercase">Case Timeline</p>
-	<h1 class="mt-2 font-display text-3xl font-bold text-ink">案件時間軸</h1>
-	<p class="mt-1 text-sm text-ink-muted">共 {data.total} 筆紀錄</p>
+<div class="mx-auto max-w-3xl px-6 pb-16">
+	<PageHeader title="案件時間軸" stamp="編年" description={`共 ${data.total} 筆紀錄`} />
 
 	<div class="mt-6 flex flex-wrap gap-2" role="group" aria-label="篩選類型">
 		{#each [['all', '全部'], ...Object.entries(kinds).map( ([k, v]) => [k, v.label] )] as [key, label] (key)}

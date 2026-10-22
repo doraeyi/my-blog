@@ -51,7 +51,7 @@
 	/>
 
 	<section use:reveal={{ delay: 80 }}>
-		<h2 class="text-lg font-semibold text-ink">常見問題</h2>
+		<h2 class="section-title">常見問題</h2>
 		<ul
 			class="mt-4 divide-y divide-border-case/60 rounded-2xl border border-border-case/70 bg-surface-alt/40"
 		>

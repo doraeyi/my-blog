@@ -36,6 +36,9 @@
 	--color-phosphor-400: #f0b429;
 	--color-phosphor-600: #b9860a;
 
+	/* Brass fittings — a material, used for rating stars and frames. */
+	--color-brass: #b8904f;
+
 	--color-surface: var(--color-case-50);
 	--color-surface-alt: var(--color-case-100);
 	--color-ink: var(--color-case-900);
@@ -345,4 +348,13 @@ html {
 	letter-spacing: 0.08em;
 	transform: rotate(-4deg);
 	opacity: 0.85;
+}
+
+/* Section headings inside a page: the typewriter face, never synthetic bold. */
+@utility section-title {
+	font-family: var(--font-display);
+	font-size: 1.25rem;
+	line-height: 1.4;
+	font-weight: 400;
+	color: var(--color-ink);
 }

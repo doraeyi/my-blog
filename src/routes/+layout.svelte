@@ -4,7 +4,6 @@
 	import { goto, onNavigate } from '$app/navigation';
 	import { page } from '$app/state';
 	import { locales, localizeHref } from '$lib/paraglide/runtime';
-	import favicon from '$lib/assets/favicon.svg';
 	import type { Snippet } from 'svelte';
 	import type { LayoutData } from './$types';
 	import CabinetNav from '$lib/components/CabinetNav.svelte';
@@ -13,9 +12,35 @@
 	import SiteFooter from '$lib/components/SiteFooter.svelte';
 	import GlobalFx from '$lib/components/GlobalFx.svelte';
 	import { theme } from '$lib/theme.svelte';
-	import { SITE_TITLE } from '$lib/site';
+	import { SITE_DESCRIPTION, SITE_TITLE } from '$lib/site';
 
 	let { children, data }: { children: Snippet; data: LayoutData } = $props();
+
+	// WebSite + Person JSON-LD so search engines pick up the site name and the
+	// seal as its logo.
+	const structuredData = $derived(
+		`<script type="application/ld+json">${JSON.stringify({
+			'@context': 'https://schema.org',
+			'@graph': [
+				{
+					'@type': 'WebSite',
+					name: SITE_TITLE,
+					alternateName: 'Liam 偵探手記',
+					url: page.url.origin,
+					description: SITE_DESCRIPTION,
+					inLanguage: 'zh-Hant-TW'
+				},
+				{
+					'@type': 'Person',
+					name: 'Liam',
+					url: page.url.origin,
+					jobTitle: '前端工程師',
+					image: `${page.url.origin}/icon-512.png`,
+					logo: `${page.url.origin}/icon-512.png`
+				}
+			]
+		}).replace(/</g, '\\u003c')}</` + `script>`
+	);
 
 	$effect(() => {
 		theme.sync();
@@ -59,7 +84,14 @@
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
+	<link rel="icon" href="/favicon.ico" sizes="48x48" />
+	<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+	<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+	<link rel="manifest" href="/site.webmanifest" />
+	<meta name="theme-color" content="#fdfaf3" media="(prefers-color-scheme: light)" />
+	<meta name="theme-color" content="#120d0a" media="(prefers-color-scheme: dark)" />
+	<!-- eslint-disable-next-line svelte/no-at-html-tags -- static JSON-LD built from site constants -->
+	{@html structuredData}
 	<link rel="alternate" type="application/rss+xml" title={SITE_TITLE} href="/rss.xml" />
 </svelte:head>
 

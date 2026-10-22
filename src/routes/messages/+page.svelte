@@ -27,7 +27,7 @@
 	/>
 
 	<section use:reveal={{ delay: 80 }}>
-		<h2 class="text-lg font-semibold text-ink">幾個小規則</h2>
+		<h2 class="section-title">幾個小規則</h2>
 		<ol class="mt-4 grid gap-3 sm:grid-cols-2">
 			{#each rules as [title, body] (title)}
 				<li class="index-card rounded-sm px-5 pt-3 pb-5">
@@ -41,7 +41,7 @@
 	</section>
 
 	<section class="mt-10" use:reveal={{ delay: 120 }}>
-		<h2 class="text-lg font-semibold text-ink">想私下聊？</h2>
+		<h2 class="section-title">想私下聊？</h2>
 		<p class="mt-3 text-sm leading-relaxed text-ink-muted">
 			不適合公開的事，直接寄信到
 			<a href="mailto:{contactEmail}" class="text-accent underline-offset-4 hover:underline">

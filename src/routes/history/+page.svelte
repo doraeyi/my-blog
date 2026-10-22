@@ -24,7 +24,7 @@
 	/>
 
 	<section>
-		<h2 class="text-lg font-semibold text-ink">里程碑</h2>
+		<h2 class="section-title">里程碑</h2>
 		<ol class="relative mt-6 ml-2 border-l border-border-case/70">
 			{#each newestFirst as m, i (m.date + m.title)}
 				<li class="relative pb-8 pl-8 last:pb-0" use:reveal={{ delay: i * 60, y: 10 }}>

@@ -19,7 +19,7 @@
 			/>
 		{/if}
 		<div class="min-w-0">
-			<h1 class="text-3xl font-bold text-ink">{data.person.name}</h1>
+			<h1 class="font-display text-3xl text-ink sm:text-4xl">{data.person.name}</h1>
 			{#if data.person.birthday || data.person.placeOfBirth}
 				<p class="mt-1 text-sm text-ink-muted">
 					{#if data.person.birthday}{data.person.birthday}{/if}
@@ -38,7 +38,7 @@
 
 	{#if data.credits.length}
 		<section class="mt-10">
-			<h2 class="text-lg font-semibold text-ink">作品</h2>
+			<h2 class="section-title">作品</h2>
 			<ul class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
 				{#each data.credits as credit (credit.mediaType + credit.tmdbId)}
 					<li>

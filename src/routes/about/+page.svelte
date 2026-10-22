@@ -132,9 +132,7 @@
 			<p class="font-mono-hack text-xs tracking-[0.3em] text-accent uppercase">
 				Subject Profile // Access Granted
 			</p>
-			<h1 class="mt-3 font-display text-5xl font-bold tracking-wide text-ink sm:text-6xl">
-				李俊逸
-			</h1>
+			<h1 class="mt-3 font-display text-5xl tracking-wide text-ink sm:text-6xl">李俊逸</h1>
 			<p class="mt-3 h-6 font-mono-hack text-base text-ink-muted">
 				<Typewriter text={tagline} speed={40} />
 			</p>
@@ -150,14 +148,12 @@
 						</dt>
 						<dd class="text-sm text-ink">
 							{#if row.key === 'STATUS'}
-								<span
-									class="inline-flex items-center gap-2 font-mono-hack text-emerald-700 dark:text-emerald-400"
-								>
+								<span class="inline-flex items-center gap-2 font-mono-hack text-accent">
 									<span class="relative flex size-2">
 										<span
-											class="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-60 motion-reduce:animate-none"
+											class="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-60 motion-reduce:animate-none"
 										></span>
-										<span class="relative inline-flex size-2 rounded-full bg-emerald-500"></span>
+										<span class="relative inline-flex size-2 rounded-full bg-accent"></span>
 									</span>
 									{row.value}
 								</span>

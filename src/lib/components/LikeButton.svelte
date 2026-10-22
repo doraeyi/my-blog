@@ -64,13 +64,13 @@
 			background-color 0.2s;
 	}
 	.like-btn:hover {
-		color: #d9534f;
-		border-color: color-mix(in srgb, #d9534f 50%, transparent);
+		color: var(--color-accent);
+		border-color: color-mix(in srgb, var(--color-accent) 50%, transparent);
 	}
 	.like-btn.is-liked {
-		color: #e5534b;
-		border-color: color-mix(in srgb, #e5534b 60%, transparent);
-		background: color-mix(in srgb, #e5534b 10%, transparent);
+		color: var(--color-accent);
+		border-color: color-mix(in srgb, var(--color-accent) 60%, transparent);
+		background: color-mix(in srgb, var(--color-accent) 10%, transparent);
 	}
 	.like-btn:disabled {
 		cursor: progress;

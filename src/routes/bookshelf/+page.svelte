@@ -41,8 +41,8 @@
 	}
 
 	const statusStyle: Record<BookStatus, string> = {
-		read: 'bg-emerald-500/90',
-		reading: 'bg-amber-500/90',
+		read: 'bg-case-800/90',
+		reading: 'bg-stamp-500/90',
 		want: 'bg-case-500/90'
 	};
 </script>
@@ -141,9 +141,7 @@
 							<p class="mt-1 flex gap-0.5" aria-label="{book.rating} 顆星">
 								{#each [1, 2, 3, 4, 5] as n (n)}
 									<Star
-										class="size-3 {n <= book.rating
-											? 'fill-amber-400 text-amber-400'
-											: 'text-border-case'}"
+										class="size-3 {n <= book.rating ? 'fill-brass text-brass' : 'text-border-case'}"
 									/>
 								{/each}
 							</p>

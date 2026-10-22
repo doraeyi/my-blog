@@ -56,7 +56,7 @@
 	</div>
 
 	<section class="mt-8">
-		<h2 class="text-lg font-semibold text-ink">留言（{data.comments.length}）</h2>
+		<h2 class="section-title">留言（{data.comments.length}）</h2>
 
 		<ul class="mt-4 space-y-3">
 			{#each data.comments as comment, i (comment.id)}

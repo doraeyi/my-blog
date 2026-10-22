@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { tilt } from '$lib/actions/tilt';
 	import Seo from '$lib/components/Seo.svelte';
+	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { resolve } from '$app/paths';
 	import { reveal } from '$lib/actions/reveal';
 	import Star from '@lucide/svelte/icons/star';
@@ -12,9 +13,8 @@
 
 <Seo title="作品集" description="做過的專案與 GitHub 上的作品。" />
 
-<div class="mx-auto max-w-5xl px-6 pt-28 pb-16">
-	<h1 class="text-3xl font-bold text-ink">作品集</h1>
-	<p class="mt-2 text-ink-muted">精選的 GitHub 專案</p>
+<div class="mx-auto max-w-5xl px-6 pb-16">
+	<PageHeader title="作品集" stamp="作品" description="精選的 GitHub 專案。" />
 
 	{#if data.projects.length === 0}
 		<p class="mt-8 text-sm text-ink-muted">還沒有作品，去後台加一個吧。</p>
@@ -44,7 +44,7 @@
 						<FolderGit2 class="size-4" />
 						<span class="text-xs">{project.githubOwner}</span>
 					</div>
-					<h2 class="mt-2 font-display font-semibold text-ink group-hover:underline">
+					<h2 class="mt-2 font-display text-lg text-ink group-hover:underline">
 						{project.githubRepo}
 					</h2>
 					{#if project.description}
