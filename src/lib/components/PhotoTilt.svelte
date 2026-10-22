@@ -2,8 +2,10 @@
 	A cut-out product photo that leans toward the pointer like an object turned
 	in the hand: the photo floats above a floor shadow that slides the other
 	way, and a lamp glare masked to the object's own silhouette tracks the
-	pointer. Mouse tilts on hover; touch tilts while dragging. `idle` adds a
-	slow sway when nobody is touching it. Still for reduced motion / lite mode.
+	pointer. Mouse turns it on hover, touch while dragging. `idle` adds a slow
+	sway when nobody is touching it; that autonomous sway is the only part that
+	stops for reduced motion / lite mode, since the turn itself is direct
+	manipulation and costs one transform.
 -->
 <script lang="ts">
 	import { onMount } from 'svelte';
@@ -29,8 +31,9 @@
 	let active = $state(false);
 
 	onMount(() => {
-		if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+		if (!el) return;
 		const node = el;
+		const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 		const lite = () => document.documentElement.dataset.lite === '1';
 		let x = 0;
 		let y = 0;
@@ -42,15 +45,16 @@
 
 		function frame(now: number) {
 			raf = 0;
-			const swaying = idle && !active && visible && !lite();
+			const swaying = idle && !active && visible && !reduced && !lite();
 			if (swaying) {
 				const t = (now - t0) / 1000;
-				tx = Math.sin(t * 0.55) * 0.45;
-				ty = Math.sin(t * 0.4 + 1.3) * 0.25;
+				tx = Math.sin(t * 0.55) * 0.55;
+				ty = Math.sin(t * 0.4 + 1.3) * 0.2;
 			}
-			x += (tx - x) * 0.1;
-			y += (ty - y) * 0.1;
-			node.style.setProperty('--rx', `${(-y * max).toFixed(2)}deg`);
+			x += (tx - x) * 0.12;
+			y += (ty - y) * 0.12;
+			// Turns mostly around the vertical axis, like spinning it in the hand.
+			node.style.setProperty('--rx', `${(-y * max * 0.45).toFixed(2)}deg`);
 			node.style.setProperty('--ry', `${(x * max).toFixed(2)}deg`);
 			node.style.setProperty('--gx', `${(50 + x * 45).toFixed(1)}%`);
 			node.style.setProperty('--gy', `${(50 + y * 45).toFixed(1)}%`);
@@ -63,7 +67,7 @@
 		}
 
 		function move(e: PointerEvent) {
-			if (lite() || (e.pointerType !== 'mouse' && !e.buttons)) return;
+			if (e.pointerType !== 'mouse' && !e.buttons) return;
 			const r = node.getBoundingClientRect();
 			tx = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width) * 2 - 1));
 			ty = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height) * 2 - 1));

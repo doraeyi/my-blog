@@ -77,7 +77,12 @@
 								<span aria-hidden="true" class="plinth" class:wide></span>
 								<GearModelView model={onStand.model} label={onStand.name} />
 							{:else}
-								<PhotoTilt src={photoUrl(onStand.name)} alt={onStand.name} max={16} idle eager />
+								<PhotoTilt src={photoUrl(onStand.name)} alt={onStand.name} max={38} idle eager />
+								<p
+									class="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 font-mono-hack text-[0.65rem] tracking-widest text-ink-muted/70"
+								>
+									移過去或拖曳轉動
+								</p>
 							{/if}
 						</div>
 					{/key}
@@ -160,7 +165,7 @@
 											: 'border-border-case hover:border-ink-muted/60'}"
 									>
 										<div class="stage relative aspect-[4/3]">
-											<PhotoTilt src={photoUrl(item.name)} alt="" max={18} />
+											<PhotoTilt src={photoUrl(item.name)} alt="" max={32} />
 										</div>
 										<div class="flex items-start justify-between gap-3 bg-surface-alt px-4 py-3">
 											<div class="min-w-0">
