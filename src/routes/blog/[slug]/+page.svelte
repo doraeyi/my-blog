@@ -5,12 +5,12 @@
 	import PostMeta from '$lib/components/PostMeta.svelte';
 	import SeriesBox from '$lib/components/SeriesBox.svelte';
 	import PostFooterNav from '$lib/components/PostFooterNav.svelte';
+	import LikeButton from '$lib/components/LikeButton.svelte';
 	import type { PageData, ActionData } from './$types';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 
 	let Post = $derived(data.component);
-	let liked = $derived(form && 'liked' in form ? form.liked : data.liked);
 	let message = $derived(form && 'message' in form ? form.message : undefined);
 </script>
 
@@ -51,18 +51,9 @@
 		<PostFooterNav nav={data.nav} />
 	{/if}
 
-	<section class="mt-8">
-		<form method="post" action="?/like" use:enhance>
-			<button
-				type="submit"
-				class="rounded-full border border-border-case px-4 py-1.5 text-sm font-medium text-ink transition hover:bg-surface-alt {liked
-					? 'border-accent bg-accent text-white hover:bg-accent-strong'
-					: ''}"
-			>
-				{liked ? '已按讚' : '按讚'} ({data.likeCount})
-			</button>
-		</form>
-	</section>
+	<div class="mt-8 flex justify-center">
+		<LikeButton liked={data.liked} count={data.likeCount} signedIn={!!data.user} />
+	</div>
 
 	<section class="mt-8">
 		<h2 class="text-lg font-semibold text-ink">留言（{data.comments.length}）</h2>

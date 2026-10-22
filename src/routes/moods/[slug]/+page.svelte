@@ -6,6 +6,7 @@
 	import PostMeta from '$lib/components/PostMeta.svelte';
 	import SeriesBox from '$lib/components/SeriesBox.svelte';
 	import PostFooterNav from '$lib/components/PostFooterNav.svelte';
+	import LikeButton from '$lib/components/LikeButton.svelte';
 	import type { ActionData, PageData } from './$types';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -44,6 +45,10 @@
 			<!-- eslint-disable-next-line svelte/no-at-html-tags -- bodyHtml is rendered via renderMarkdown() + rehype-sanitize, admin-authored content, never raw user input -->
 			{@html data.bodyHtml}
 		</section>
+
+		<div class="mt-8 flex justify-center">
+			<LikeButton liked={data.liked} count={data.likeCount} signedIn={!!data.user} />
+		</div>
 
 		{#if data.nav}
 			<PostFooterNav nav={data.nav} />

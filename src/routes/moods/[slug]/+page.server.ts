@@ -2,23 +2,32 @@ import { error, fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { getPublishedBySlug, renderBody } from '$lib/server/services/posts-service';
 import * as commentsService from '$lib/server/services/comments-service';
+import * as likesService from '$lib/server/services/likes-service';
 import { loadPostExtras } from '$lib/server/post-extras';
 
 export const load: PageServerLoad = async (event) => {
-	const { params } = event;
+	const { params, locals } = event;
 	const post = await getPublishedBySlug('mood', params.slug);
 	if (!post) throw error(404, 'Mood post not found');
 
-	const [bodyHtml, comments, extras] = await Promise.all([
+	const key = `mood/${params.slug}`;
+	const [bodyHtml, comments, likeCount, liked, extras] = await Promise.all([
 		renderBody(post.body),
-		commentsService.listForPost(`mood/${params.slug}`),
+		commentsService.listForPost(key),
+		likesService.countFor(key),
+		locals.user ? likesService.hasLiked(key, locals.user.id) : Promise.resolve(false),
 		loadPostExtras('mood', params.slug, event)
 	]);
 
-	return { post, bodyHtml, comments, ...extras };
+	return { post, bodyHtml, comments, likeCount, liked, ...extras };
 };
 
 export const actions: Actions = {
+	like: async ({ params, locals }) => {
+		if (!locals.user) return fail(401, { message: '請先登入才能按讚' });
+		const liked = await likesService.toggle(`mood/${params.slug}`, locals.user.id);
+		return { liked };
+	},
 	comment: async ({ request, params, locals }) => {
 		if (!locals.user) return fail(401, { message: '請先登入才能留言' });
 		const formData = await request.formData();

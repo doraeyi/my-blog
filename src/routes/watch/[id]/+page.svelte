@@ -4,11 +4,11 @@
 	import { resolve } from '$app/paths';
 	import { reveal } from '$lib/actions/reveal';
 	import Star from '@lucide/svelte/icons/star';
+	import LikeButton from '$lib/components/LikeButton.svelte';
 	import type { ActionData, PageData } from './$types';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 
-	let liked = $derived(form && 'liked' in form ? form.liked : data.liked);
 	let message = $derived(form && 'message' in form ? form.message : undefined);
 </script>
 
@@ -63,16 +63,7 @@
 			{/if}
 
 			<div class="mt-4">
-				<form method="post" action="?/like" use:enhance>
-					<button
-						type="submit"
-						class="rounded-md border border-border-case px-3 py-1 text-sm"
-						class:bg-blue-600={liked}
-						class:text-white={liked}
-					>
-						{liked ? '已按讚' : '按讚'} ({data.likeCount})
-					</button>
-				</form>
+				<LikeButton liked={data.liked} count={data.likeCount} signedIn={!!data.user} />
 			</div>
 		</article>
 	</div>
