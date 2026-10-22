@@ -168,6 +168,9 @@
 												{#if item.spec}
 													<p class="mt-1 truncate font-mono-hack text-xs text-ink-muted">{item.spec}</p>
 												{/if}
+												{#if item.note}
+													<p class="mt-2 text-sm text-ink-muted">{item.note}</p>
+												{/if}
 											</div>
 											{#if current}
 												<span class="date-stamp shrink-0" in:fade={{ duration: 200 }}>檢視中</span>
