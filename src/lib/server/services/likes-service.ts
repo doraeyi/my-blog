@@ -1,6 +1,7 @@
 import { and, count, eq } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import { postReaction } from '$lib/server/db/schema';
+import { notifyLike } from '$lib/server/discord';
 
 export async function countFor(postSlug: string): Promise<number> {
 	const [row] = await db
@@ -29,6 +30,7 @@ export async function toggle(postSlug: string, userId: string): Promise<boolean>
 		return false;
 	}
 	await db.insert(postReaction).values({ postSlug, userId });
+	notifyLike();
 	return true;
 }
 

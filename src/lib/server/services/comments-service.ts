@@ -1,6 +1,7 @@
 import { and, count, desc, eq } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import { comment } from '$lib/server/db/schema';
+import { notifyComment } from '$lib/server/discord';
 
 const authorColumns = { id: true, name: true, image: true } as const;
 
@@ -23,6 +24,7 @@ export async function create(input: { postSlug: string; authorId: string; body: 
 	const body = input.body.trim();
 	if (!body) throw new Error('Comment body cannot be empty');
 	await db.insert(comment).values({ postSlug: input.postSlug, authorId: input.authorId, body });
+	notifyComment(body);
 }
 
 export async function moderate(commentId: string, status: 'visible' | 'hidden') {
