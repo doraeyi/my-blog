@@ -48,13 +48,12 @@
 			const swaying = idle && !active && visible && !reduced && !lite();
 			if (swaying) {
 				const t = (now - t0) / 1000;
-				tx = Math.sin(t * 0.55) * 0.55;
+				tx = Math.sin(t * 0.55) * 0.4;
 				ty = Math.sin(t * 0.4 + 1.3) * 0.2;
 			}
 			x += (tx - x) * 0.12;
 			y += (ty - y) * 0.12;
-			// Turns mostly around the vertical axis, like spinning it in the hand.
-			node.style.setProperty('--rx', `${(-y * max * 0.45).toFixed(2)}deg`);
+			node.style.setProperty('--rx', `${(-y * max).toFixed(2)}deg`);
 			node.style.setProperty('--ry', `${(x * max).toFixed(2)}deg`);
 			node.style.setProperty('--gx', `${(50 + x * 45).toFixed(1)}%`);
 			node.style.setProperty('--gy', `${(50 + y * 45).toFixed(1)}%`);
