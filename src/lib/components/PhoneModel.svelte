@@ -10,15 +10,9 @@
 -->
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { Shoot } from '$lib/gear-shots';
 	import type { PhoneFinish } from '$lib/collections';
 
-	/** Set by the still-capture page: receives a function that renders one frame at a given turn. */
-	let {
-		finish = 'blue',
-		label,
-		onshoot
-	}: { finish?: PhoneFinish; label: string; onshoot?: (shoot: Shoot) => void } = $props();
+	let { finish = 'blue', label }: { finish?: PhoneFinish; label: string } = $props();
 
 	let host: HTMLDivElement | undefined = $state();
 	let canvasEl: HTMLCanvasElement | undefined = $state();
@@ -339,7 +333,7 @@
 			controls.rotateSpeed = 0.7;
 			controls.minPolarAngle = Math.PI * 0.25;
 			controls.maxPolarAngle = Math.PI * 0.75;
-			controls.autoRotate = !reduced && !lite() && !onshoot;
+			controls.autoRotate = !reduced && !lite();
 			controls.autoRotateSpeed = 1.6;
 
 			function resize() {
@@ -395,16 +389,6 @@
 
 			resize();
 			ready = true;
-
-			// Still-capture mode for the /setup card images: hold still, render on demand.
-			if (onshoot) {
-				const rest = phone.rotation.y;
-				onshoot((yaw) => {
-					phone.rotation.y = rest + yaw;
-					renderer.render(scene, camera);
-					return canvasEl!.toDataURL('image/png');
-				});
-			}
 
 			cleanup = () => {
 				cancelAnimationFrame(rafId);

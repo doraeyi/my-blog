@@ -18,10 +18,8 @@
 -->
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { Shoot } from '$lib/gear-shots';
 
-	/** Set by the still-capture page: receives a function that renders one frame at a given turn. */
-	let { label, onshoot }: { label: string; onshoot?: (shoot: Shoot) => void } = $props();
+	let { label }: { label: string } = $props();
 
 	let host: HTMLDivElement | undefined = $state();
 	let canvasEl: HTMLCanvasElement | undefined = $state();
@@ -406,7 +404,7 @@
 			controls.rotateSpeed = 0.7;
 			controls.minPolarAngle = Math.PI * 0.12;
 			controls.maxPolarAngle = Math.PI * 0.46;
-			controls.autoRotate = !reduced && !lite() && !onshoot;
+			controls.autoRotate = !reduced && !lite();
 			controls.autoRotateSpeed = 1.4;
 			controls.target.set(0, 2.7, 0);
 
@@ -464,16 +462,6 @@
 
 			resize();
 			ready = true;
-
-			// Still-capture mode for the /setup card images: hold still, render on demand.
-			if (onshoot) {
-				const rest = mouse.rotation.y;
-				onshoot((yaw) => {
-					mouse.rotation.y = rest + yaw;
-					renderer.render(scene, camera);
-					return canvasEl!.toDataURL('image/png');
-				});
-			}
 
 			// Swap in the Sketchfab mesh if it's been dropped into static/models;
 			// without it the procedural mouse stays.

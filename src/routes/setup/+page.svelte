@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
-	import { SvelteSet } from 'svelte/reactivity';
 	import { tilt } from '$lib/actions/tilt';
 	import Seo from '$lib/components/Seo.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { reveal } from '$lib/actions/reveal';
 	import { gear, type GearItem, type GearModel } from '$lib/collections';
-	import { SPIN_FRAMES, gearSlug, posterUrl, spinUrl } from '$lib/gear-shots';
+	import { photoUrl } from '$lib/gear-photos';
+	import PhotoTilt from '$lib/components/PhotoTilt.svelte';
 	import GearModelView from '$lib/components/GearModelView.svelte';
 	import Monitor from '@lucide/svelte/icons/monitor';
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
@@ -18,20 +18,19 @@
 	let active = $state<string>('all');
 	const shown = $derived(active === 'all' ? gear : gear.filter((g) => g.name === active));
 
-	// Only one item is ever live in 3D: the one on the stand. Everything in the
-	// list is a pre-rendered still (see /dev/gear-shots).
+	// Every exhibit is a cut-out product photo that tilts under the pointer; the
+	// procedural 3D model only loads if someone asks for it on the stand.
 	const exhibits = gear.flatMap((g) => g.items).filter((i): i is Modelled => !!i.model);
 	// Raw state: the item stays the same object, so indexOf finds it.
 	let onStand = $state.raw<Modelled | undefined>(exhibits[0]);
 	const standNo = $derived(onStand ? exhibits.indexOf(onStand) : -1);
 	let stand: HTMLElement | undefined = $state();
 
-	// Turntable strips are fetched on first hover, and only shown once loaded.
-	const spinRequested = new SvelteSet<string>();
-	const spinLoaded = new SvelteSet<string>();
+	let in3d = $state(false);
 
 	function show(item: Modelled) {
 		onStand = item;
+		in3d = false;
 		const top = stand?.getBoundingClientRect().top ?? 0;
 		if (top < 0 || top > window.innerHeight * 0.5) {
 			stand?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -39,6 +38,7 @@
 	}
 	function step(dir: 1 | -1) {
 		onStand = exhibits[(standNo + dir + exhibits.length) % exhibits.length];
+		in3d = false;
 	}
 </script>
 
@@ -63,7 +63,7 @@
 	{:else}
 		{#if onStand}
 			{@const wide = onStand.model.kind === 'gpro-x-tkl'}
-			<!-- The stand: the single live 3D exhibit. -->
+			<!-- The stand: the exhibit up close; 3D on request. -->
 			<section
 				bind:this={stand}
 				use:reveal
@@ -71,12 +71,24 @@
 				class="exhibit mb-12 grid scroll-mt-6 overflow-hidden rounded-sm border border-border-case md:grid-cols-[1.5fr_1fr]"
 			>
 				<div class="stage relative h-[22rem] md:h-[30rem]">
-					<span aria-hidden="true" class="plinth" class:wide></span>
-					{#key onStand}
+					{#key `${onStand.name}-${in3d}`}
 						<div class="absolute inset-0" in:fade={{ duration: 250 }}>
-							<GearModelView model={onStand.model} label={onStand.name} />
+							{#if in3d}
+								<span aria-hidden="true" class="plinth" class:wide></span>
+								<GearModelView model={onStand.model} label={onStand.name} />
+							{:else}
+								<PhotoTilt src={photoUrl(onStand.name)} alt={onStand.name} max={16} idle eager />
+							{/if}
 						</div>
 					{/key}
+					<button
+						type="button"
+						onclick={() => (in3d = !in3d)}
+						aria-pressed={in3d}
+						class="absolute top-3 right-3 z-10 rounded-full border border-border-case bg-surface-alt/80 px-3 py-1 font-mono-hack text-[0.65rem] tracking-widest text-ink-muted backdrop-blur transition hover:text-ink"
+					>
+						{in3d ? '看實拍' : '3D 模型'}
+					</button>
 				</div>
 				<div class="flex flex-col justify-center gap-3 px-7 py-8">
 					<p class="font-mono-hack text-xs tracking-[0.3em] text-ink-muted">
@@ -137,39 +149,18 @@
 					<ul class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
 						{#each group.items as item, i (item.name)}
 							{#if item.model}
-								{@const slug = gearSlug(item.name)}
 								{@const current = onStand?.name === item.name}
 								<li use:reveal={{ delay: i * 40, y: 8 }}>
 									<button
 										type="button"
 										aria-pressed={current}
 										onclick={() => show(item as Modelled)}
-										onpointerenter={() => spinRequested.add(slug)}
-										onfocus={() => spinRequested.add(slug)}
-										class="gear-card group relative block w-full overflow-hidden rounded-sm border text-left transition {current
+										class="gear-card relative block w-full overflow-hidden rounded-sm border text-left transition {current
 											? 'border-accent'
 											: 'border-border-case hover:border-ink-muted/60'}"
-										class:spin-ready={spinLoaded.has(slug)}
 									>
-										<div class="shot stage relative aspect-[4/3] overflow-hidden">
-											<img
-												src={posterUrl(slug)}
-												alt=""
-												loading="lazy"
-												decoding="async"
-												class="poster absolute inset-0 size-full object-contain"
-											/>
-											{#if spinRequested.has(slug)}
-												<img
-													src={spinUrl(slug)}
-													alt=""
-													decoding="async"
-													onload={() => spinLoaded.add(slug)}
-													class="strip absolute top-0 left-0 h-full"
-													style:width="{SPIN_FRAMES * 100}%"
-													style:--frames={SPIN_FRAMES}
-												/>
-											{/if}
+										<div class="stage relative aspect-[4/3]">
+											<PhotoTilt src={photoUrl(item.name)} alt="" max={18} />
 										</div>
 										<div class="flex items-start justify-between gap-3 bg-surface-alt px-4 py-3">
 											<div class="min-w-0">
@@ -231,31 +222,5 @@
 	.plinth.wide {
 		width: 80%;
 		bottom: 14%;
-	}
-
-	/* List cards: a still, and on hover a turntable strip stepped frame by frame. */
-	.gear-card .poster {
-		transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
-	}
-	.gear-card:hover .poster {
-		transform: scale(1.03);
-	}
-	.strip {
-		max-width: none;
-		opacity: 0;
-	}
-	@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-		.gear-card.spin-ready:is(:hover, :focus-visible) .poster {
-			opacity: 0;
-		}
-		.gear-card.spin-ready:is(:hover, :focus-visible) .strip {
-			opacity: 1;
-			animation: turntable 2s steps(var(--frames)) infinite;
-		}
-	}
-	@keyframes turntable {
-		to {
-			transform: translateX(-100%);
-		}
 	}
 </style>
