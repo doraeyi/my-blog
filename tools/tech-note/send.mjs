@@ -10,6 +10,7 @@
  *   excerpt: ...
  *   tags: [sveltekit, docker]
  *   series: ...        (optional)
+ *   kind: mood         (optional; default is a 技術文章)
  *   slug: ...          (optional, ascii)
  *   ---
  *   body…
@@ -77,6 +78,7 @@ function unquote(s) {
 
 const { meta, body } = parse(readFileSync(file, 'utf8'));
 const payload = {
+	kind: meta.kind === 'mood' ? 'mood' : 'article',
 	title: meta.title,
 	excerpt: meta.excerpt,
 	tags: meta.tags ?? [],

@@ -10,10 +10,10 @@ import { redact, type Redaction } from '$lib/server/redact';
 import type { RequestHandler } from './$types';
 
 /**
- * Drafts from the /tech-note Claude Code skill:
- *   POST { title, body, excerpt?, tags?, series?, slug? }
+ * Drafts from the /tech-note and /mood Claude Code skills:
+ *   POST { title, body, kind?: 'article' | 'mood', excerpt?, tags?, series?, slug? }
  *   Authorization: Bearer <TECH_NOTE_TOKEN>
- * Always lands as an unpublished 技術文章 owned by the site owner, after a
+ * Always lands unpublished (技術文章 by default, or 心情), owned by the site owner, after a
  * redaction pass; review and publish it from /admin/posts. Off until the
  * token is set.
  */
@@ -28,7 +28,7 @@ function authorized(header: string | null): boolean {
 const str = (v: unknown, max: number) =>
 	typeof v === 'string' && v.trim() && v.length <= max ? v.trim() : undefined;
 
-function slugify(title: string) {
+function slugify(title: string, prefix: string) {
 	const ascii = title
 		.toLowerCase()
 		.normalize('NFKD')
@@ -40,16 +40,16 @@ function slugify(title: string) {
 	if (ascii.length >= 8) return ascii;
 	const d = new Date();
 	const ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
-	return `note-${ymd}${ascii ? `-${ascii}` : ''}`;
+	return `${prefix}-${ymd}${ascii ? `-${ascii}` : ''}`;
 }
 
-async function uniqueSlug(base: string) {
+async function uniqueSlug(kind: 'article' | 'mood', base: string) {
 	const taken = new Set(
 		(
 			await db
 				.select({ slug: post.slug })
 				.from(post)
-				.where(and(eq(post.kind, 'article'), like(post.slug, `${base}%`)))
+				.where(and(eq(post.kind, kind), like(post.slug, `${base}%`)))
 		).map((r) => r.slug)
 	);
 	if (!taken.has(base)) return base;
@@ -67,6 +67,7 @@ export const POST: RequestHandler = async ({ request, url }) => {
 		throw error(400, 'Expected JSON');
 	}
 
+	const kind = input.kind === 'mood' ? 'mood' : 'article';
 	const title = str(input.title, 200);
 	const body = str(input.body, 200_000);
 	if (!title || !body) throw error(400, 'title and body are required');
@@ -103,9 +104,12 @@ export const POST: RequestHandler = async ({ request, url }) => {
 		excerpt: excerpt ? scrub(excerpt) : undefined
 	};
 
-	const slug = await uniqueSlug(requestedSlug || slugify(clean.title));
+	const slug = await uniqueSlug(
+		kind,
+		requestedSlug || slugify(clean.title, kind === 'mood' ? 'mood' : 'note')
+	);
 	const id = await postsService.create({
-		kind: 'article',
+		kind,
 		slug,
 		title: clean.title,
 		excerpt: clean.excerpt,
