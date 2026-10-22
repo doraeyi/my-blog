@@ -234,7 +234,7 @@
 		</button>
 		{#if profileOpen}
 			<div
-				class="index-card absolute top-full right-0 mt-2 w-44 rounded-sm px-2 pb-1"
+				class="account-menu index-card top-full right-0 mt-2 w-44 rounded-sm px-2 pb-1"
 				in:fly={{ y: -6, duration: 160 }}
 				out:fly={{ y: -6, duration: 100 }}
 			>
@@ -276,6 +276,13 @@
 </div>
 
 <style>
+	/* The global .index-card is position: relative, which would beat Tailwind's
+	   `absolute` and drop the menu into the toolbar's flow, pushing the other
+	   buttons down. A scoped rule outranks it. */
+	.account-menu {
+		position: absolute;
+	}
+
 	/* Account menu rows sit exactly on the index card's 28px ruled lines. */
 	.menu-row {
 		height: 28px;
