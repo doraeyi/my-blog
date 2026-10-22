@@ -292,8 +292,6 @@
 		line-height: 27px;
 	}
 
-	/* ── manila stock shared by tabs, labels and index cards ── */
-	.tab,
 	/* The name seal on the brand label; pressed a little harder on hover, like a stamp. */
 	.brand-seal {
 		transform: rotate(-6deg);
@@ -308,6 +306,8 @@
 		}
 	}
 
+	/* ── manila stock shared by tabs, labels and index cards ── */
+	.tab,
 	.case-label,
 	.mobile-tab {
 		background:
