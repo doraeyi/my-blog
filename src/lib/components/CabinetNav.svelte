@@ -234,22 +234,22 @@
 		</button>
 		{#if profileOpen}
 			<div
-				class="index-card absolute top-full right-0 mt-2 w-44 rounded-sm p-2"
+				class="index-card absolute top-full right-0 mt-2 w-44 rounded-sm px-2 pb-1"
 				in:fly={{ y: -6, duration: 160 }}
 				out:fly={{ y: -6, duration: 100 }}
 			>
 				{#if user}
-					<p class="truncate px-2 py-1 font-mono-hack text-xs text-case-600">{user.name}</p>
+					<p class="menu-row truncate font-mono-hack text-xs text-case-600">{user.name}</p>
 					{#if user.role === 'Liam'}
 						<a
 							href={resolve('/admin/posts')}
-							class="block rounded-sm px-2 py-1.5 text-sm text-case-900 hover:bg-case-200/60"
+							class="menu-row block rounded-sm text-sm text-case-900 hover:bg-case-200/60"
 						>
 							後台
 						</a>
 						<a
 							href={resolve('/admin/comments')}
-							class="block rounded-sm px-2 py-1.5 text-sm text-case-900 hover:bg-case-200/60"
+							class="menu-row block rounded-sm text-sm text-case-900 hover:bg-case-200/60"
 						>
 							證詞審核
 						</a>
@@ -257,7 +257,7 @@
 					<form method="post" action="{resolve('/login')}?/signOut" use:enhance>
 						<button
 							type="submit"
-							class="block w-full rounded-sm px-2 py-1.5 text-left text-sm text-case-900 hover:bg-case-200/60"
+							class="menu-row block w-full rounded-sm text-left text-sm text-case-900 hover:bg-case-200/60"
 						>
 							登出
 						</button>
@@ -265,7 +265,7 @@
 				{:else}
 					<a
 						href={resolve('/login')}
-						class="block rounded-sm px-2 py-1.5 text-sm text-case-900 hover:bg-case-200/60"
+						class="menu-row block rounded-sm text-sm text-case-900 hover:bg-case-200/60"
 					>
 						登入
 					</a>
@@ -276,6 +276,13 @@
 </div>
 
 <style>
+	/* Account menu rows sit exactly on the index card's 28px ruled lines. */
+	.menu-row {
+		height: 28px;
+		padding: 0 0.5rem;
+		line-height: 27px;
+	}
+
 	/* ── manila stock shared by tabs, labels and index cards ── */
 	.tab,
 	.case-label,
