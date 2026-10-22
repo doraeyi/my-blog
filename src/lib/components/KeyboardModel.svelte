@@ -17,10 +17,16 @@
 -->
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import type { Shoot } from '$lib/gear-shots';
 	import type { KeycapSet } from '$lib/collections';
 	import type { BufferGeometry } from 'three';
 
-	let { keycaps = 'stock', label }: { keycaps?: KeycapSet; label: string } = $props();
+	/** Set by the still-capture page: receives a function that renders one frame at a given turn. */
+	let {
+		keycaps = 'stock',
+		label,
+		onshoot
+	}: { keycaps?: KeycapSet; label: string; onshoot?: (shoot: Shoot) => void } = $props();
 
 	let host: HTMLDivElement | undefined = $state();
 	let canvasEl: HTMLCanvasElement | undefined = $state();
@@ -872,7 +878,7 @@
 			controls.target.set(0, 1.2, 0.4);
 			// A long, flat object reads badly edge-on, so instead of a full turn it
 			// sways gently around the front view while idle.
-			let sway = !reduced && !lite();
+			let sway = !reduced && !lite() && !onshoot;
 			let dragging = false;
 			const SWAY_BASE = -0.12;
 			const swayStart = performance.now();
@@ -943,6 +949,16 @@
 
 			resize();
 			ready = true;
+
+			// Still-capture mode for the /setup card images: hold still, render on demand.
+			if (onshoot) {
+				const rest = board.rotation.y;
+				onshoot((yaw) => {
+					board.rotation.y = rest + yaw;
+					renderer.render(scene, camera);
+					return canvasEl!.toDataURL('image/png');
+				});
+			}
 
 			cleanup = () => {
 				cancelAnimationFrame(rafId);

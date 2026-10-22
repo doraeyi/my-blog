@@ -10,15 +10,25 @@
 	mouse. The wheel and the thumb / sniper buttons are real geometry.
 	1 unit = 10 mm. Renders only while on screen; light-effects mode stops the
 	idle turn.
+
+	When static/models/g502-lightspeed.glb exists it replaces the procedural
+	shell: "Logitech G502 x lightspeed" by Okopchi on Sketchfab, CC BY 4.0
+	(https://sketchfab.com/3d-models/logitech-g502-x-lightspeed-cda7107cc1444b4788d747f0361f7d40).
+	The credit line shows whenever that mesh is on screen.
 -->
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import type { Shoot } from '$lib/gear-shots';
 
-	let { label }: { label: string } = $props();
+	/** Set by the still-capture page: receives a function that renders one frame at a given turn. */
+	let { label, onshoot }: { label: string; onshoot?: (shoot: Shoot) => void } = $props();
 
 	let host: HTMLDivElement | undefined = $state();
 	let canvasEl: HTMLCanvasElement | undefined = $state();
 	let ready = $state(false);
+	let scanned = $state(false);
+
+	const GLB_URL = '/models/g502-lightspeed.glb';
 
 	onMount(() => {
 		const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -396,7 +406,7 @@
 			controls.rotateSpeed = 0.7;
 			controls.minPolarAngle = Math.PI * 0.12;
 			controls.maxPolarAngle = Math.PI * 0.46;
-			controls.autoRotate = !reduced && !lite();
+			controls.autoRotate = !reduced && !lite() && !onshoot;
 			controls.autoRotateSpeed = 1.4;
 			controls.target.set(0, 2.7, 0);
 
@@ -455,6 +465,43 @@
 			resize();
 			ready = true;
 
+			// Still-capture mode for the /setup card images: hold still, render on demand.
+			if (onshoot) {
+				const rest = mouse.rotation.y;
+				onshoot((yaw) => {
+					mouse.rotation.y = rest + yaw;
+					renderer.render(scene, camera);
+					return canvasEl!.toDataURL('image/png');
+				});
+			}
+
+			// Swap in the Sketchfab mesh if it's been dropped into static/models;
+			// without it the procedural mouse stays.
+			import('three/examples/jsm/loaders/GLTFLoader.js')
+				.then(({ GLTFLoader }) => new GLTFLoader().loadAsync(GLB_URL))
+				.then((gltf) => {
+					if (destroyed) return;
+					const model = gltf.scene;
+					// Scale to the real 132 mm length, centre it and stand it on y = 0.
+					const box = new THREE.Box3().setFromObject(model);
+					const size = box.getSize(new THREE.Vector3());
+					model.scale.setScalar(L / Math.max(size.x, size.z));
+					box.setFromObject(model);
+					const c = box.getCenter(new THREE.Vector3());
+					model.position.set(-c.x, -box.min.y, -c.z);
+					for (const o of [...mouse.children]) {
+						mouse.remove(o);
+						if (o instanceof THREE.Mesh) {
+							o.geometry.dispose();
+							(o.material as InstanceType<typeof THREE.Material>).dispose();
+						}
+					}
+					mouse.add(model);
+					scanned = true;
+					kick();
+				})
+				.catch(() => {});
+
 			cleanup = () => {
 				cancelAnimationFrame(rafId);
 				io.disconnect();
@@ -491,6 +538,16 @@
 		class="h-full w-full transition-opacity duration-700"
 		style:opacity={ready ? 1 : 0}
 	></canvas>
+	{#if scanned}
+		<a
+			href="https://sketchfab.com/3d-models/logitech-g502-x-lightspeed-cda7107cc1444b4788d747f0361f7d40"
+			target="_blank"
+			rel="noopener noreferrer"
+			class="absolute right-3 bottom-2 font-mono-hack text-[0.6rem] tracking-wider text-ink-muted/60 transition hover:text-ink-muted"
+		>
+			模型：Okopchi · CC BY 4.0
+		</a>
+	{/if}
 	{#if ready}
 		<p
 			class="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 font-mono-hack text-[0.65rem] tracking-widest text-ink-muted/70"
