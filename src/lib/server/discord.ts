@@ -8,8 +8,8 @@ import { listEntries } from '$lib/server/content-index';
 /**
  * Pings the owner's Discord channel (DISCORD_WEBHOOK_URL) when someone leaves
  * a comment or likes something. Fire-and-forget: a slow or failing Discord
- * never blocks or breaks the visitor's action. Off until the webhook is set;
- * the owner's own activity is never reported.
+ * never blocks or breaks the visitor's action. Off until the webhook is set.
+ * The owner's own activity is skipped unless DISCORD_NOTIFY_OWNER=true.
  */
 
 const PAGE_TITLES: Record<string, string> = {
@@ -60,7 +60,8 @@ function context() {
 		return null;
 	}
 	const user = event.locals.user;
-	if (!user || user.role === 'Liam') return null;
+	if (!user) return null;
+	if (user.role === 'Liam' && env.DISCORD_NOTIFY_OWNER !== 'true') return null;
 	return { user, url: new URL(event.url.pathname, event.url.origin) };
 }
 
