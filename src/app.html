@@ -10,10 +10,24 @@
 
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<!-- Fonts load without blocking first paint: the page shows in system fonts, then swaps. -->
 		<link
+			rel="preload"
+			as="style"
 			href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&family=LXGW+WenKai+TC:wght@400;700&display=swap"
-			rel="stylesheet"
 		/>
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&family=LXGW+WenKai+TC:wght@400;700&display=swap"
+			media="print"
+			onload="this.media = 'all'"
+		/>
+		<noscript>
+			<link
+				rel="stylesheet"
+				href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&family=LXGW+WenKai+TC:wght@400;700&display=swap"
+			/>
+		</noscript>
 
 		<script>
 			(function () {

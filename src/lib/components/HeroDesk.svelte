@@ -15,6 +15,7 @@
 -->
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { isHandheld, whenIdle } from '$lib/idle';
 
 	let { postCount, wordLabel, days }: { postCount: number; wordLabel: string; days: number } =
 		$props();
@@ -23,6 +24,8 @@
 	let canvasEl: HTMLCanvasElement | undefined = $state();
 	let ready = $state(false);
 	let hoverFile = $state(false);
+	/** Set on phones: the desk only boots when the visitor asks for it. */
+	let bootOnTap: (() => void) | undefined = $state();
 
 	onMount(() => {
 		const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -31,7 +34,7 @@
 		let cleanup: (() => void) | undefined;
 		let cleanupExtra: (() => void) | undefined;
 
-		(async () => {
+		const boot = async () => {
 			let THREE: typeof import('three');
 			let RoomEnvironment: typeof import('three/examples/jsm/environments/RoomEnvironment.js').RoomEnvironment;
 			try {
@@ -831,10 +834,23 @@
 				loupeTarget.dispose();
 				renderer.dispose();
 			};
-		})();
+		};
+
+		// The desk is decoration: on desktop it waits for an idle main thread after
+		// load; on phones (where building it costs seconds of CPU) it waits for a tap.
+		let cancelIdle: (() => void) | undefined;
+		if (isHandheld() && !reduced) {
+			bootOnTap = () => {
+				bootOnTap = undefined;
+				void boot();
+			};
+		} else {
+			cancelIdle = whenIdle(() => void boot());
+		}
 
 		return () => {
 			destroyed = true;
+			cancelIdle?.();
 			cancelAnimationFrame(rafId);
 			cleanup?.();
 		};
@@ -853,3 +869,52 @@
 		style:opacity={ready ? 1 : 0}
 	></canvas>
 </div>
+
+{#if bootOnTap}
+	<button type="button" class="lamp-switch" onclick={bootOnTap}>
+		<span aria-hidden="true" class="lamp-dot"></span>
+		開燈，看辦案桌
+	</button>
+{/if}
+
+<style>
+	/* Until (or unless) the 3D desk boots, the lamp still throws a warm pool of light. */
+	.desk {
+		background: radial-gradient(
+			ellipse 55% 45% at 72% 38%,
+			rgba(255, 217, 138, 0.13),
+			transparent 70%
+		);
+	}
+
+	/* Phones: a brass switch on the corner of the hero turns the lamp on. */
+	.lamp-switch {
+		position: absolute;
+		right: 1rem;
+		bottom: 5.5rem;
+		z-index: 20;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem 0.9rem;
+		border: 1px solid rgba(184, 144, 79, 0.6);
+		border-radius: 999px;
+		background: rgba(18, 13, 10, 0.55);
+		color: #f4ead2;
+		font-family: var(--font-mono-hack);
+		font-size: 0.78rem;
+		letter-spacing: 0.12em;
+		backdrop-filter: blur(4px);
+	}
+	.lamp-dot {
+		width: 0.55rem;
+		height: 0.55rem;
+		border-radius: 50%;
+		background: #f0b429;
+		box-shadow: 0 0 10px 2px rgba(240, 180, 41, 0.6);
+	}
+	.lamp-switch:focus-visible {
+		outline: 2px solid var(--color-accent);
+		outline-offset: 3px;
+	}
+</style>

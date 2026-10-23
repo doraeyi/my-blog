@@ -23,7 +23,7 @@
 	<div class="mx-auto max-w-5xl px-6 pt-10 pb-12">
 		<div class="flex flex-col items-center gap-3">
 			<div class="label-holder">
-				<span class="font-mono-hack text-[0.65rem] tracking-[0.3em] text-case-600">
+				<span class="font-mono-hack text-[0.7rem] tracking-[0.3em] text-case-700">
 					DRAWER · 檔案總覽
 				</span>
 				<span class="font-display text-lg text-case-900">Liam 偵探手記</span>

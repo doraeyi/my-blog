@@ -30,7 +30,8 @@
 	});
 </script>
 
-<span aria-label={text}>
+<span>
+	<span class="sr-only">{text}</span>
 	<span aria-hidden="true">{text.slice(0, visibleChars)}</span>
 	<span
 		class="ml-0.5 inline-block h-[0.9em] w-[2px] translate-y-[0.1em] animate-pulse bg-current align-middle"

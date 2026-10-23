@@ -13,7 +13,9 @@ const handleParaglide: Handle = ({ event, resolve }) =>
 		return resolve(event, {
 			transformPageChunk: ({ html }) =>
 				html
-					.replace('%paraglide.lang%', locale)
+					// All content is written in Traditional Chinese, whatever the (unused)
+					// paraglide locale says; screen readers and search engines go by this.
+					.replace('%paraglide.lang%', locale === 'en' ? 'zh-Hant-TW' : locale)
 					.replace('%paraglide.dir%', getTextDirection(locale))
 		});
 	});

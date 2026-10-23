@@ -14,6 +14,7 @@
 -->
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { isHandheld, whenIdle } from '$lib/idle';
 
 	let canvasEl: HTMLCanvasElement | undefined = $state();
 	let active = $state(false);
@@ -29,7 +30,9 @@
 			(nav.hardwareConcurrency ?? 8) <= 4 ||
 			(nav.deviceMemory ?? 8) <= 4 ||
 			nav.connection?.saveData ||
-			document.documentElement.dataset.lite === '1'
+			document.documentElement.dataset.lite === '1' ||
+			// Phones: dust is not worth seconds of main-thread time on a small screen.
+			isHandheld()
 		)
 			return;
 
@@ -37,7 +40,7 @@
 		let rafId = 0;
 		let disposeScene: (() => void) | undefined;
 
-		(async () => {
+		const cancelIdle = whenIdle(async () => {
 			if (!canvasEl) return;
 			let THREE: typeof import('three');
 			try {
@@ -206,10 +209,11 @@
 				sprite.dispose();
 				renderer.dispose();
 			};
-		})();
+		});
 
 		return () => {
 			destroyed = true;
+			cancelIdle();
 			cancelAnimationFrame(rafId);
 			disposeScene?.();
 		};

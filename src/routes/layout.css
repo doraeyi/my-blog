@@ -304,6 +304,14 @@ html {
 	letter-spacing: 0;
 }
 
+/* Code never drops below 13px — prose-sm's 0.857em of 14px reads at ~10px on phones. */
+.prose :where(code) {
+	font-size: max(0.8125rem, 0.875em);
+}
+.prose :where(pre) {
+	font-size: 0.8125rem;
+}
+
 /* ───────── Reading aids added by the proseEnhance action ───────── */
 /* Jumping to a heading leaves room for the fixed top tools. */
 .prose :where(h2, h3, h4) {
