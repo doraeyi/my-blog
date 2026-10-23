@@ -17,6 +17,8 @@ export interface GearItem {
 	name: string;
 	spec?: string;
 	note?: string;
+	/** Has a cut-out product photo in static/gear/ (named after the item). Items with a `model` always do. */
+	photo?: boolean;
 	model?: GearModel;
 }
 
@@ -32,13 +34,15 @@ export interface GearGroup {
 export const gear: GearGroup[] = [
 	{
 		name: '隨身',
-		tagline: '口袋裡的那台',
+		tagline: '每天帶在身上的',
 		items: [
 			{
 				name: 'iPhone 15 Pro',
 				spec: '藍色鈦金屬',
 				model: { kind: 'iphone-15-pro', finish: 'blue' }
-			}
+			},
+			{ name: 'AirPods Pro 2', spec: '主動降噪', photo: true },
+			{ name: 'Apple Watch SE', spec: '午夜色', photo: true }
 		]
 	},
 	{
@@ -57,6 +61,24 @@ export const gear: GearGroup[] = [
 				model: { kind: 'g502-lightspeed' }
 			}
 		]
+	},
+	{
+		name: '主機',
+		tagline: '桌機裡面的那幾顆',
+		items: [
+			{ name: 'AMD Ryzen 7 5800X', spec: '8 核心 16 執行緒 · AM4', photo: true },
+			{
+				name: 'NVIDIA GeForce RTX 3070 Ti',
+				spec: 'Founders Edition · 8GB GDDR6X',
+				photo: true
+			},
+			{ name: 'Predator GM7 1TB', spec: 'PCIe 4.0 NVMe M.2', photo: true }
+		]
+	},
+	{
+		name: '筆電',
+		tagline: '帶出門的那台',
+		items: [{ name: 'ASUS TUF Gaming Dash F15', spec: '2022 年款 · 灰', photo: true }]
 	}
 ];
 

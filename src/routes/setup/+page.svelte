@@ -4,7 +4,7 @@
 	import Seo from '$lib/components/Seo.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { reveal } from '$lib/actions/reveal';
-	import { gear, type GearItem, type GearModel } from '$lib/collections';
+	import { gear, type GearItem } from '$lib/collections';
 	import { photoUrl } from '$lib/gear-photos';
 	import PhotoTilt from '$lib/components/PhotoTilt.svelte';
 	import GearModelView from '$lib/components/GearModelView.svelte';
@@ -12,23 +12,22 @@
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 
-	type Modelled = GearItem & { model: GearModel };
-
 	const total = gear.reduce((n, g) => n + g.items.length, 0);
 	let active = $state<string>('all');
 	const shown = $derived(active === 'all' ? gear : gear.filter((g) => g.name === active));
 
-	// Every exhibit is a cut-out product photo that tilts under the pointer; the
-	// procedural 3D model only loads if someone asks for it on the stand.
-	const exhibits = gear.flatMap((g) => g.items).filter((i): i is Modelled => !!i.model);
+	// Every exhibit is a cut-out product photo that tilts under the pointer; items
+	// with a procedural 3D model can switch to it on the stand, loaded on request.
+	const hasPhoto = (i: GearItem) => !!i.photo || !!i.model;
+	const exhibits = gear.flatMap((g) => g.items).filter(hasPhoto);
 	// Raw state: the item stays the same object, so indexOf finds it.
-	let onStand = $state.raw<Modelled | undefined>(exhibits[0]);
+	let onStand = $state.raw<GearItem | undefined>(exhibits[0]);
 	const standNo = $derived(onStand ? exhibits.indexOf(onStand) : -1);
 	let stand: HTMLElement | undefined = $state();
 
 	let in3d = $state(false);
 
-	function show(item: Modelled) {
+	function show(item: GearItem) {
 		onStand = item;
 		in3d = false;
 		const top = stand?.getBoundingClientRect().top ?? 0;
@@ -62,7 +61,7 @@
 		</div>
 	{:else}
 		{#if onStand}
-			{@const wide = onStand.model.kind === 'gpro-x-tkl'}
+			{@const wide = onStand.model?.kind === 'gpro-x-tkl'}
 			<!-- The stand: the exhibit up close; 3D on request. -->
 			<section
 				bind:this={stand}
@@ -73,7 +72,7 @@
 				<div class="stage relative h-[22rem] md:h-[30rem]">
 					{#key `${onStand.name}-${in3d}`}
 						<div class="absolute inset-0" in:fade={{ duration: 250 }}>
-							{#if in3d}
+							{#if in3d && onStand.model}
 								<span aria-hidden="true" class="plinth" class:wide></span>
 								<GearModelView model={onStand.model} label={onStand.name} />
 							{:else}
@@ -81,14 +80,16 @@
 							{/if}
 						</div>
 					{/key}
-					<button
-						type="button"
-						onclick={() => (in3d = !in3d)}
-						aria-pressed={in3d}
-						class="absolute top-3 right-3 z-10 rounded-full border border-border-case bg-surface-alt/80 px-3 py-1 font-mono-hack text-[0.65rem] tracking-widest text-ink-muted backdrop-blur transition hover:text-ink"
-					>
-						{in3d ? '看實拍' : '3D 模型'}
-					</button>
+					{#if onStand.model}
+						<button
+							type="button"
+							onclick={() => (in3d = !in3d)}
+							aria-pressed={in3d}
+							class="absolute top-3 right-3 z-10 rounded-full border border-border-case bg-surface-alt/80 px-3 py-1 font-mono-hack text-[0.65rem] tracking-widest text-ink-muted backdrop-blur transition hover:text-ink"
+						>
+							{in3d ? '看實拍' : '3D 模型'}
+						</button>
+					{/if}
 				</div>
 				<div class="flex flex-col justify-center gap-3 px-7 py-8">
 					<p class="font-mono-hack text-xs tracking-[0.3em] text-ink-muted">
@@ -148,13 +149,13 @@
 					</div>
 					<ul class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
 						{#each group.items as item, i (item.name)}
-							{#if item.model}
+							{#if hasPhoto(item)}
 								{@const current = onStand?.name === item.name}
 								<li use:reveal={{ delay: i * 40, y: 8 }}>
 									<button
 										type="button"
 										aria-pressed={current}
-										onclick={() => show(item as Modelled)}
+										onclick={() => show(item)}
 										class="gear-card relative block w-full overflow-hidden rounded-sm border text-left transition {current
 											? 'border-accent'
 											: 'border-border-case hover:border-ink-muted/60'}"
