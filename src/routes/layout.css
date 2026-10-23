@@ -304,6 +304,83 @@ html {
 	letter-spacing: 0;
 }
 
+/* ───────── Reading aids added by the proseEnhance action ───────── */
+/* Jumping to a heading leaves room for the fixed top tools. */
+.prose :where(h2, h3, h4) {
+	scroll-margin-top: 6rem;
+}
+.heading-anchor {
+	margin-left: 0.4em;
+	color: var(--color-accent);
+	font-family: var(--font-mono-hack);
+	font-size: 0.75em;
+	text-decoration: none;
+	opacity: 0;
+	transition: opacity 0.15s;
+}
+.prose :where(h2, h3, h4):hover .heading-anchor,
+.heading-anchor:focus-visible {
+	opacity: 0.8;
+}
+@media (hover: none) {
+	.heading-anchor {
+		opacity: 0.45;
+	}
+}
+
+/* Code blocks get a typed label strip: language on the left, copy on the right. */
+.code-block {
+	margin: 1.6em 0;
+	border-radius: 6px;
+	overflow: hidden;
+	background: #1e1813;
+	box-shadow: 0 0 0 1px rgba(212, 173, 110, 0.18);
+}
+.code-block > pre {
+	margin: 0 !important;
+	border-radius: 0 !important;
+	background: transparent !important;
+	color: #f4ead2;
+}
+.code-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 0.35rem 0.6rem 0.35rem 0.9rem;
+	border-bottom: 1px dashed rgba(212, 173, 110, 0.25);
+	font-family: var(--font-mono-hack);
+	font-size: 0.7rem;
+	letter-spacing: 0.12em;
+	color: #c2a877;
+}
+.code-copy {
+	padding: 0.15rem 0.6rem;
+	border: 1px solid rgba(212, 173, 110, 0.35);
+	border-radius: 999px;
+	color: #e7dbc0;
+	letter-spacing: 0.08em;
+	transition:
+		background-color 0.15s,
+		border-color 0.15s,
+		color 0.15s;
+}
+.code-copy:hover {
+	background: rgba(212, 173, 110, 0.15);
+}
+.code-copy:focus-visible {
+	outline: 2px solid var(--color-accent);
+	outline-offset: 2px;
+}
+.code-copy[data-state='done'] {
+	border-color: #e2574a;
+	color: #f2795e;
+}
+.code-copy[data-state='fail'] {
+	border-color: #cf5a4c;
+	color: #cf5a4c;
+}
+
 /* ───────── Index card stock: ruled lines, cream card, a punch hole ───────── */
 .index-card {
 	position: relative;
