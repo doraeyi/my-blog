@@ -1,0 +1,1 @@
+ALTER TABLE `project` ADD `case_report` text;

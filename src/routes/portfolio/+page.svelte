@@ -50,9 +50,14 @@
 					{#if project.description}
 						<p class="mt-1.5 line-clamp-2 flex-1 text-sm text-ink-muted">{project.description}</p>
 					{/if}
-					<div class="mt-3 flex items-center gap-1 text-xs text-ink-muted">
-						<Star class="size-3.5 text-accent" />
-						{project.starCount}
+					<div class="mt-3 flex items-center gap-3 text-xs text-ink-muted">
+						<span class="flex items-center gap-1">
+							<Star class="size-3.5 text-accent" />
+							{project.starCount}
+						</span>
+						{#if project.caseReport}
+							<span class="date-stamp">附結案報告</span>
+						{/if}
 					</div>
 				</a>
 			</li>

@@ -2,6 +2,19 @@ import { relations } from 'drizzle-orm';
 import { integer, real, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 import { user } from './auth.schema';
 
+/** A project written up as a closed case: what was wrong, how it was traced, what fixed it. */
+export interface CaseReport {
+	/** One line: the project's purpose or the brief. */
+	brief: string;
+	/** Liam's part in it (solo, frontend lead, …). */
+	role: string;
+	/** Markdown sections. */
+	problem: string;
+	investigation: string;
+	solution: string;
+	result: string;
+}
+
 export const comment = sqliteTable('comment', {
 	id: text('id')
 		.primaryKey()
@@ -55,6 +68,8 @@ export const project = sqliteTable(
 		description: text('description'),
 		homepageUrl: text('homepage_url'),
 		readmeHtml: text('readme_html'),
+		/** Hand-written 結案報告 (Markdown per section); null until written in the admin. */
+		caseReport: text('case_report', { mode: 'json' }).$type<CaseReport | null>(),
 		starCount: integer('star_count').notNull().default(0),
 		lastSyncedAt: integer('last_synced_at', { mode: 'timestamp' }),
 		createdAt: integer('created_at', { mode: 'timestamp' })

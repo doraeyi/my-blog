@@ -2,6 +2,7 @@ import { error, fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { getProject } from '$lib/server/services/projects-service';
 import * as commentsService from '$lib/server/services/comments-service';
+import { renderBody } from '$lib/server/services/posts-service';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const project = await getProject(params.id);
@@ -11,7 +12,20 @@ export const load: PageServerLoad = async ({ params }) => {
 	// `postSlug` is just a generic string key, not a real FK to a `posts` table.
 	const comments = await commentsService.listForPost(project.id);
 
-	return { project, comments };
+	const r = project.caseReport;
+	const report = r
+		? {
+				brief: r.brief,
+				role: r.role,
+				sections: await Promise.all(
+					(['problem', 'investigation', 'solution', 'result'] as const)
+						.filter((k) => r[k])
+						.map(async (key) => ({ key, html: await renderBody(r[key]) }))
+				)
+			}
+		: null;
+
+	return { project, comments, report };
 };
 
 export const actions: Actions = {

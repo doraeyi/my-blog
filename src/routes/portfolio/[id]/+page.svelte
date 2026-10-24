@@ -5,6 +5,7 @@
 	import { reveal } from '$lib/actions/reveal';
 	import ReadingSidebar from '$lib/components/ReadingSidebar.svelte';
 	import ContributionGraph from '$lib/components/ContributionGraph.svelte';
+	import CaseReport from '$lib/components/CaseReport.svelte';
 	import Star from '@lucide/svelte/icons/star';
 	import ExternalLink from '@lucide/svelte/icons/external-link';
 	import type { ActionData, PageData } from './$types';
@@ -51,6 +52,13 @@
 					{/each}
 					<!-- eslint-enable svelte/no-navigation-without-resolve -->
 				</div>
+			{/if}
+
+			{#if data.report}
+				<CaseReport {...data.report} />
+				{#if data.project.readmeHtml}
+					<h2 class="mt-10 section-title">附件：README</h2>
+				{/if}
 			{/if}
 
 			{#if data.project.readmeHtml}

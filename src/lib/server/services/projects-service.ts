@@ -2,7 +2,12 @@ import { eq } from 'drizzle-orm';
 import { env } from '$env/dynamic/private';
 import { renderMarkdown } from '@doraeyi/content-toolkit';
 import { db } from '$lib/server/db';
-import { project, projectCollaborator, projectCommitDaily } from '$lib/server/db/schema';
+import {
+	project,
+	projectCollaborator,
+	projectCommitDaily,
+	type CaseReport
+} from '$lib/server/db/schema';
 import * as github from './github-service';
 
 export async function listProjects() {
@@ -32,6 +37,11 @@ export async function addProject(githubOwner: string, githubRepo: string): Promi
 	}
 
 	return row.id;
+}
+
+/** Saves (or clears, with null) a project's hand-written case report. */
+export async function saveCaseReport(id: string, report: CaseReport | null) {
+	await db.update(project).set({ caseReport: report }).where(eq(project.id, id));
 }
 
 export async function removeProject(id: string) {
