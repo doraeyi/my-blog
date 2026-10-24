@@ -19,6 +19,7 @@
 	import User from '@lucide/svelte/icons/user';
 	import X from '@lucide/svelte/icons/x';
 
+	const onEnglish = $derived(onRoute(page.url.pathname, '/english'));
 	let { user, unread = 0 }: { user?: { name: string; role?: string | null }; unread?: number } =
 		$props();
 
@@ -213,8 +214,28 @@
 	</div>
 {/if}
 
-<!-- Tools: search, theme, account -->
+<!-- Tools: language, search, theme, account -->
 <div class="fixed top-4 right-4 z-50 flex items-center gap-2">
+	<!-- Chinese pages offer the English profile; the English profile offers the way back. -->
+	{#if onEnglish}
+		<a
+			href={resolve('/about')}
+			hreflang="zh-Hant"
+			lang="zh-Hant"
+			aria-label="切換到中文"
+			title="中文"
+			class="tool-btn lang-btn">中</a
+		>
+	{:else}
+		<a
+			href={resolve('/english')}
+			hreflang="en"
+			lang="en"
+			aria-label="English profile"
+			title="English"
+			class="tool-btn lang-btn">EN</a
+		>
+	{/if}
 	<button
 		type="button"
 		aria-label="搜尋（Ctrl/⌘ K）"
@@ -296,6 +317,13 @@
 	   buttons down. A scoped rule outranks it. */
 	.account-menu {
 		position: absolute;
+	}
+
+	.lang-btn {
+		font-family: var(--font-mono-hack);
+		font-size: 0.8rem;
+		letter-spacing: 0.05em;
+		text-decoration: none;
 	}
 
 	/* A red ink dot on the account button when there are unread notifications. */
