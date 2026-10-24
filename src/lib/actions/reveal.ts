@@ -39,7 +39,9 @@ export const reveal: Action<HTMLElement, RevealOptions | undefined> = (node, opt
 			node.addEventListener('transitionend', clearInlineStyles, { once: true });
 			observer.unobserve(node);
 		},
-		{ threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+		// Any visible pixel counts: a ratio threshold can never be met by an element
+		// taller than the viewport (a long article body would stay invisible forever).
+		{ threshold: 0, rootMargin: '0px 0px -40px 0px' }
 	);
 
 	observer.observe(node);
