@@ -13,8 +13,16 @@ const staticPaths = [
 	'/moods',
 	'/blog',
 	'/tags',
+	'/board',
 	'/portfolio',
-	'/watch'
+	'/watch',
+	'/setup',
+	'/bookshelf',
+	'/thinking',
+	'/about-site',
+	'/messages',
+	'/friends',
+	'/history'
 ];
 
 export const GET: RequestHandler = async ({ url }) => {

@@ -10,6 +10,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '$lib/site';
 const SECTIONS: [string, string, string][] = [
 	['/blog', '案件簿', '所有文章、技術文章與心情，依時間排列'],
 	['/articles', '技術文章', '前端、SvelteKit、部署與工具的實作筆記'],
+	['/board', '證物牆', '所有文章依共同標籤用紅線串起來的關係圖'],
 	['/thinking', '現場筆記', '短篇的想法與碎念'],
 	['/portfolio', '作品集', 'GitHub 上的專案，附 README 與 commit 熱力圖'],
 	['/watch', '追劇紀錄', '看過與正在看的影集、電影'],
