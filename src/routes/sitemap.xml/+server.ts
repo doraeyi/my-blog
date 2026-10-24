@@ -7,6 +7,7 @@ import { escapeXml } from '$lib/server/xml';
 const staticPaths = [
 	'/',
 	'/about',
+	'/english',
 	'/now',
 	'/archive',
 	'/articles',

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { tilt } from '$lib/actions/tilt';
+	import { resolve } from '$app/paths';
 	import Seo from '$lib/components/Seo.svelte';
 	import ParticlePortrait from '$lib/components/ParticlePortrait.svelte';
 	import Typewriter from '$lib/components/Typewriter.svelte';
@@ -92,6 +93,10 @@
 <Seo
 	title="關於我"
 	description="李俊逸，MSI 微星科技前端工程師。在意動畫的時機、操作的手感，以及兩種主題下都準確的顏色。"
+	alternates={[
+		{ hreflang: 'zh-Hant', href: '/about' },
+		{ hreflang: 'en', href: '/english' }
+	]}
 />
 
 <!--
@@ -100,6 +105,13 @@
 	folders colliding with the text.
 -->
 <div class="relative mx-auto max-w-5xl px-6 pt-28 pb-24">
+	<p class="mb-6 text-right text-sm">
+		<a
+			href={resolve('/english')}
+			class="text-ink-muted underline-offset-4 hover:text-accent hover:underline"
+			>English profile →</a
+		>
+	</p>
 	<!-- ── Hero: ID card + profile sheet ─────────────────────────────── -->
 	<section class="grid items-center gap-10 md:grid-cols-[260px_1fr] md:gap-14">
 		<div use:reveal class="relative mx-auto w-full max-w-[260px]">

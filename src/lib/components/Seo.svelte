@@ -9,7 +9,9 @@
 		type = 'website',
 		publishedTime,
 		tags = [],
-		noindex = false
+		noindex = false,
+		locale = SITE_LOCALE,
+		alternates = []
 	}: {
 		/** Page title; omitted means the homepage, which uses the full site title. */
 		title?: string;
@@ -20,6 +22,10 @@
 		publishedTime?: Date;
 		tags?: string[];
 		noindex?: boolean;
+		/** og:locale, e.g. en_US for the English profile. */
+		locale?: string;
+		/** Same page in other languages, for hreflang. */
+		alternates?: { hreflang: string; href: string }[];
 	} = $props();
 
 	const fullTitle = $derived(title ? `${title} | ${SITE_NAME}` : SITE_TITLE);
@@ -62,7 +68,10 @@
 	{/if}
 
 	<meta property="og:site_name" content={SITE_NAME} />
-	<meta property="og:locale" content={SITE_LOCALE} />
+	<meta property="og:locale" content={locale} />
+	{#each alternates as alt (alt.hreflang)}
+		<link rel="alternate" hreflang={alt.hreflang} href={page.url.origin + alt.href} />
+	{/each}
 	<meta property="og:type" content={type} />
 	<meta property="og:title" content={title ?? SITE_TITLE} />
 	<meta property="og:description" content={desc} />

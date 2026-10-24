@@ -18,6 +18,7 @@ const SECTIONS: [string, string, string][] = [
 	['/bookshelf', '書櫃', '讀過與想讀的書'],
 	['/now', '現在', '最近在做、在學、在想的事'],
 	['/about', '關於我', 'Liam 的介紹與聯絡方式'],
+	['/english', 'English profile', 'Liam 的英文自我介紹、作品與聯絡方式'],
 	['/about-site', '本站說明', '這個網站怎麼做的'],
 	['/rss.xml', 'RSS', '最新 30 篇的訂閱來源']
 ];
