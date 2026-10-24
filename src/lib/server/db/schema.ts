@@ -24,9 +24,31 @@ export const comment = sqliteTable('comment', {
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade' }),
 	body: text('body').notNull(),
+	/** Set on replies: the top-level comment this answers (threads are one level deep). */
+	parentId: text('parent_id'),
 	status: text('status', { enum: ['visible', 'hidden'] })
 		.notNull()
 		.default('visible'),
+	createdAt: integer('created_at', { mode: 'timestamp' })
+		.notNull()
+		.$defaultFn(() => new Date())
+});
+
+/** In-site notices, e.g. "someone replied to your comment". Read ones are kept. */
+export const notification = sqliteTable('notification', {
+	id: text('id')
+		.primaryKey()
+		.$defaultFn(() => crypto.randomUUID()),
+	userId: text('user_id')
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	actorName: text('actor_name').notNull(),
+	/** What happened, already phrased, e.g. "回覆了你在《…》的留言". */
+	summary: text('summary').notNull(),
+	/** A short quote of the new text. */
+	excerpt: text('excerpt'),
+	url: text('url').notNull(),
+	readAt: integer('read_at', { mode: 'timestamp' }),
 	createdAt: integer('created_at', { mode: 'timestamp' })
 		.notNull()
 		.$defaultFn(() => new Date())

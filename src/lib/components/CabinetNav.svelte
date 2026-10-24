@@ -19,7 +19,8 @@
 	import User from '@lucide/svelte/icons/user';
 	import X from '@lucide/svelte/icons/x';
 
-	let { user }: { user?: { name: string; role?: string | null } } = $props();
+	let { user, unread = 0 }: { user?: { name: string; role?: string | null }; unread?: number } =
+		$props();
 
 	const current = $derived(drawerFor(page.url.pathname));
 
@@ -227,12 +228,15 @@
 	<div bind:this={profileEl} class="relative">
 		<button
 			type="button"
-			aria-label="使用者選單"
+			aria-label={unread ? `使用者選單（${unread} 則新通知）` : '使用者選單'}
 			aria-expanded={profileOpen}
 			onclick={() => (profileOpen = !profileOpen)}
-			class="tool-btn"
+			class="tool-btn relative"
 		>
 			<User class="size-4" />
+			{#if unread}
+				<span class="unread-dot" aria-hidden="true"></span>
+			{/if}
 		</button>
 		{#if profileOpen}
 			<div
@@ -242,6 +246,15 @@
 			>
 				{#if user}
 					<p class="menu-row truncate font-mono-hack text-xs text-case-600">{user.name}</p>
+					<a
+						href={resolve('/notifications')}
+						class="menu-row flex items-center justify-between rounded-sm text-sm text-case-900 hover:bg-case-200/60"
+					>
+						通知
+						{#if unread}
+							<span class="font-mono-hack text-xs text-stamp-500">{unread} 則新</span>
+						{/if}
+					</a>
 					{#if user.role === 'Liam'}
 						<a
 							href={resolve('/admin/posts')}
@@ -283,6 +296,18 @@
 	   buttons down. A scoped rule outranks it. */
 	.account-menu {
 		position: absolute;
+	}
+
+	/* A red ink dot on the account button when there are unread notifications. */
+	.unread-dot {
+		position: absolute;
+		top: 6px;
+		right: 6px;
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background: #e2574a;
+		box-shadow: 0 0 0 2px var(--color-surface);
 	}
 
 	/* Account menu rows sit exactly on the index card's 28px ruled lines. */

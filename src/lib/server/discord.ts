@@ -24,7 +24,8 @@ const PAGE_TITLES: Record<string, string> = {
 const LIKE_COOLDOWN_MS = 10 * 60 * 1000;
 const recentLikes = new Map<string, number>();
 
-async function titleFor(pathname: string): Promise<string> {
+/** A readable title for a site path (post, watch item, project or fixed page). */
+export async function titleFor(pathname: string): Promise<string> {
 	if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname];
 	try {
 		const entry = (await listEntries()).find((e) => e.path === pathname);
@@ -80,14 +81,14 @@ function send(payload: object) {
 
 const clip = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
 
-export function notifyComment(body: string) {
+export function notifyComment(body: string, replyToName?: string) {
 	const ctx = context();
 	if (!ctx) return;
 	void titleFor(ctx.url.pathname).then((title) =>
 		send({
 			embeds: [
 				{
-					title: `新留言 · ${clip(title, 200)}`,
+					title: `${replyToName ? `回覆 ${replyToName}` : '新留言'} · ${clip(title, 200)}`,
 					url: ctx.url.href,
 					description: clip(body, 1500),
 					color: 0xb3362b,

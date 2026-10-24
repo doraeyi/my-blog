@@ -100,7 +100,7 @@
 <DetectiveDepth />
 <GlobalFx />
 
-<CabinetNav user={data.user} />
+<CabinetNav user={data.user} unread={data.unread} />
 <SearchPalette />
 
 <main class="lg:pl-10">
