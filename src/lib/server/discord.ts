@@ -15,6 +15,7 @@ import { listEntries } from '$lib/server/content-index';
 const PAGE_TITLES: Record<string, string> = {
 	'/messages': '證詞（留言板）',
 	'/friends': '線人名單',
+	'/friends/circle': '朋友圈',
 	'/about-site': '本站說明',
 	'/history': '結案紀錄'
 };
@@ -125,4 +126,33 @@ export function notifyLike() {
 			]
 		})
 	);
+}
+
+/** A new friend-link application waiting in /admin/friends. Visitors needn't be signed in. */
+export function notifyFriendApplication(f: {
+	name: string;
+	url: string;
+	description: string;
+	avatar: string | null;
+}) {
+	if (!env.DISCORD_WEBHOOK_URL) return;
+	let origin = 'https://blog.doraeyi.com';
+	try {
+		origin = getRequestEvent().url.origin;
+	} catch {
+		// Outside a request; keep the production origin.
+	}
+	send({
+		embeds: [
+			{
+				title: `友鏈申請 · ${clip(f.name, 200)}`,
+				url: f.url,
+				description: clip(f.description, 500),
+				color: 0xb8904f,
+				...(f.avatar ? { thumbnail: { url: f.avatar } } : {}),
+				footer: { text: `審核：${new URL('/admin/friends', origin).href}` },
+				timestamp: new Date().toISOString()
+			}
+		]
+	});
 }

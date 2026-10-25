@@ -7,6 +7,7 @@
 	import FilePen from '@lucide/svelte/icons/file-pen';
 	import Clapperboard from '@lucide/svelte/icons/clapperboard';
 	import MessageCircle from '@lucide/svelte/icons/message-circle';
+	import Users from '@lucide/svelte/icons/users';
 
 	let { children } = $props();
 
@@ -15,7 +16,8 @@
 		{ label: '作品集管理', href: resolve('/admin/projects'), icon: FolderGit2 },
 		{ label: '文章管理', href: resolve('/admin/posts'), icon: FilePen },
 		{ label: '追劇管理', href: resolve('/admin/watch'), icon: Clapperboard },
-		{ label: '碎念', href: resolve('/admin/thoughts'), icon: MessageCircle }
+		{ label: '碎念', href: resolve('/admin/thoughts'), icon: MessageCircle },
+		{ label: '友鏈', href: resolve('/admin/friends'), icon: Users }
 	];
 </script>
 

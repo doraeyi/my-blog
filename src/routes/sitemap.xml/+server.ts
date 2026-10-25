@@ -23,6 +23,7 @@ const staticPaths = [
 	'/about-site',
 	'/messages',
 	'/friends',
+	'/friends/circle',
 	'/history'
 ];
 

@@ -255,3 +255,76 @@ export const thought = sqliteTable('thought', {
 		.notNull()
 		.$defaultFn(() => new Date())
 });
+
+// 線人名單 — friend links. Visitors apply through /friends (status "pending"),
+// the owner approves or rejects in /admin/friends. The health fields are kept
+// up to date by the periodic check in friends-service.
+export const friend = sqliteTable('friend', {
+	id: text('id')
+		.primaryKey()
+		.$defaultFn(() => crypto.randomUUID()),
+	name: text('name').notNull(),
+	url: text('url').notNull().unique(),
+	avatar: text('avatar'),
+	description: text('description').notNull(),
+	/** Private: only the owner sees it. */
+	email: text('email'),
+	/** RSS / Atom feed; discovered from the site when left empty. */
+	feedUrl: text('feed_url'),
+	/** The page on their site that links back here. */
+	backlinkUrl: text('backlink_url'),
+	/** Show their latest posts in 朋友圈. */
+	joinCircle: integer('join_circle', { mode: 'boolean' }).notNull().default(true),
+	groupName: text('group_name').notNull().default('朋友'),
+	sortOrder: integer('sort_order').notNull().default(0),
+	status: text('status', { enum: ['pending', 'approved', 'rejected', 'hidden'] })
+		.notNull()
+		.default('pending'),
+	/** Shown to the applicant on their status page. */
+	reviewNote: text('review_note'),
+	/** Owner's private note. */
+	adminNote: text('admin_note'),
+	/** Secret for the applicant's status page. */
+	token: text('token')
+		.notNull()
+		.$defaultFn(() => crypto.randomUUID()),
+	checkedAt: integer('checked_at', { mode: 'timestamp' }),
+	/** HTTP status of the last check, 0 when unreachable. */
+	httpStatus: integer('http_status'),
+	latencyMs: integer('latency_ms'),
+	lastOkAt: integer('last_ok_at', { mode: 'timestamp' }),
+	/** null = not checked (no backlink page given or not reachable). */
+	backlinkOk: integer('backlink_ok', { mode: 'boolean' }),
+	feedFetchedAt: integer('feed_fetched_at', { mode: 'timestamp' }),
+	feedError: text('feed_error'),
+	approvedAt: integer('approved_at', { mode: 'timestamp' }),
+	createdAt: integer('created_at', { mode: 'timestamp' })
+		.notNull()
+		.$defaultFn(() => new Date())
+});
+
+// 朋友圈 — the latest posts pulled from each friend's feed.
+export const friendPost = sqliteTable(
+	'friend_post',
+	{
+		id: text('id')
+			.primaryKey()
+			.$defaultFn(() => crypto.randomUUID()),
+		friendId: text('friend_id')
+			.notNull()
+			.references(() => friend.id, { onDelete: 'cascade' }),
+		title: text('title').notNull(),
+		url: text('url').notNull(),
+		summary: text('summary'),
+		publishedAt: integer('published_at', { mode: 'timestamp' }).notNull()
+	},
+	(t) => [uniqueIndex('friend_post_friend_url').on(t.friendId, t.url)]
+);
+
+export const friendRelations = relations(friend, ({ many }) => ({
+	posts: many(friendPost)
+}));
+
+export const friendPostRelations = relations(friendPost, ({ one }) => ({
+	friend: one(friend, { fields: [friendPost.friendId], references: [friend.id] })
+}));

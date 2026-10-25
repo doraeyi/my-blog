@@ -76,7 +76,8 @@ export const drawers: Drawer[] = [
 		match: ['/messages', '/friends'],
 		cards: [
 			{ label: '證詞', href: '/messages', note: '留言板，想說什麼都可以' },
-			{ label: '線人名單', href: '/friends', note: '友站連結' }
+			{ label: '線人名單', href: '/friends', note: '友站連結' },
+			{ label: '朋友圈', href: '/friends/circle', note: '朋友們最近寫了什麼' }
 		]
 	}
 ];

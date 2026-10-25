@@ -64,6 +64,13 @@
       "when": 1792860933601,
       "tag": "0008_comment_replies_notifications",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1792908306209,
+      "tag": "0009_friends",
+      "breakpoints": true
     }
   ]
 }
