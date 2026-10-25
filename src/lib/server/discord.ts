@@ -156,3 +156,19 @@ export function notifyFriendApplication(f: {
 		]
 	});
 }
+
+/** Another site (or a friend's feed post) linked to one of our posts. */
+export function notifyMention(path: string, who: string, source: string) {
+	if (!env.DISCORD_WEBHOOK_URL) return;
+	void titleFor(path).then((title) =>
+		send({
+			embeds: [
+				{
+					description: `**${clip(who, 100)}** 在[這篇](${source})提到了《${clip(title, 200)}》`,
+					color: 0x6b8f71,
+					timestamp: new Date().toISOString()
+				}
+			]
+		})
+	);
+}

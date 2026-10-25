@@ -39,6 +39,29 @@ const handleBetterAuth: Handle = async ({ event, resolve }) => {
 	return svelteKitHandler({ event, resolve, auth, building });
 };
 
+// SvelteKit's built-in cross-site form check, minus the endpoints that other
+// servers legitimately post to without an Origin header: webmention senders,
+// and mail apps' one-click unsubscribe (RFC 8058). Both only ever act on a URL
+// or token the poster already has, so there's nothing to forge.
+const CSRF_EXEMPT = /^\/(webmention$|subscribe\/unsubscribe\/)/;
+const FORM_TYPES = /^(application\/x-www-form-urlencoded|multipart\/form-data|text\/plain)/i;
+
+const guardCrossSiteForms: Handle = ({ event, resolve }) => {
+	const { request, url } = event;
+	if (
+		!building &&
+		['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method) &&
+		FORM_TYPES.test(request.headers.get('content-type') ?? '') &&
+		request.headers.get('origin') !== url.origin &&
+		!CSRF_EXEMPT.test(url.pathname)
+	) {
+		return new Response(`Cross-site ${request.method} form submissions are forbidden`, {
+			status: 403
+		});
+	}
+	return resolve(event);
+};
+
 // Form actions don't run the admin layout's `load`, so its role check never
 // covers POSTs — without this, anyone could call /admin/*?/delete directly.
 const guardAdminWrites: Handle = ({ event, resolve }) => {
@@ -53,4 +76,9 @@ const guardAdminWrites: Handle = ({ event, resolve }) => {
 	return resolve(event);
 };
 
-export const handle: Handle = sequence(handleParaglide, handleBetterAuth, guardAdminWrites);
+export const handle: Handle = sequence(
+	guardCrossSiteForms,
+	handleParaglide,
+	handleBetterAuth,
+	guardAdminWrites
+);

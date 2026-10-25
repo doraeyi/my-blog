@@ -50,6 +50,8 @@ export interface SafeResponse {
 	status: number;
 	url: string;
 	contentType: string;
+	/** The Link response header (Webmention endpoint discovery reads it). */
+	link: string;
 	body: string;
 	latencyMs: number;
 }
@@ -98,9 +100,28 @@ export async function safeFetch(
 			status: res.status,
 			url: url.href,
 			contentType: res.headers.get('content-type') ?? '',
+			link: res.headers.get('link') ?? '',
 			body,
 			latencyMs
 		};
 	}
 	throw new Error('轉址太多次');
+}
+
+/** A form POST to a public URL (sending a Webmention). No redirects followed. */
+export async function safePostForm(input: string, fields: Record<string, string>) {
+	const url = new URL(input);
+	await assertPublic(url);
+	const res = await fetch(url, {
+		method: 'POST',
+		redirect: 'manual',
+		signal: AbortSignal.timeout(8000),
+		headers: {
+			'content-type': 'application/x-www-form-urlencoded',
+			'user-agent': 'LiamBlogFriendBot/1.0 (+https://blog.doraeyi.com/friends)'
+		},
+		body: new URLSearchParams(fields)
+	});
+	void res.body?.cancel();
+	return res.status;
 }

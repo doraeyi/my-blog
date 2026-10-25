@@ -6,6 +6,8 @@
 	import SeriesBox from '$lib/components/SeriesBox.svelte';
 	import PostFooterNav from '$lib/components/PostFooterNav.svelte';
 	import LikeButton from '$lib/components/LikeButton.svelte';
+	import SubscribeBox from '$lib/components/SubscribeBox.svelte';
+	import PostMentions from '$lib/components/PostMentions.svelte';
 	import PostToc from '$lib/components/PostToc.svelte';
 	import { proseEnhance } from '$lib/actions/prose';
 	import type { PageData, ActionData } from './$types';
@@ -65,6 +67,10 @@
 		<div class="mt-8 flex justify-center">
 			<LikeButton liked={data.liked} count={data.likeCount} signedIn={!!data.user} />
 		</div>
+
+		<PostMentions mentions={data.mentions} />
+
+		<div class="mt-10"><SubscribeBox /></div>
 
 		<CommentThread
 			comments={data.comments}

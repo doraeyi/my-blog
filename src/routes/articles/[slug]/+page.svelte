@@ -7,6 +7,8 @@
 	import SeriesBox from '$lib/components/SeriesBox.svelte';
 	import PostFooterNav from '$lib/components/PostFooterNav.svelte';
 	import LikeButton from '$lib/components/LikeButton.svelte';
+	import SubscribeBox from '$lib/components/SubscribeBox.svelte';
+	import PostMentions from '$lib/components/PostMentions.svelte';
 	import PostToc from '$lib/components/PostToc.svelte';
 	import { proseEnhance } from '$lib/actions/prose';
 	import type { ActionData, PageData } from './$types';
@@ -64,6 +66,10 @@
 			{#if data.nav}
 				<PostFooterNav nav={data.nav} />
 			{/if}
+
+			<PostMentions mentions={data.mentions} />
+
+			<div class="mt-10"><SubscribeBox /></div>
 
 			<CommentThread
 				comments={data.comments}

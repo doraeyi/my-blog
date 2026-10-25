@@ -328,3 +328,97 @@ export const friendRelations = relations(friend, ({ many }) => ({
 export const friendPostRelations = relations(friendPost, ({ one }) => ({
 	friend: one(friend, { fields: [friendPost.friendId], references: [friend.id] })
 }));
+
+// 流量 — daily rollups only. Nothing identifies a visitor: unique visitors are
+// counted from an in-memory hash that's thrown away at the end of each day.
+export const trafficDaily = sqliteTable(
+	'traffic_daily',
+	{
+		/** YYYY-MM-DD, Asia/Taipei. */
+		day: text('day').notNull(),
+		path: text('path').notNull(),
+		views: integer('views').notNull().default(0)
+	},
+	(t) => [uniqueIndex('traffic_daily_day_path').on(t.day, t.path)]
+);
+
+export const visitsDaily = sqliteTable('visits_daily', {
+	day: text('day').primaryKey(),
+	views: integer('views').notNull().default(0),
+	visitors: integer('visitors').notNull().default(0)
+});
+
+export const referrerDaily = sqliteTable(
+	'referrer_daily',
+	{
+		day: text('day').notNull(),
+		/** Normalised source: "Google", "Threads", or the referring host. */
+		source: text('source').notNull(),
+		views: integer('views').notNull().default(0)
+	},
+	(t) => [uniqueIndex('referrer_daily_day_source').on(t.day, t.source)]
+);
+
+// 電子報 — double opt-in: a subscriber is "pending" until they click the link
+// in the confirmation email. The token doubles as the unsubscribe key.
+export const subscriber = sqliteTable('subscriber', {
+	id: text('id')
+		.primaryKey()
+		.$defaultFn(() => crypto.randomUUID()),
+	email: text('email').notNull().unique(),
+	status: text('status', { enum: ['pending', 'active', 'unsubscribed'] })
+		.notNull()
+		.default('pending'),
+	token: text('token')
+		.notNull()
+		.$defaultFn(() => crypto.randomUUID()),
+	confirmSentAt: integer('confirm_sent_at', { mode: 'timestamp' }),
+	confirmedAt: integer('confirmed_at', { mode: 'timestamp' }),
+	createdAt: integer('created_at', { mode: 'timestamp' })
+		.notNull()
+		.$defaultFn(() => new Date())
+});
+
+/** One row per post that went out by email, so nothing is ever sent twice. */
+export const newsletterIssue = sqliteTable('newsletter_issue', {
+	/** The content key of the post (same as comments/likes/views). */
+	key: text('key').primaryKey(),
+	title: text('title').notNull(),
+	recipients: integer('recipients').notNull(),
+	sentAt: integer('sent_at', { mode: 'timestamp' })
+		.notNull()
+		.$defaultFn(() => new Date())
+});
+
+// 被引用 — other pages that link to a post: Webmentions sent to /webmention,
+// plus friends' feed posts that link here (found while refreshing 朋友圈).
+export const webmention = sqliteTable(
+	'webmention',
+	{
+		id: text('id')
+			.primaryKey()
+			.$defaultFn(() => crypto.randomUUID()),
+		source: text('source').notNull(),
+		/** Path on this site that was linked, e.g. /articles/foo. */
+		target: text('target').notNull(),
+		kind: text('kind', { enum: ['mention', 'reply', 'like', 'repost'] })
+			.notNull()
+			.default('mention'),
+		status: text('status', { enum: ['pending', 'verified', 'hidden', 'invalid'] })
+			.notNull()
+			.default('pending'),
+		authorName: text('author_name'),
+		authorUrl: text('author_url'),
+		authorPhoto: text('author_photo'),
+		title: text('title'),
+		/** The sentence around the link on their page. */
+		excerpt: text('excerpt'),
+		/** Set when the source is an approved friend. */
+		friendId: text('friend_id').references(() => friend.id, { onDelete: 'set null' }),
+		verifiedAt: integer('verified_at', { mode: 'timestamp' }),
+		createdAt: integer('created_at', { mode: 'timestamp' })
+			.notNull()
+			.$defaultFn(() => new Date())
+	},
+	(t) => [uniqueIndex('webmention_source_target').on(t.source, t.target)]
+);

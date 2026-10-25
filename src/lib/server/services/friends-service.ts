@@ -3,6 +3,8 @@ import { db } from '$lib/server/db';
 import { friend, friendPost } from '$lib/server/db/schema';
 import { safeFetch } from '$lib/server/safe-fetch';
 import { notifyFriendApplication } from '$lib/server/discord';
+import * as webmentionService from '$lib/server/services/webmention-service';
+import { SITE_ORIGIN, layout, mailEnabled, paragraph, sendMail } from '$lib/server/mail';
 import {
 	FEED_GUESSES,
 	looksLikeFeed,
@@ -174,6 +176,61 @@ async function assertNew(url: string, exceptId?: string) {
 	}
 }
 
+/** Emails the applicant about their application; best effort, never blocks the action. */
+function mailApplicant(
+	f: Pick<Friend, 'email' | 'name' | 'token'>,
+	what: 'received' | 'approved' | 'rejected',
+	note: string | null = null
+) {
+	if (!f.email || !mailEnabled()) return;
+	const statusUrl = `${SITE_ORIGIN}/friends/status/${f.token}`;
+	const copy = {
+		received: {
+			subject: `收到你的友鏈申請：${f.name}`,
+			heading: '友鏈申請收到了',
+			lines: [
+				'謝謝你想跟我交換友鏈！我會盡快看，結果出來時會再寄信給你。',
+				'這段期間可以從下面的連結看審核進度，以及系統自動幫你做的檢查。'
+			],
+			button: '查看申請進度'
+		},
+		approved: {
+			subject: `友鏈申請通過：${f.name}`,
+			heading: '歡迎加入線人名單',
+			lines: [
+				'你的網站已經掛上 Liam 偵探手記的友鏈頁了。',
+				'如果有填 RSS，你的新文章也會出現在朋友圈。之後有任何資料要改，回信告訴我就好。'
+			],
+			button: '看看你的卡片'
+		},
+		rejected: {
+			subject: `友鏈申請結果：${f.name}`,
+			heading: '這次的友鏈申請沒有通過',
+			lines: [
+				'謝謝你的申請，這次先不交換。',
+				...(note ? [`原因：${note}`] : []),
+				'如果之後情況有變，歡迎再申請一次。'
+			],
+			button: '查看申請紀錄'
+		}
+	}[what];
+	sendMail({
+		to: f.email,
+		subject: copy.subject,
+		text: `${copy.lines.join('\n')}\n\n${statusUrl}`,
+		html: layout({
+			preheader: copy.lines[0],
+			heading: copy.heading,
+			body: copy.lines.map(paragraph).join(''),
+			button: {
+				label: copy.button,
+				href: what === 'approved' ? `${SITE_ORIGIN}/friends` : statusUrl
+			},
+			footer: '這封信是因為你在 Liam 偵探手記申請了友鏈。'
+		})
+	}).catch((err) => console.warn('[friends] mail failed:', err?.message ?? err));
+}
+
 // Per-IP throttle for the public form: a handful of applications an hour.
 const APPLY_LIMIT = 3;
 const APPLY_WINDOW_MS = 60 * 60 * 1000;
@@ -193,6 +250,7 @@ export async function apply(input: FriendInput, ip: string) {
 		.values({ ...values, status: 'pending' })
 		.returning();
 	notifyFriendApplication(row);
+	mailApplicant(row, 'received');
 	// Check right away so the review queue already shows reachability and the backlink.
 	void checkFriend(row.id).catch(() => {});
 	return row;
@@ -232,11 +290,11 @@ export async function update(
 }
 
 export async function setStatus(id: string, status: Friend['status'], reviewNote?: string | null) {
-	const row = await db.query.friend.findFirst({
-		where: eq(friend.id, id),
-		columns: { approvedAt: true }
-	});
+	const row = await db.query.friend.findFirst({ where: eq(friend.id, id) });
 	if (!row) throw new Error('找不到這個朋友');
+	// Tell the applicant how the review went — only when deciding a pending application.
+	if (row.status === 'pending' && (status === 'approved' || status === 'rejected'))
+		mailApplicant(row, status === 'approved' ? 'approved' : 'rejected', reviewNote ?? null);
 	await db
 		.update(friend)
 		.set({
@@ -327,7 +385,13 @@ export async function checkFriend(id: string) {
 			db.transaction((tx) => {
 				for (const item of items) {
 					tx.insert(friendPost)
-						.values({ friendId: f.id, ...item })
+						.values({
+							friendId: f.id,
+							title: item.title,
+							url: item.url,
+							summary: item.summary,
+							publishedAt: item.publishedAt
+						})
 						.onConflictDoUpdate({
 							target: [friendPost.friendId, friendPost.url],
 							set: { title: item.title, summary: item.summary, publishedAt: item.publishedAt }
@@ -347,6 +411,14 @@ export async function checkFriend(id: string) {
 					)
 					.run();
 			});
+			// Their posts that link to ours show up under our post as mentions.
+			if (f.status === 'approved') {
+				for (const item of items) {
+					await webmentionService
+						.recordFromFriendFeed(f, item)
+						.catch((err) => console.warn('[friends] mention failed', err));
+				}
+			}
 		} catch (err) {
 			patch.feedError = err instanceof Error ? err.message.slice(0, 120) : 'RSS 讀取失敗';
 		}

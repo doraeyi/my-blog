@@ -9,6 +9,7 @@
 	import BrandIcon from '$lib/components/icons/BrandIcon.svelte';
 	import Mail from '@lucide/svelte/icons/mail';
 	import Rss from '@lucide/svelte/icons/rss';
+	import MailPlus from '@lucide/svelte/icons/mail-plus';
 
 	const opened = SITE_LAUNCHED_AT.toLocaleDateString('zh-TW', {
 		year: 'numeric',
@@ -74,6 +75,9 @@
 				{/each}
 				<a href="mailto:{contactEmail}" aria-label="Email" class="icon-btn size-9">
 					<Mail class="size-3.5" />
+				</a>
+				<a href={resolve('/subscribe')} aria-label="用 Email 訂閱" class="icon-btn size-9">
+					<MailPlus class="size-3.5" />
 				</a>
 				<a href={resolve('/rss.xml')} aria-label="RSS" class="icon-btn size-9">
 					<Rss class="size-3.5" />

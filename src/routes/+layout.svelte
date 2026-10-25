@@ -2,7 +2,7 @@
 	import './layout.css';
 	import './intro.css';
 	import { resolve } from '$app/paths';
-	import { goto, onNavigate } from '$app/navigation';
+	import { afterNavigate, goto, onNavigate } from '$app/navigation';
 	import { page } from '$app/state';
 	import { locales, localizeHref } from '$lib/paraglide/runtime';
 	import type { Snippet } from 'svelte';
@@ -61,6 +61,21 @@
 		});
 	});
 
+	// Traffic beacon: one per page view, with the outside referrer on the first
+	// page of a visit. The owner's own browsing isn't counted.
+	afterNavigate((nav) => {
+		if (data.user?.role === 'Liam' || !nav.to) return;
+		fetch('/api/hit', {
+			method: 'POST',
+			keepalive: true,
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({
+				p: nav.to.url.pathname,
+				r: nav.type === 'enter' ? document.referrer : ''
+			})
+		}).catch(() => {});
+	});
+
 	const DOUBLE_TAP_MS = 600;
 	const SKIP_TAGS = new Set(['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON', 'A']);
 	let lastSpaceAt = 0;
@@ -94,6 +109,7 @@
 	<!-- eslint-disable-next-line svelte/no-at-html-tags -- static JSON-LD built from site constants -->
 	{@html structuredData}
 	<link rel="alternate" type="application/rss+xml" title={SITE_TITLE} href="/rss.xml" />
+	<link rel="webmention" href="/webmention" />
 </svelte:head>
 
 <svelte:window onkeydown={handleKeydown} />

@@ -195,3 +195,13 @@ export async function tagCounts(): Promise<{ tag: string; count: number }[]> {
 		.map(([tag, count]) => ({ tag, count }))
 		.sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
 }
+
+/** The Markdown a post was written in (for finding the links it contains). */
+export async function rawMarkdown(entry: ContentEntry): Promise<string> {
+	if (entry.kind === 'blog') return rawModules[`/src/lib/content/posts/${entry.slug}.md`] ?? '';
+	const row = await db.query.post.findFirst({
+		where: and(eq(post.kind, entry.kind), eq(post.slug, entry.slug)),
+		columns: { body: true }
+	});
+	return row?.body ?? '';
+}

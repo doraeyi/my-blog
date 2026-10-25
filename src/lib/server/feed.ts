@@ -10,6 +10,8 @@ export interface FeedItem {
 	url: string;
 	summary: string | null;
 	publishedAt: Date;
+	/** The item's full HTML (content or description), for finding links in it. */
+	html: string;
 }
 
 const ENTITIES: Record<string, string> = {
@@ -95,7 +97,14 @@ export function parseFeed(xml: string, base: string, limit = 10): FeedItem[] {
 		const publishedAt = dateText ? new Date(dateText) : null;
 		if (!title || !url || !publishedAt || Number.isNaN(publishedAt.getTime())) continue;
 		const raw = tag(block, 'description') ?? tag(block, 'summary') ?? tag(block, 'content');
-		items.push({ title, url, summary: raw ? plainText(raw, 160) || null : null, publishedAt });
+		const full = tag(block, 'content:encoded') ?? tag(block, 'content') ?? raw ?? '';
+		items.push({
+			title,
+			url,
+			summary: raw ? plainText(raw, 160) || null : null,
+			publishedAt,
+			html: full
+		});
 	}
 	return items.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime()).slice(0, limit);
 }

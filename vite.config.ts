@@ -23,6 +23,9 @@ export default defineConfig({
 			},
 
 			adapter: adapter(),
+			// CSRF is enforced in hooks.server.ts instead, which exempts the two
+			// endpoints other servers post to (webmentions, one-click unsubscribe).
+			csrf: { trustedOrigins: ['*'] },
 			preprocess: [
 				mdsvex({
 					extensions: ['.svx', '.md'],
