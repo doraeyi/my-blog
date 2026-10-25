@@ -24,6 +24,7 @@ const staticPaths = [
 	'/messages',
 	'/friends',
 	'/friends/circle',
+	'/stats',
 	'/history'
 ];
 

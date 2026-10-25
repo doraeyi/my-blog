@@ -27,7 +27,7 @@ export const drawers: Drawer[] = [
 		id: 'cases',
 		label: '案件簿',
 		href: '/blog',
-		match: ['/blog', '/articles', '/moods', '/tags', '/archive', '/board'],
+		match: ['/blog', '/articles', '/moods', '/tags', '/archive', '/board', '/stats'],
 		cards: [
 			{ label: '全部案件', href: '/blog', note: '所有寫下的東西，依時間歸檔' },
 			{ label: '技術文章', href: '/blog?cat=article', note: '前端、工具、踩過的坑' },
@@ -35,7 +35,8 @@ export const drawers: Drawer[] = [
 			{ label: '心情', href: '/blog?cat=mood', note: '當下的狀態' },
 			{ label: '證物牆', href: '/board', note: '所有文章用紅線串起共同線索' },
 			{ label: '標籤索引', href: '/tags', note: '依線索分類' },
-			{ label: '時間軸', href: '/archive', note: '所有紀錄攤在一條線上' }
+			{ label: '時間軸', href: '/archive', note: '所有紀錄攤在一條線上' },
+			{ label: '案件統計', href: '/stats', note: '寫了多少、什麼時候寫' }
 		]
 	},
 	{
