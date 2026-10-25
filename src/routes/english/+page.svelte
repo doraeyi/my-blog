@@ -11,7 +11,7 @@
 	import { reveal } from '$lib/actions/reveal';
 	import { tilt } from '$lib/actions/tilt';
 	import { socialLinks, contactEmail } from '$lib/social-links';
-	import { resumeUrl, experience } from '$lib/profile';
+	import { resumeUrl, experience, education } from '$lib/profile';
 	import Mail from '@lucide/svelte/icons/mail';
 	import FileDown from '@lucide/svelte/icons/file-down';
 	import Timer from '@lucide/svelte/icons/timer';
@@ -139,22 +139,25 @@
 		</div>
 	</section>
 
-	{#if experience.length}
-		<section class="mt-20">
-			<h2 class="section-title">Experience</h2>
-			<ol class="mt-6 space-y-4">
-				{#each experience as job (job.period + job.org)}
-					<li use:reveal class="index-card rounded-sm px-5 py-4">
-						<p class="font-mono-hack text-xs tracking-widest text-case-700">{job.period}</p>
-						<p class="mt-1 font-display text-lg text-case-900">{job.role} · {job.org}</p>
-						<ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-case-800">
-							{#each job.points as point (point)}<li>{point}</li>{/each}
-						</ul>
-					</li>
-				{/each}
-			</ol>
-		</section>
-	{/if}
+	{#each [{ title: 'Experience', rows: experience }, { title: 'Education', rows: education }] as block (block.title)}
+		{#if block.rows.length}
+			<section class="mt-20">
+				<h2 class="section-title">{block.title}</h2>
+				<ol class="mt-6 space-y-4">
+					{#each block.rows as row (row.period + row.org)}
+						<li use:reveal class="index-card rounded-sm px-5 py-4">
+							<p class="font-mono-hack text-xs tracking-widest text-case-700">{row.en.period}</p>
+							<p class="mt-1 font-display text-lg text-case-900">{row.en.role}</p>
+							<p class="text-sm text-case-700">{row.en.org}</p>
+							<ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-case-800">
+								{#each row.en.points as point (point)}<li>{point}</li>{/each}
+							</ul>
+						</li>
+					{/each}
+				</ol>
+			</section>
+		{/if}
+	{/each}
 
 	<!-- ── What I care about ── -->
 	<section class="mt-20">

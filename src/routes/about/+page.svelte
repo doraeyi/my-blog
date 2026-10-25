@@ -7,6 +7,7 @@
 	import BrandIcon from '$lib/components/icons/BrandIcon.svelte';
 	import { reveal } from '$lib/actions/reveal';
 	import { socialLinks, contactEmail } from '$lib/social-links';
+	import { experience, education } from '$lib/profile';
 	import PenTool from '@lucide/svelte/icons/pen-tool';
 	import Paperclip from '@lucide/svelte/icons/paperclip';
 	import Mail from '@lucide/svelte/icons/mail';
@@ -62,6 +63,12 @@
 			title: '兩種主題都準',
 			body: '深色模式不是把顏色反過來，而是重新確認每個對比與層次。'
 		}
+	];
+
+	// 經歷 and 學歷 as one case history, newest first, each tagged with its kind.
+	const history = [
+		...experience.map((e, i) => ({ ...e, kind: i === 0 ? '現職' : '專案' })),
+		...education.map((e) => ({ ...e, kind: '學歷' }))
 	];
 
 	// SvelteKit has no distinct logo in simple-icons, so it's left out here —
@@ -244,10 +251,50 @@
 		</div>
 	</section>
 
-	<!-- ── 02 Focus ─────────────────────────────────────────────────── -->
+	<!-- ── 02 Case history ────────────────────────────────────────── -->
 	<section class="mt-24">
 		<header use:reveal class="flex items-baseline gap-4">
 			<span class="font-display text-3xl text-accent/80">02</span>
+			<h2 class="font-mono-hack text-xs tracking-[0.3em] text-ink-muted uppercase">
+				Case History // 經歷
+			</h2>
+			<span class="h-px flex-1 bg-border-case"></span>
+		</header>
+
+		<!-- A string of index cards pinned along a timeline thread. -->
+		<ol class="relative mt-8 space-y-6 border-l border-dashed border-stamp-400/50 pl-6 sm:pl-10">
+			{#each history as entry, i (entry.period + entry.org)}
+				<li use:reveal={{ delay: i * 120 }} class="relative">
+					<span
+						aria-hidden="true"
+						class="absolute top-6 -left-[29px] size-2.5 rounded-full bg-stamp-500 ring-4 ring-surface sm:-left-[45px]"
+					></span>
+					<article
+						use:tilt={{ max: 3 }}
+						class="index-card rounded-sm px-6 pt-5 pb-6 sm:px-8"
+						style="transform: rotate({i % 2 ? 0.4 : -0.5}deg)"
+					>
+						<div class="flex flex-wrap items-center justify-between gap-2">
+							<p class="font-mono-hack text-xs tracking-widest text-case-700">{entry.period}</p>
+							<span class="date-stamp">{entry.kind}</span>
+						</div>
+						<h3 class="mt-2 font-display text-xl text-case-900">{entry.role}</h3>
+						<p class="text-sm text-case-700">{entry.org}</p>
+						<ul class="mt-3 space-y-1.5 text-[0.95rem] leading-7 text-case-800">
+							{#each entry.points as point (point)}
+								<li class="flex gap-2"><span class="text-stamp-500">▸</span>{point}</li>
+							{/each}
+						</ul>
+					</article>
+				</li>
+			{/each}
+		</ol>
+	</section>
+
+	<!-- ── 03 Focus ─────────────────────────────────────────────────── -->
+	<section class="mt-24">
+		<header use:reveal class="flex items-baseline gap-4">
+			<span class="font-display text-3xl text-accent/80">03</span>
 			<h2 class="font-mono-hack text-xs tracking-[0.3em] text-ink-muted uppercase">
 				Modus Operandi // 在意的事
 			</h2>
@@ -273,10 +320,10 @@
 		</div>
 	</section>
 
-	<!-- ── 03 Tools ─────────────────────────────────────────────────── -->
+	<!-- ── 04 Tools ─────────────────────────────────────────────────── -->
 	<section class="mt-24">
 		<header use:reveal class="flex items-baseline gap-4">
-			<span class="font-display text-3xl text-accent/80">03</span>
+			<span class="font-display text-3xl text-accent/80">04</span>
 			<h2 class="font-mono-hack text-xs tracking-[0.3em] text-ink-muted uppercase">
 				Known Tools // 技術牆
 			</h2>
