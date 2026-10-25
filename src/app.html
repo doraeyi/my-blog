@@ -43,20 +43,15 @@
 					// Devices that measured slow before start straight in light-effects mode.
 					if (localStorage.getItem('fx-lite') === '1') document.documentElement.dataset.lite = '1';
 				} catch (e) {}
-				// 開案 intro: for people (not crawlers or Lighthouse), never in the admin,
-				// not for anyone who asked for less motion, never on a reload, and at most
-				// once every 6 hours (localStorage, so it holds across tabs and restarts).
+				// 開案 intro: plays on every full page load (reloads included; moving
+				// between pages inside the site isn't one). Not for crawlers or Lighthouse,
+				// never in the admin, and not for anyone who asked for less motion.
 				try {
-					var nav = performance.getEntriesByType('navigation')[0];
-					var playedAt = Number(localStorage.getItem('intro-played-at')) || 0;
 					if (
-						!(nav && nav.type === 'reload') &&
-						Date.now() - playedAt > 6 * 60 * 60 * 1000 &&
 						!location.pathname.startsWith('/admin') &&
 						!/bot|crawl|spider|lighthouse|headless|preview/i.test(navigator.userAgent) &&
 						!window.matchMedia('(prefers-reduced-motion: reduce)').matches
 					) {
-						localStorage.setItem('intro-played-at', String(Date.now()));
 						document.documentElement.dataset.intro = 'on';
 					}
 				} catch (e) {}
