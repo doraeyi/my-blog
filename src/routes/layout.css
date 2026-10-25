@@ -443,3 +443,41 @@ html {
 	font-weight: 400;
 	color: var(--color-ink);
 }
+
+/* ───────── Image zoom (proseEnhance) ───────── */
+.prose img[data-zoom] {
+	cursor: zoom-in;
+	border-radius: 6px;
+	transition: box-shadow 0.2s;
+}
+.prose img[data-zoom]:hover,
+.prose img[data-zoom]:focus-visible {
+	box-shadow: 0 0 0 2px var(--color-accent);
+	outline: none;
+}
+.lightbox {
+	position: fixed;
+	inset: 0;
+	z-index: 200;
+	cursor: zoom-out;
+	background: rgba(18, 13, 10, 0.88);
+	backdrop-filter: blur(6px);
+}
+.lightbox-img {
+	position: absolute;
+	max-width: none;
+	border-radius: 6px;
+	box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.7);
+	transform-origin: 0 0;
+	background: var(--color-surface);
+}
+.lightbox-caption {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 1.25rem;
+	padding: 0 1.5rem;
+	text-align: center;
+	font-size: 0.85rem;
+	color: rgba(244, 234, 210, 0.85);
+}
