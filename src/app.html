@@ -43,12 +43,159 @@
 					// Devices that measured slow before start straight in light-effects mode.
 					if (localStorage.getItem('fx-lite') === '1') document.documentElement.dataset.lite = '1';
 				} catch (e) {}
+				// 開案 intro: once per visit, for people (not crawlers or Lighthouse), never
+				// in the admin, and not for anyone who asked for less motion.
+				try {
+					if (
+						!sessionStorage.getItem('intro-seen') &&
+						!location.pathname.startsWith('/admin') &&
+						!/bot|crawl|spider|lighthouse|headless|preview/i.test(navigator.userAgent) &&
+						!window.matchMedia('(prefers-reduced-motion: reduce)').matches
+					) {
+						sessionStorage.setItem('intro-seen', '1');
+						document.documentElement.dataset.intro = 'on';
+					}
+				} catch (e) {}
 			})();
 		</script>
 		%sveltekit.head%
 	</head>
 
 	<body data-sveltekit-preload-data="hover">
+		<div id="intro" aria-hidden="true">
+			<div class="intro-sheet">
+				<div class="intro-lamp"></div>
+				<div class="intro-stage">
+					<div class="intro-evidence">
+						<span class="intro-frame"></span>
+						<svg class="intro-print" viewBox="0 0 240 300"></svg>
+						<span class="intro-scan"></span>
+						<span class="intro-ink"></span>
+						<img class="intro-seal" src="/favicon.svg" alt="" />
+					</div>
+					<p class="intro-readout"></p>
+				</div>
+				<span class="intro-skip">CLICK TO SKIP</span>
+			</div>
+		</div>
+		<script>
+			(function () {
+				var root = document.documentElement;
+				var intro = document.getElementById('intro');
+				if (root.dataset.intro !== 'on') {
+					intro.remove();
+					return;
+				}
+
+				// A fingerprint, drawn fresh each visit: a whorl at the core, then ridges
+				// that loop over the top and run down the sides, wobbling and breaking
+				// like real ones.
+				var svg = intro.querySelector('.intro-print');
+				var seed = Math.random() * 1000;
+				function rnd() {
+					seed = (seed * 9301 + 49297) % 233280;
+					return seed / 233280;
+				}
+				var cx = 120;
+				var cy = 140;
+				var ridges = 22;
+				var html = '';
+				for (var i = 0; i < ridges; i++) {
+					var base = 6 + i * 5.4;
+					var whorl = i < 6;
+					var from = whorl ? rnd() * 6.28 : Math.PI * (0.62 + rnd() * 0.08);
+					var to = whorl ? from + 6.28 - 0.5 - rnd() * 0.6 : Math.PI * (2.38 - rnd() * 0.08);
+					var breakAt = rnd() < 0.55 ? from + (to - from) * (0.2 + rnd() * 0.6) : null;
+					var d = '';
+					var pen = false;
+					for (var t = from; t <= to; t += 0.09) {
+						if (breakAt !== null && t > breakAt && t < breakAt + 0.16) {
+							pen = false;
+							continue;
+						}
+						var r =
+							base *
+							(1 +
+								0.035 * Math.sin(3 * t + i * 0.9) +
+								0.025 * Math.sin(7 * t + i * 1.7) +
+								0.02 * Math.sin(2 * t + i * 0.4));
+						var s = Math.sin(t);
+						var x = cx + Math.cos(t) * r * 0.8;
+						// Below the core the finger flattens out.
+						var y = cy + s * r * (s > 0 && !whorl ? 0.55 + i * 0.012 : 1);
+						d += (pen ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1);
+						pen = true;
+					}
+					html +=
+						'<path pathLength="1" d="' +
+						d +
+						'" style="animation-delay:' +
+						(0.35 + i * 0.035).toFixed(3) +
+						's"/>';
+				}
+				svg.innerHTML = html;
+
+				// Dust motes in the lamp light.
+				var sheet = intro.querySelector('.intro-sheet');
+				for (var k = 0; k < 18; k++) {
+					var dot = document.createElement('i');
+					dot.className = 'intro-dust';
+					dot.style.left = 30 + rnd() * 40 + '%';
+					dot.style.top = 25 + rnd() * 45 + '%';
+					dot.style.setProperty('--dx', (rnd() - 0.5) * 60 + 'px');
+					dot.style.setProperty('--dy', -20 - rnd() * 50 + 'px');
+					dot.style.animationDelay = 0.3 + rnd() * 0.8 + 's';
+					sheet.appendChild(dot);
+				}
+
+				// The readout: every character is its own span with its own delay, so the
+				// typing runs on CSS time and keeps pace while the page is busy loading.
+				var out = intro.querySelector('.intro-readout');
+				var no = String(Math.floor(rnd() * 9000) + 1000);
+				function typed(cls, lines, startAt) {
+					var t = startAt;
+					var h = '<span class="' + cls + '">';
+					lines.forEach(function (line, li) {
+						if (li) h += '<br>';
+						var strong = false;
+						for (var c = 0; c < line.length; c++) {
+							var ch = line[c];
+							if (ch === '[' || ch === ']') {
+								h += ch === '[' ? '<b>' : '</b>';
+								strong = ch === '[';
+								continue;
+							}
+							h += '<i style="animation-delay:' + t.toFixed(3) + 's">' + ch + '</i>';
+							t += strong ? 0.07 : 0.024;
+						}
+					});
+					return h + '</span>';
+				}
+				out.innerHTML =
+					typed('intro-line1', ['EXHIBIT A · LATENT PRINT № ' + no, '比對指紋中…'], 0.4) +
+					typed('intro-line2', ['MATCH FOUND · 99.8%', '身分確認：[LIAM]'], 1.6);
+
+				// The whole timeline runs in CSS; this only tidies up after the folder has
+				// opened, or skips straight to opening on a click, key or scroll.
+				var done = false;
+				function cleanup() {
+					if (done) return;
+					done = true;
+					intro.remove();
+					delete root.dataset.intro;
+				}
+				sheet.addEventListener('animationend', function (e) {
+					if (e.animationName === 'intro-open') cleanup();
+				});
+				setTimeout(cleanup, 4500);
+				function skip() {
+					if (root.dataset.intro === 'on') root.dataset.intro = 'out';
+				}
+				intro.addEventListener('pointerdown', skip);
+				addEventListener('keydown', skip, { once: true });
+				addEventListener('wheel', skip, { once: true, passive: true });
+			})();
+		</script>
 		<div style="display: contents">%sveltekit.body%</div>
 	</body>
 </html>

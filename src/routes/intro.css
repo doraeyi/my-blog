@@ -1,0 +1,361 @@
+/*
+ * 開案 — the first-visit intro. A desk lamp flickers on, a fingerprint is lifted
+ * and scanned, the match comes back, the seal stamps down, and the case folder
+ * flips open onto the page. Markup and the timeline script live in app.html so
+ * it starts before the app hydrates; this sheet only styles it.
+ *
+ * Everything runs on CSS time (delays below), so a busy main thread while the
+ * page hydrates can't stall it. The beats: lamp 0.1s, ridges 0.35s, scan 0.55s,
+ * match + stamp 1.55s, folder opens 2.6s.
+ *
+ * html[data-intro]: unset = never shown, "on" = playing, "out" = skipped, open now.
+ */
+
+#intro {
+	display: none;
+}
+html[data-intro] #intro {
+	position: fixed;
+	inset: 0;
+	z-index: 1000;
+	display: block;
+	perspective: 1400px;
+	cursor: pointer;
+}
+html[data-intro] {
+	overflow: hidden;
+}
+html[data-intro='out'] {
+	overflow: auto;
+}
+/* Once the cover starts lifting, clicks go through to the page. */
+html[data-intro] #intro {
+	animation: intro-passthrough 0.01s 2.7s forwards;
+}
+@keyframes intro-passthrough {
+	to {
+		pointer-events: none;
+	}
+}
+
+/* The folder cover: dark desk with lamp light, grain and a vignette. */
+.intro-sheet {
+	position: absolute;
+	inset: 0;
+	display: grid;
+	place-items: center;
+	overflow: hidden;
+	background: #0d0907;
+	transform-origin: 50% 0;
+	backface-visibility: hidden;
+	/* The folder's brass-bound edge, which catches the eye as the cover lifts. */
+	box-shadow:
+		inset 0 -3px 0 #b8904f,
+		inset 0 -4px 0 rgba(0, 0, 0, 0.6);
+}
+.intro-sheet::after {
+	/* Paper grain + vignette, above the light. */
+	content: '';
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background:
+		radial-gradient(ellipse at center, transparent 35%, rgba(0, 0, 0, 0.75) 100%),
+		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.09'/%3E%3C/svg%3E");
+	mix-blend-mode: screen;
+}
+
+.intro-lamp {
+	position: absolute;
+	inset: -20%;
+	background:
+		radial-gradient(
+			ellipse 38% 42% at 50% 46%,
+			rgba(255, 214, 150, 0.2),
+			rgba(255, 190, 110, 0.07) 55%,
+			transparent 75%
+		),
+		radial-gradient(circle at 50% 46%, rgba(255, 230, 190, 0.08), transparent 30%);
+	opacity: 0;
+	animation: intro-lamp 0.75s 0.1s steps(1, end) forwards;
+}
+/* A tungsten bulb catching: two stutters, then steady. */
+@keyframes intro-lamp {
+	0% {
+		opacity: 0;
+	}
+	18% {
+		opacity: 0.75;
+	}
+	26% {
+		opacity: 0.15;
+	}
+	42% {
+		opacity: 0.9;
+	}
+	52% {
+		opacity: 0.45;
+	}
+	64%,
+	100% {
+		opacity: 1;
+	}
+}
+
+/* Dust drifting through the light. */
+.intro-dust {
+	position: absolute;
+	width: 2px;
+	height: 2px;
+	border-radius: 50%;
+	background: rgba(255, 228, 180, 0.7);
+	opacity: 0;
+	animation: intro-dust 3.2s ease-in-out forwards;
+}
+@keyframes intro-dust {
+	15% {
+		opacity: 0.8;
+	}
+	100% {
+		opacity: 0;
+		transform: translate(var(--dx), var(--dy));
+	}
+}
+
+.intro-stage {
+	position: relative;
+	display: grid;
+	justify-items: center;
+	gap: 1.4rem;
+}
+
+.intro-evidence {
+	position: relative;
+	width: min(38vh, 230px);
+	aspect-ratio: 4 / 5;
+}
+.intro-print {
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+	animation: intro-dim 0.5s 1.55s forwards;
+}
+@keyframes intro-dim {
+	to {
+		opacity: 0.32;
+		filter: sepia(1) saturate(3) hue-rotate(-28deg);
+	}
+}
+.intro-print path {
+	fill: none;
+	stroke: #f4ead2;
+	stroke-width: 1.7;
+	stroke-linecap: round;
+	stroke-dasharray: 1;
+	stroke-dashoffset: 1;
+	opacity: 0.85;
+	animation: intro-ridge 0.7s cubic-bezier(0.5, 0, 0.3, 1) forwards;
+}
+@keyframes intro-ridge {
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+
+/* Corner brackets of the evidence frame. */
+.intro-frame {
+	position: absolute;
+	inset: -14px;
+	opacity: 0;
+	animation: intro-fade 0.4s 0.35s forwards;
+	background:
+		linear-gradient(#d4ad6e, #d4ad6e) top left / 18px 1.5px,
+		linear-gradient(#d4ad6e, #d4ad6e) top left / 1.5px 18px,
+		linear-gradient(#d4ad6e, #d4ad6e) top right / 18px 1.5px,
+		linear-gradient(#d4ad6e, #d4ad6e) top right / 1.5px 18px,
+		linear-gradient(#d4ad6e, #d4ad6e) bottom left / 18px 1.5px,
+		linear-gradient(#d4ad6e, #d4ad6e) bottom left / 1.5px 18px,
+		linear-gradient(#d4ad6e, #d4ad6e) bottom right / 18px 1.5px,
+		linear-gradient(#d4ad6e, #d4ad6e) bottom right / 1.5px 18px;
+	background-repeat: no-repeat;
+}
+@keyframes intro-fade {
+	to {
+		opacity: 1;
+	}
+}
+
+/* The scanner: a red line with a glow sweeping down, twice. */
+.intro-scan {
+	position: absolute;
+	left: -8%;
+	right: -8%;
+	top: 0;
+	height: 2px;
+	background: #e24a3b;
+	box-shadow:
+		0 0 12px 2px rgba(226, 74, 59, 0.75),
+		0 -40px 40px -10px rgba(226, 74, 59, 0.18);
+	opacity: 0;
+	animation: intro-scan 0.95s 0.55s cubic-bezier(0.45, 0, 0.55, 1) 2 alternate;
+}
+@keyframes intro-scan {
+	0% {
+		top: 0;
+		opacity: 1;
+	}
+	100% {
+		top: 100%;
+		opacity: 1;
+	}
+}
+
+/* The seal comes down hard, slightly askew. */
+.intro-seal {
+	position: absolute;
+	right: -18%;
+	bottom: -6%;
+	width: 52%;
+	opacity: 0;
+	transform: scale(2.6) rotate(-24deg);
+	filter: drop-shadow(0 30px 30px rgba(0, 0, 0, 0.6));
+	animation: intro-stamp 0.34s 1.55s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+}
+@keyframes intro-stamp {
+	0% {
+		opacity: 0;
+		transform: scale(2.6) rotate(-24deg);
+	}
+	30% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0.96;
+		transform: scale(1) rotate(-9deg);
+		filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.5));
+	}
+}
+/* Ink squeezed out around the seal on impact. */
+.intro-ink {
+	position: absolute;
+	right: -26%;
+	bottom: -14%;
+	width: 68%;
+	aspect-ratio: 1;
+	border-radius: 50%;
+	opacity: 0;
+	background:
+		radial-gradient(circle at 12% 30%, #b3362b 0 3px, transparent 4px),
+		radial-gradient(circle at 86% 18%, #b3362b 0 2px, transparent 3px),
+		radial-gradient(circle at 92% 74%, #b3362b 0 4px, transparent 5px),
+		radial-gradient(circle at 20% 88%, #b3362b 0 2px, transparent 3px),
+		radial-gradient(circle at 60% 4%, #b3362b 0 1.5px, transparent 2.5px),
+		radial-gradient(circle at 3% 62%, #b3362b 0 1.5px, transparent 2.5px);
+}
+.intro-ink {
+	animation: intro-ink 0.5s 1.87s ease-out forwards;
+}
+@keyframes intro-ink {
+	from {
+		opacity: 0.9;
+		transform: scale(0.7);
+	}
+	to {
+		opacity: 0.75;
+		transform: scale(1);
+	}
+}
+.intro-stage {
+	animation: intro-thud 0.28s 1.88s;
+}
+@keyframes intro-thud {
+	25% {
+		transform: translate(2px, 3px);
+	}
+	50% {
+		transform: translate(-2px, -1px);
+	}
+	75% {
+		transform: translate(1px, 1px);
+	}
+}
+
+/* Typewriter readout under the print. */
+.intro-readout {
+	display: grid;
+	min-height: 3.2em;
+	font-family: var(--font-mono-hack);
+	font-size: 0.8rem;
+	letter-spacing: 0.18em;
+	line-height: 1.6;
+	text-align: center;
+	color: rgba(244, 234, 210, 0.72);
+}
+.intro-readout b {
+	font-weight: 400;
+	color: #e9a99f;
+}
+.intro-readout > span {
+	grid-area: 1 / 1;
+}
+.intro-readout i {
+	font-style: normal;
+	opacity: 0;
+	animation: intro-fade 0.01s forwards;
+}
+.intro-line1 {
+	animation: intro-hide 0.01s 1.55s forwards;
+}
+@keyframes intro-hide {
+	to {
+		visibility: hidden;
+	}
+}
+
+.intro-skip {
+	position: absolute;
+	right: 1.25rem;
+	bottom: 1rem;
+	font-family: var(--font-mono-hack);
+	font-size: 0.7rem;
+	letter-spacing: 0.2em;
+	color: rgba(244, 234, 210, 0.35);
+	opacity: 0;
+	animation: intro-fade 0.4s 0.8s forwards;
+}
+
+/* The folder cover swings up and over, the page underneath slides into place. */
+html[data-intro] .intro-sheet {
+	animation: intro-open 0.9s 2.6s cubic-bezier(0.65, 0, 0.25, 1) forwards;
+}
+html[data-intro='out'] .intro-sheet {
+	animation-delay: 0s;
+}
+html[data-intro='out'] #intro {
+	pointer-events: none;
+}
+@keyframes intro-open {
+	0% {
+		transform: rotateX(0);
+		filter: brightness(1);
+	}
+	35% {
+		transform: rotateX(-14deg) translateY(-2%);
+	}
+	100% {
+		transform: rotateX(-96deg) translateY(-8%);
+		filter: brightness(0.45);
+	}
+}
+html[data-intro] main {
+	animation: intro-reveal 0.9s 2.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+html[data-intro='out'] main {
+	animation-delay: 0s;
+}
+@keyframes intro-reveal {
+	from {
+		transform: translateY(18px) scale(0.985);
+		opacity: 0.4;
+	}
+}

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import './layout.css';
+	import './intro.css';
 	import { resolve } from '$app/paths';
 	import { goto, onNavigate } from '$app/navigation';
 	import { page } from '$app/state';
