@@ -222,18 +222,12 @@
 			href={resolve('/about')}
 			hreflang="zh-Hant"
 			lang="zh-Hant"
-			aria-label="切換到中文"
 			title="中文"
-			class="tool-btn lang-btn">中</a
+			class="tool-btn lang-btn">中<span class="sr-only">文版人物檔案</span></a
 		>
 	{:else}
-		<a
-			href={resolve('/english')}
-			hreflang="en"
-			lang="en"
-			aria-label="English profile"
-			title="English"
-			class="tool-btn lang-btn">EN</a
+		<a href={resolve('/english')} hreflang="en" lang="en" title="English" class="tool-btn lang-btn"
+			>EN<span class="sr-only"> · English profile</span></a
 		>
 	{/if}
 	<button

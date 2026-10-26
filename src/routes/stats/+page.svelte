@@ -88,9 +88,21 @@
 		</div>
 
 		<div class="mt-4 overflow-x-auto pb-2" use:toEnd>
+			<!--
+				Squares are too small to be tap targets, so they're plain marks: hovering
+				shows the day in the line below (and a tooltip); the line is the readable
+				version for everyone else.
+			-->
 			<div
 				class="inline-grid gap-[3px]"
 				style="grid-template-columns: repeat({weeks.length}, 12px)"
+				role="img"
+				aria-label="一年內每天的寫作紀錄"
+				onpointerover={(e) => {
+					const date = (e.target as HTMLElement).dataset.date;
+					hovered = date ? (data.days.find((d) => d.date === date) ?? null) : null;
+				}}
+				onpointerleave={() => (hovered = null)}
 			>
 				{#each monthLabels as label, i (i)}
 					<span class="h-4 font-mono-hack text-[10px] whitespace-nowrap text-ink-muted"
@@ -100,16 +112,12 @@
 				{#each weeks as week, wi (week[0].date)}
 					<div class="grid gap-[3px]" style="grid-column: {wi + 1}; grid-row: 2">
 						{#each week as day (day.date)}
-							<button
-								type="button"
+							<span
 								class="heat size-3 rounded-[2px]"
 								data-level={level(day)}
+								data-date={day.date}
 								title={describe(day)}
-								aria-label={describe(day)}
-								onmouseenter={() => (hovered = day)}
-								onfocus={() => (hovered = day)}
-								onmouseleave={() => (hovered = null)}
-							></button>
+							></span>
 						{/each}
 					</div>
 				{/each}
@@ -253,8 +261,7 @@
 	.heat[data-level='3'] {
 		background: var(--color-stamp-600);
 	}
-	button.heat:hover,
-	button.heat:focus-visible {
+	span[data-date].heat:hover {
 		transform: scale(1.5);
 		outline: 1px solid var(--color-ink);
 	}

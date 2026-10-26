@@ -100,12 +100,14 @@
 		padding: 0.15rem 0.6rem;
 		border: 3px double var(--color-accent);
 		border-radius: 4px;
-		color: var(--color-accent);
+		/* The deeper red keeps the text above 4.5:1 even while it's fading in. */
+		color: var(--color-accent-strong);
 		font-family: var(--font-display);
 		font-size: 1.1rem;
 		letter-spacing: 0.25em;
 		white-space: nowrap;
-		opacity: 0.85;
+		/* The ink texture comes from the mask; at .85 the red text fell under 4.5:1. */
+		opacity: 0.95;
 		transform: translateY(-50%) rotate(-9deg);
 		mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.8' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.2 1.6'/%3E%3C/filter%3E%3Crect width='120' height='60' filter='url(%23n)'/%3E%3C/svg%3E");
 		animation: stamp-down 0.45s 0.95s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;

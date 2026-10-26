@@ -133,6 +133,8 @@ html[data-intro] #intro {
 	position: relative;
 	width: min(38vh, 230px);
 	aspect-ratio: 4 / 5;
+	/* Lets the scan line move by its own height (cqh) with a transform. */
+	container-type: size;
 }
 .intro-print {
 	width: 100%;
@@ -199,13 +201,14 @@ html[data-intro] #intro {
 	opacity: 0;
 	animation: intro-scan 0.95s 0.55s cubic-bezier(0.45, 0, 0.55, 1) 2 alternate;
 }
+/* transform, not top: moving `top` counts as a layout shift. */
 @keyframes intro-scan {
 	0% {
-		top: 0;
+		transform: translateY(0);
 		opacity: 1;
 	}
 	100% {
-		top: 100%;
+		transform: translateY(100cqh);
 		opacity: 1;
 	}
 }
@@ -283,7 +286,10 @@ html[data-intro] #intro {
 /* Typewriter readout under the print. */
 .intro-readout {
 	display: grid;
-	min-height: 3.2em;
+	/* Fixed box: the mono font arriving mid-intro mustn't resize anything. */
+	width: min(26rem, 90vw);
+	height: 3.2em;
+	overflow: hidden;
 	font-family: var(--font-mono-hack);
 	font-size: 0.8rem;
 	letter-spacing: 0.18em;

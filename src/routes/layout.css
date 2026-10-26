@@ -42,7 +42,9 @@
 	--color-surface: var(--color-case-50);
 	--color-surface-alt: var(--color-case-100);
 	--color-ink: var(--color-case-900);
-	--color-ink-muted: var(--color-case-600);
+	/* Between case-600 and 700: case-600 sat right at 4.5:1 on cream, so small
+	   muted text failed contrast while fading in. This is ~6:1. */
+	--color-ink-muted: #765a35;
 	--color-border-case: var(--color-case-300);
 	--color-accent: var(--color-stamp-500);
 	--color-accent-strong: var(--color-stamp-600);

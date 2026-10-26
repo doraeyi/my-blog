@@ -9,6 +9,8 @@
 	import LikeButton from '$lib/components/LikeButton.svelte';
 	import SubscribeBox from '$lib/components/SubscribeBox.svelte';
 	import PostMentions from '$lib/components/PostMentions.svelte';
+	import ReadingProgress from '$lib/components/ReadingProgress.svelte';
+	import { page } from '$app/state';
 	import PostToc from '$lib/components/PostToc.svelte';
 	import { proseEnhance } from '$lib/actions/prose';
 	import type { ActionData, PageData } from './$types';
@@ -17,6 +19,8 @@
 
 	let body: HTMLElement | undefined = $state();
 </script>
+
+<ReadingProgress path={page.url.pathname} />
 
 <Seo
 	title={data.post.title}
