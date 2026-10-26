@@ -14,8 +14,10 @@ export const auth = betterAuth({
 	emailAndPassword: { enabled: true },
 	socialProviders: {
 		github: {
-			clientId: env.GITHUB_CLIENT_ID,
-			clientSecret: env.GITHUB_CLIENT_SECRET
+			// `?? ''` keeps these typed as string even where there's no .env (CI type
+			// check) — otherwise betterAuth's inference collapses and `user.role` is lost.
+			clientId: env.GITHUB_CLIENT_ID ?? '',
+			clientSecret: env.GITHUB_CLIENT_SECRET ?? ''
 		}
 	},
 	plugins: [
