@@ -15,6 +15,7 @@ function loadMermaid() {
  * re-scans whenever content changes — SvelteKit reuses this component instance across client-side
  * navigation, and {@html} swaps content without remounting the element.
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- only there so Svelte calls update() when the HTML changes
 export function mermaidDiagrams(node: HTMLElement, _content?: string) {
 	const sources = new Map<HTMLElement, string>();
 	let renderToken = 0;

@@ -1,0 +1,28 @@
+name: Uptime
+
+# Every 10 minutes, from GitHub's side (so it still works when the VM is the
+# thing that's down): check the health endpoint, and ping Discord if it fails
+# three times in a row. Needs the repo secret DISCORD_WEBHOOK_URL.
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check blog.doraeyi.com
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          for i in 1 2 3; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 https://blog.doraeyi.com/api/health || echo 000)
+            if [ "$code" = "200" ]; then echo "up"; exit 0; fi
+            echo "attempt $i: $code"; sleep 20
+          done
+          if [ -n "$WEBHOOK" ]; then
+            curl -s -H 'content-type: application/json' -X POST "$WEBHOOK" \
+              -d "{\"embeds\":[{\"title\":\"⚠ 網站連不上\",\"url\":\"https://blog.doraeyi.com\",\"description\":\"blog.doraeyi.com 連續 3 次健康檢查失敗（最後一次 HTTP $code）。\",\"color\":14830139}]}"
+          fi
+          exit 1

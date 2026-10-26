@@ -2,9 +2,11 @@ import { sequence } from '@sveltejs/kit/hooks';
 import { building } from '$app/environment';
 import { auth } from '$lib/server/auth';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
-import type { Handle } from '@sveltejs/kit';
+import type { Handle, HandleServerError, ServerInit } from '@sveltejs/kit';
 import { getTextDirection } from '$lib/paraglide/runtime';
 import { paraglideMiddleware } from '$lib/paraglide/server';
+import { startBackupSchedule } from '$lib/server/backup';
+import { notifyOps } from '$lib/server/discord';
 
 const handleParaglide: Handle = ({ event, resolve }) =>
 	paraglideMiddleware(event.request, ({ request, locale }) => {
@@ -82,3 +84,26 @@ export const handle: Handle = sequence(
 	handleBetterAuth,
 	guardAdminWrites
 );
+
+export const init: ServerInit = () => {
+	if (!building) startBackupSchedule();
+};
+
+// Anything that wasn't a deliberate error(…) — a crash in a load, an action or
+// an endpoint — pings Discord with where it happened, then shows the normal
+// error page.
+export const handleError: HandleServerError = ({ error, event, status, message }) => {
+	if (status !== 404) {
+		const detail =
+			error instanceof Error
+				? [error.message, ...(error.stack?.split('\n').slice(1, 6) ?? [])].join('\n')
+				: String(error);
+		notifyOps(
+			`網站出錯：${event.request.method} ${event.url.pathname}（${status}）`,
+			detail,
+			event.url.href
+		);
+		console.error(error);
+	}
+	return { message };
+};

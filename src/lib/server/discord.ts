@@ -172,3 +172,31 @@ export function notifyMention(path: string, who: string, source: string) {
 		})
 	);
 }
+
+// The same alert at most once per window, so a broken page that's hit a
+// hundred times is one message, not a hundred.
+const OPS_COOLDOWN_MS = 10 * 60 * 1000;
+const recentOps = new Map<string, number>();
+
+/** Something went wrong on the server (a crash, a failed backup). Doesn't need a signed-in user. */
+export function notifyOps(title: string, detail: string, url?: string) {
+	if (!env.DISCORD_WEBHOOK_URL) return;
+	const key = `${title}|${detail.slice(0, 200)}`;
+	const now = Date.now();
+	if (now - (recentOps.get(key) ?? 0) < OPS_COOLDOWN_MS) return;
+	recentOps.set(key, now);
+	if (recentOps.size > 200) {
+		for (const [k, t] of recentOps) if (now - t >= OPS_COOLDOWN_MS) recentOps.delete(k);
+	}
+	send({
+		embeds: [
+			{
+				title: `⚠ ${clip(title, 200)}`,
+				...(url ? { url } : {}),
+				description: '```\n' + clip(detail, 1800) + '\n```',
+				color: 0xe24a3b,
+				timestamp: new Date().toISOString()
+			}
+		]
+	});
+}

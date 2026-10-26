@@ -8,7 +8,36 @@ env:
   IMAGE: ghcr.io/${{ github.repository_owner }}/my-blog
 
 jobs:
+  # Type check and lint first; a red check stops the deploy and the live site
+  # keeps running the previous version. (The Docker build below also fails on
+  # a broken `vite build`.)
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+          pnpm --filter @doraeyi/content-toolkit build
+          # Paraglide's output is generated, not committed (vite makes it in dev/build).
+          pnpm exec paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide --emit-ts-declarations --silent
+
+      - name: Type check
+        env:
+          DATABASE_URL: /tmp/check.db
+        run: pnpm check
+
+      - name: Lint
+        run: pnpm exec eslint .
+
   build-and-push:
+    needs: check
     runs-on: ubuntu-latest
     permissions:
       contents: read

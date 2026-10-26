@@ -11,6 +11,7 @@
 	import ChartLine from '@lucide/svelte/icons/chart-line';
 	import Newspaper from '@lucide/svelte/icons/newspaper';
 	import Link2 from '@lucide/svelte/icons/link-2';
+	import DatabaseBackup from '@lucide/svelte/icons/database-backup';
 
 	let { children } = $props();
 
@@ -23,7 +24,8 @@
 		{ label: '友鏈', href: resolve('/admin/friends'), icon: Users },
 		{ label: '流量', href: resolve('/admin/stats'), icon: ChartLine },
 		{ label: '電子報', href: resolve('/admin/newsletter'), icon: Newspaper },
-		{ label: '被引用', href: resolve('/admin/mentions'), icon: Link2 }
+		{ label: '被引用', href: resolve('/admin/mentions'), icon: Link2 },
+		{ label: '備份', href: resolve('/admin/backups'), icon: DatabaseBackup }
 	];
 </script>
 

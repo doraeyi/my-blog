@@ -53,6 +53,7 @@
 		"@doraeyi/content-toolkit": "workspace:*",
 		"@lucide/svelte": "^1.26.0",
 		"@resvg/resvg-js": "^2.6.2",
+		"aws4fetch": "^1.0.20",
 		"better-sqlite3": "^12.10.0",
 		"mermaid": "^11.17.1",
 		"satori": "^0.33.5",
