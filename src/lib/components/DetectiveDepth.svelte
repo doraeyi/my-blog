@@ -5,7 +5,7 @@
 
 	It used to also carry drifting papers under a fixed near-black fog; in the
 	light theme that fog turned every paper into a grey smudge. The papers now
-	live in the homepage's desk scene (<HeroDesk>), where they can be read, and
+	live on the homepage evidence board, where they can be read, and
 	this layer stays small, sharp, and theme-aware so it never sits on top of
 	text as a stain.
 

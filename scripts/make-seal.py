@@ -73,8 +73,10 @@ def svg(body, view='0 0 100 100', title='Liam 偵探手記'):
 	return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{view}"><title>{title}</title>{body}</svg>\n'
 
 
-# Main mark (transparent ground), used for favicon.svg and in-page.
-mark = svg(seal())
+# Main mark (transparent ground), used for favicon.svg and in-page. Wrapped in
+# <g id="seal"> so the intro can draw it with <use href="/favicon.svg#seal">
+# (an inline SVG, which unlike an <img> never counts as the page's LCP).
+mark = svg(f'<g id="seal">{seal()}</g>')
 open(f'{REPO}/src/lib/assets/brand/seal.svg', 'w', encoding='utf-8').write(mark)
 open(f'{REPO}/static/favicon.svg', 'w', encoding='utf-8').write(mark)
 

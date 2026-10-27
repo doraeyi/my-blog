@@ -15,7 +15,7 @@
 	import Hand from '@lucide/svelte/icons/hand';
 	import MoonStar from '@lucide/svelte/icons/moon-star';
 	import seal from '$lib/assets/brand/seal.svg';
-	import logo from '$lib/assets/logo.png';
+	import logo from '$lib/assets/logo-mark.jpg';
 	import {
 		siSvelte,
 		siTypescript,

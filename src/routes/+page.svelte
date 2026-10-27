@@ -1,21 +1,17 @@
 <script lang="ts">
 	import Seo from '$lib/components/Seo.svelte';
 	import { resolve } from '$app/paths';
-	import Typewriter from '$lib/components/Typewriter.svelte';
-	import BrandIcon from '$lib/components/icons/BrandIcon.svelte';
 	import { reveal } from '$lib/actions/reveal';
-	import { socialLinks, contactEmail } from '$lib/social-links';
-	import { timeAgo, wordCountLabel } from '$lib/format';
-	import HeroDesk from '$lib/components/HeroDesk.svelte';
+	import { contactEmail } from '$lib/social-links';
+	import { timeAgo } from '$lib/format';
+	import SuspectBoard from '$lib/components/SuspectBoard.svelte';
 	import { magnetic } from '$lib/actions/magnetic';
-	import Search from '@lucide/svelte/icons/search';
 	import Mail from '@lucide/svelte/icons/mail';
 	import ArrowRight from '@lucide/svelte/icons/arrow-right';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
-	const caseNo = `${String(new Date().getFullYear()).slice(2)}-0819`;
 	const stampDate = (d: Date) =>
 		`${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
 
@@ -33,83 +29,8 @@
 
 <Seo />
 
-<section
-	class="hero relative flex min-h-[100svh] items-start overflow-hidden px-6 pt-28 md:items-center md:pt-0"
->
-	<HeroDesk
-		postCount={data.stats.postCount}
-		wordLabel={wordCountLabel(data.stats.charCount)}
-		days={data.stats.daysActive}
-	/>
-
-	<div class="pointer-events-none relative z-10 mx-auto w-full max-w-6xl">
-		<div class="max-w-xl">
-			<p class="rise font-mono-hack text-xs tracking-[0.25em] text-ink-muted">
-				CASE FILE · No.{caseNo} · <span class="text-accent">調查中</span>
-			</p>
-			<h1 class="rise mt-4 font-display text-5xl text-ink sm:text-7xl" style="--d: 120ms">
-				<Typewriter text="Liam" />
-			</h1>
-			<p class="rise mt-5 text-lg leading-relaxed text-ink-muted sm:text-xl" style="--d: 240ms">
-				前端工程師。在 MSI，把想法變成好用的產品；<br class="hidden sm:block" />
-				下班後在這裡記錄每一件查過的案子。
-			</p>
-			<p class="rise mt-5 font-mono-hack text-xs text-ink-muted" style="--d: 360ms">
-				卷宗 {data.stats.postCount} 份 · {wordCountLabel(data.stats.charCount)} · 辦案 {data.stats
-					.daysActive} 日
-			</p>
-			{#if data.nowWatching}
-				<a
-					href={resolve('/watch/[id]', { id: data.nowWatching.id })}
-					class="rise pointer-events-auto mt-3 inline-flex items-center gap-2 font-mono-hack text-xs text-ink-muted hover:text-accent"
-					style="--d: 420ms"
-				>
-					<span class="relative flex size-2">
-						<span
-							class="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-60"
-						></span>
-						<span class="relative inline-flex size-2 rounded-full bg-accent"></span>
-					</span>
-					{`此刻正在看：${data.nowWatching.title}${data.nowWatching.episode ? ` 第 ${data.nowWatching.episode} 集` : ''}`}
-				</a>
-			{/if}
-
-			<div class="rise pointer-events-auto mt-8 flex gap-3" style="--d: 480ms">
-				{#each socialLinks as link (link.name)}
-					<!-- eslint-disable svelte/no-navigation-without-resolve -- external social links, not app routes -->
-					<a
-						href={link.href}
-						aria-label={link.name}
-						target="_blank"
-						rel="noopener"
-						class="icon-btn"
-					>
-						<BrandIcon name={link.icon} class="size-4" />
-					</a>
-					<!-- eslint-enable svelte/no-navigation-without-resolve -->
-				{/each}
-				<a href="mailto:{contactEmail}" aria-label="Email" class="icon-btn">
-					<Mail class="size-4" />
-				</a>
-			</div>
-		</div>
-	</div>
-
-	<p
-		class="rise pointer-events-none absolute right-6 bottom-8 hidden items-center gap-2 font-mono-hack text-xs text-ink-muted md:flex"
-		style="--d: 1400ms"
-	>
-		<Search class="size-3.5" /> 移動放大鏡讀讀檔案 · 點檔案夾開合
-	</p>
-
-	<a
-		href="#latest"
-		aria-label="往下看"
-		class="scroll-cue absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2 text-ink-muted"
-	>
-		<span class="h-10 w-px bg-gradient-to-b from-ink-muted to-transparent"></span>
-	</a>
-</section>
+<!-- The cover: an evidence board that says who Liam is at a glance. -->
+<SuspectBoard board={data.board} />
 
 <!-- Latest files: three index cards fanned out on the desk -->
 <section id="latest" class="px-6 py-24">
@@ -314,18 +235,6 @@
 </section>
 
 <style>
-	.rise {
-		animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-		animation-delay: var(--d, 0ms);
-	}
-	@keyframes rise {
-		from {
-			opacity: 0;
-			transform: translateY(18px);
-			filter: blur(6px);
-		}
-	}
-
 	/* Fanned index cards */
 	.fan-slot {
 		position: relative;
@@ -435,25 +344,7 @@
 		opacity: 0.9;
 	}
 
-	.scroll-cue span:last-child {
-		animation: cue 2.2s ease-in-out infinite;
-		transform-origin: top;
-	}
-	@keyframes cue {
-		0%,
-		100% {
-			transform: scaleY(0.4);
-			opacity: 0.4;
-		}
-		50% {
-			transform: scaleY(1);
-			opacity: 1;
-		}
-	}
-
 	@media (prefers-reduced-motion: reduce) {
-		.scroll-cue span:last-child,
-		.rise,
 		.thread path {
 			animation: none;
 			stroke-dashoffset: 0;

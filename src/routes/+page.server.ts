@@ -2,7 +2,7 @@ import type { PageServerLoad } from './$types';
 import { listEntries, kindLabel } from '$lib/server/content-index';
 import * as thoughtsService from '$lib/server/services/thoughts-service';
 import * as commentsService from '$lib/server/services/comments-service';
-import * as watchService from '$lib/server/services/watch-service';
+import { loadSuspectBoard } from '$lib/server/suspect-board';
 
 /** Turns a comment's thread key back into where that thread lives. */
 function threadPath(key: string): string {
@@ -13,11 +13,11 @@ function threadPath(key: string): string {
 }
 
 export const load: PageServerLoad = async () => {
-	const [entries, thoughts, comments, watching] = await Promise.all([
+	const [entries, thoughts, comments, board] = await Promise.all([
 		listEntries(),
 		thoughtsService.list(3),
 		commentsService.latestVisible(1),
-		watchService.getCurrentlyWatching()
+		loadSuspectBoard()
 	]);
 
 	const year = new Date().getFullYear();
@@ -25,6 +25,7 @@ export const load: PageServerLoad = async () => {
 	const latest = comments[0];
 
 	return {
+		board,
 		recent: entries.slice(0, 5).map((e) => ({
 			title: e.title,
 			path: e.path,
@@ -38,10 +39,6 @@ export const load: PageServerLoad = async () => {
 			path: threadPath(latest.postSlug),
 			on: titleByPath.get(threadPath(latest.postSlug)) ?? null
 		},
-		nowWatching:
-			watching && watchService.isLive(watching.lastSeenAt)
-				? { id: watching.id, title: watching.title, episode: watching.currentEpisode }
-				: null,
 		year,
 		yearEntries: entries
 			.filter((e) => e.date.getFullYear() === year)
