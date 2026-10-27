@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Seo from '$lib/components/Seo.svelte';
-	import SuspectBoard from '$lib/components/SuspectBoard.svelte';
+	import StudyRoom from '$lib/components/StudyRoom.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -8,5 +8,5 @@
 
 <Seo />
 
-<!-- The cover: an evidence board that says who Liam is at a glance. -->
-<SuspectBoard board={data.board} />
+<!-- The cover: Liam's study — the computer, the lamp and his book on the desk, friends on the wall. -->
+<StudyRoom board={data.board} friends={data.friends} />

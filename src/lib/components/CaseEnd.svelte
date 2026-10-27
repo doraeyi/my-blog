@@ -18,7 +18,7 @@
 		class="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm"
 		aria-label="收尾"
 	>
-		<a href={resolve('/')} class="text-accent hover:underline">← 回白板</a>
+		<a href={resolve('/')} class="text-accent hover:underline">← 回辦公室</a>
 		<a href={resolve('/subscribe')} class="text-ink-muted hover:text-accent">訂閱新檔案</a>
 		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- feed file -->
 		<a href="/rss.xml" class="text-ink-muted hover:text-accent">RSS</a>

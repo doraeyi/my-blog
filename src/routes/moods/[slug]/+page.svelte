@@ -3,7 +3,7 @@
 	import { reveal } from '$lib/actions/reveal';
 	import Seo from '$lib/components/Seo.svelte';
 	import CommentThread from '$lib/components/CommentThread.svelte';
-	import PostMeta from '$lib/components/PostMeta.svelte';
+	import CaseHeader from '$lib/components/CaseHeader.svelte';
 	import SeriesBox from '$lib/components/SeriesBox.svelte';
 	import PostFooterNav from '$lib/components/PostFooterNav.svelte';
 	import LikeButton from '$lib/components/LikeButton.svelte';
@@ -35,8 +35,9 @@
 	<div class="w-full max-w-3xl min-w-0">
 		<article class="min-w-0">
 			<div use:reveal>
-				<h1 class="font-display text-3xl leading-snug text-ink sm:text-4xl">{data.post.title}</h1>
-				<PostMeta
+				<CaseHeader
+					kind="mood"
+					title={data.post.title}
 					date={data.post.createdAt.toLocaleDateString('zh-TW')}
 					minutes={data.nav?.minutes}
 					views={data.views}

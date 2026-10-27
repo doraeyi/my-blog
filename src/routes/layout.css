@@ -2,7 +2,7 @@
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
 
-/* The site is a physical scene (cork, paper, ink), so nothing swaps its colours
+/* The site is a physical scene (wood, paper, ink), so nothing swaps its colours
    for a dark theme — "dark" is the room's lights going off (see .room-dark).
    The variant is kept so existing dark: classes stay valid; it never matches. */
 @custom-variant dark (&:where(.never-dark, .never-dark *));
@@ -55,7 +55,7 @@
 
 :root {
 	color-scheme: light;
-	/* The room behind the cork board. */
+	/* The room around the desk. */
 	--room: #17110c;
 }
 
@@ -98,6 +98,67 @@ html {
 		from {
 			opacity: 0;
 			transform: translateY(10px);
+		}
+	}
+
+	/* Into the book: the desk rushes toward you, the page comes up to meet you. */
+	:root[data-nav='into']::view-transition-old(root) {
+		transform-origin: 58% 78%;
+		animation: vt-dive-old 0.42s cubic-bezier(0.55, 0, 0.85, 0.35) forwards;
+	}
+	:root[data-nav='into']::view-transition-new(root) {
+		animation: vt-dive-new 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+	}
+	@keyframes vt-dive-old {
+		to {
+			opacity: 0;
+			transform: scale(1.8);
+		}
+	}
+	@keyframes vt-dive-new {
+		from {
+			opacity: 0;
+			transform: scale(0.94);
+		}
+	}
+	/* Out of the book: the page sinks back onto the desk, the office comes into view. */
+	:root[data-nav='out']::view-transition-old(root) {
+		transform-origin: 58% 85%;
+		animation: vt-close-old 0.45s cubic-bezier(0.55, 0, 0.85, 0.35) forwards;
+	}
+	:root[data-nav='out']::view-transition-new(root) {
+		animation: vt-close-new 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+	}
+	@keyframes vt-close-old {
+		to {
+			opacity: 0;
+			transform: scale(0.35);
+		}
+	}
+	@keyframes vt-close-new {
+		from {
+			opacity: 0;
+			transform: scale(1.25);
+		}
+	}
+	/* Within the book: a page turns. */
+	:root[data-nav='turn']::view-transition-old(root) {
+		transform-origin: left center;
+		animation: vt-turn-old 0.32s ease-in forwards;
+	}
+	:root[data-nav='turn']::view-transition-new(root) {
+		animation: vt-turn-new 0.36s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+	}
+	@keyframes vt-turn-old {
+		to {
+			opacity: 0;
+			transform: perspective(1800px) rotateY(-14deg) translateX(-3%);
+		}
+	}
+	@keyframes vt-turn-new {
+		from {
+			opacity: 0;
+			transform: translateX(3%);
 		}
 	}
 }
@@ -274,6 +335,104 @@ html {
 	}
 }
 
+/* ───────── Reading a case file ───────── */
+/* The page header already says the title. */
+.prose > h1:first-child {
+	display: none;
+}
+@media (min-width: 640px) {
+	.case-paper .prose {
+		font-size: 1.0625rem;
+		line-height: 1.95;
+	}
+}
+.case-paper .prose :where(p) {
+	margin-block: 1.15em;
+}
+/* Sections are marked like a report: § and a typed rule. */
+.case-paper .prose :where(h2) {
+	padding-bottom: 0.35em;
+	border-bottom: 1px dashed #c9b48a;
+}
+.case-paper .prose :where(h2)::before {
+	content: '§';
+	margin-right: 0.45em;
+	color: var(--color-accent);
+}
+/* Links are red ink; hovering runs a highlighter under them. */
+.case-paper .prose a:not(.heading-anchor) {
+	color: #8e1d12;
+	text-decoration: none;
+	background:
+		linear-gradient(transparent 62%, rgba(255, 214, 0, 0.45) 62%) no-repeat 0 0 / 0% 100%,
+		linear-gradient(currentColor, currentColor) no-repeat 0 100% / 100% 1px;
+	transition: background-size 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.case-paper .prose a:not(.heading-anchor):hover {
+	background-size:
+		100% 100%,
+		100% 1px;
+}
+/* A quote is a note slip clipped to the page. */
+.case-paper .prose :where(blockquote) {
+	margin-inline: 0.3em;
+	padding: 0.9em 1.2em;
+	border: 0;
+	background: #fff6cf;
+	color: #4a3b2c;
+	font-family: 'LXGW WenKai TC', var(--font-display);
+	font-style: normal;
+	box-shadow: 0 10px 16px -12px rgba(60, 35, 10, 0.55);
+	rotate: -0.4deg;
+}
+.case-paper .prose :where(blockquote p)::before,
+.case-paper .prose :where(blockquote p)::after {
+	content: none;
+}
+/* Inline code: a small typed label. */
+.case-paper .prose :where(:not(pre) > code) {
+	padding: 0.1em 0.4em;
+	border: 1px solid #d9c9a3;
+	border-radius: 3px;
+	background: #f1e6cb;
+	color: #5a2a16;
+	font-weight: 400;
+}
+.case-paper .prose :where(:not(pre) > code)::before,
+.case-paper .prose :where(:not(pre) > code)::after {
+	content: none;
+}
+/* Pictures are prints taped in. */
+.case-paper .prose :where(img) {
+	padding: 8px 8px 10px;
+	background: #fff;
+	box-shadow: 0 12px 20px -12px rgba(40, 25, 10, 0.6);
+	rotate: -0.6deg;
+	transition: rotate 0.25s;
+}
+.case-paper .prose :where(img):hover {
+	rotate: 0deg;
+}
+.case-paper .prose :where(ul > li)::marker,
+.case-paper .prose :where(ol > li)::marker {
+	color: var(--color-accent);
+}
+.case-paper .prose :where(hr) {
+	border: 0;
+	text-align: center;
+}
+.case-paper .prose :where(hr)::after {
+	content: '* * *';
+	color: #8a7458;
+	font-family: var(--font-mono-hack);
+	letter-spacing: 0.6em;
+}
+/* Selecting text on a page is a highlighter. */
+.case-paper ::selection {
+	background: rgba(255, 214, 0, 0.5);
+	color: inherit;
+}
+
 /* Code blocks get a typed label strip: language on the left, copy on the right. */
 .code-block {
 	margin: 1.6em 0;
@@ -356,6 +515,18 @@ html {
 	box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
+/* A telegram form (the subscribe box): yellowed paper with perforated edges. */
+.dispatch-slip {
+	position: relative;
+	background:
+		radial-gradient(circle at 6px 0, transparent 4px, #f3e6c2 4.5px) 0 0 / 12px 8px repeat-x,
+		radial-gradient(circle at 6px 8px, transparent 4px, #f3e6c2 4.5px) 0 100% / 12px 8px repeat-x,
+		linear-gradient(#f3e6c2, #f3e6c2) 0 8px / 100% calc(100% - 16px) no-repeat;
+	color: #2c2118;
+	filter: drop-shadow(0 10px 12px rgba(60, 35, 10, 0.22));
+	rotate: -0.4deg;
+}
+
 /* Red ink date stamp. */
 .date-stamp {
 	display: inline-block;
@@ -417,84 +588,336 @@ html {
 	color: rgba(244, 234, 210, 0.85);
 }
 
-/* ───────── Every page but the homepage is pinned to the same cork board ───────── */
+/* ───────── Every page but the homepage: the book on Liam's desk, up close ───────── */
 .desk {
-	padding: 84px 12px 40px;
-}
-.cork {
-	position: relative;
-	max-width: 1240px;
-	margin: 0 auto;
-	padding: 64px clamp(10px, 4vw, 56px) 44px;
-	border-radius: 6px;
+	padding: 84px 12px 48px;
 	background:
-		radial-gradient(circle at 20% 30%, rgba(0, 0, 0, 0.13) 0 1px, transparent 2px) 0 0 / 9px 9px,
-		radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.07) 0 1px, transparent 2px) 0 0 / 13px
-			13px,
-		linear-gradient(135deg, #bb905f, #a77d4e 55%, #b58b5b);
-	box-shadow:
-		inset 0 0 0 12px #6b4f33,
-		inset 0 0 0 14px #3a2b1d,
-		inset 0 14px 50px rgba(0, 0, 0, 0.35),
-		0 40px 80px -40px rgba(0, 0, 0, 0.7);
+		radial-gradient(ellipse 70% 40% at 50% 0%, rgba(255, 214, 160, 0.1), transparent 70%),
+		repeating-linear-gradient(177deg, rgba(30, 15, 5, 0.12) 0 2px, transparent 2px 21px),
+		linear-gradient(180deg, #6e3d24, #55301b 60%, #4a2a17);
 }
-/* Which part of the site this is, as the board's black zone labels. */
-.cork-zone {
-	position: absolute;
-	top: 26px;
-	left: clamp(22px, 4vw, 60px);
-	padding: 2px 14px;
-	background: #2c2118;
-	color: #f4ead2;
-	font-family: var(--font-display);
-	font-size: 0.95rem;
-	letter-spacing: 0.4em;
-	rotate: -2deg;
-	box-shadow: 0 4px 10px -4px rgba(0, 0, 0, 0.6);
+.file-desk {
+	position: relative;
+	max-width: 1180px;
+	margin: 0 auto;
 }
-/* The page itself: one long typed sheet, pinned at the top. */
-.case-paper {
+/* The same red cover as the book on the office desk, its pages stacked underneath */
+.case-book {
 	position: relative;
 	max-width: 1080px;
 	margin: 0 auto;
+	padding: 34px 10px 12px;
+	border-radius: 6px;
+	background:
+		linear-gradient(90deg, rgba(0, 0, 0, 0.3), transparent 1.5%),
+		linear-gradient(160deg, #6a1f14, #4a140d);
+	box-shadow:
+		inset 0 1px 0 rgba(255, 200, 170, 0.15),
+		0 3px 0 #e9dcbb,
+		0 5px 0 #d9c9a3,
+		0 7px 0 #3a0f09,
+		0 36px 50px -20px rgba(0, 0, 0, 0.75);
+	animation: book-open 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+/* Gold foil along the top of the cover: whose book, and which part of it */
+.book-band {
+	position: absolute;
+	top: 9px;
+	right: 22px;
+	left: 22px;
+	display: flex;
+	justify-content: space-between;
+	color: #e8c779;
+	font-family: var(--font-display);
+	font-size: 0.8rem;
+	letter-spacing: 0.35em;
+	text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+}
+/* The page itself: the spine's shadow on its left edge */
+.case-paper {
+	position: relative;
+	z-index: 1;
 	padding: 4px 0 8px;
+	border-radius: 2px;
 	color: var(--color-ink);
-	rotate: -0.25deg;
 	background:
 		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E"),
 		#fbf6e9;
-	box-shadow: 0 22px 40px -18px rgba(20, 12, 6, 0.6);
+	box-shadow:
+		inset 28px 0 30px -26px rgba(60, 35, 10, 0.45),
+		inset -1px 0 0 #e6d9b9;
 }
-.case-paper > .paper-tack {
+/* The open section's ribbon, its tail hanging out of the bottom of the book */
+.page-ribbon {
 	position: absolute;
-	z-index: 5;
-	top: -7px;
-	left: 50%;
+	z-index: 0;
+	right: 16%;
+	bottom: -70px;
 	width: 16px;
-	height: 16px;
-	translate: -50% 0;
-	border-radius: 50%;
-	background: radial-gradient(circle at 35% 30%, #ff8f80, #b3362b 60%, #6a1d16);
-	box-shadow: 0 3px 3px rgba(0, 0, 0, 0.45);
+	height: 76px;
+	background: var(--c);
+	clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 84%, 0 100%);
+	filter: drop-shadow(1px 2px 1px rgba(0, 0, 0, 0.3));
 }
-.case-paper > .paper-tape {
+@keyframes book-open {
+	from {
+		opacity: 0;
+		transform: perspective(1600px) rotateX(10deg) translateY(18px);
+	}
+}
+@media (max-width: 639px) {
+	.case-book {
+		padding: 28px 6px 8px;
+	}
+	.book-band {
+		top: 7px;
+		right: 14px;
+		left: 14px;
+		font-size: 0.68rem;
+		letter-spacing: 0.25em;
+	}
+	.page-ribbon {
+		right: 12%;
+		bottom: -52px;
+		height: 56px;
+	}
+}
+/* Light through the office blinds, coloured by the real time of day (data-sky, GlobalFx) */
+.blind-light {
+	position: fixed;
+	inset: 0;
+	z-index: 46;
+	pointer-events: none;
+	background: repeating-linear-gradient(
+		158deg,
+		transparent 0 40px,
+		var(--slat, rgba(255, 226, 160, 0.07)) 40px 62px
+	);
+	mask-image: linear-gradient(205deg, #000, transparent 62%);
+	mix-blend-mode: screen;
+	opacity: 0.7;
+	transition: opacity 0.6s;
+}
+:root[data-sky='dawn'],
+:root[data-sky='dusk'] {
+	--slat: rgba(255, 170, 110, 0.09);
+}
+:root[data-sky='night'] {
+	--slat: rgba(150, 180, 255, 0.07);
+}
+:root[data-theme='dark'] .blind-light {
+	opacity: 1;
+}
+:root[data-sky='night']:not([data-theme='dark']) .blind-light {
+	opacity: 0.3;
+}
+:root[data-lite='1'] .blind-light {
+	display: none;
+}
+/* Dust motes drifting through that light */
+.blind-light i {
 	position: absolute;
-	top: -10px;
-	width: 70px;
-	height: 22px;
-	background: rgba(240, 225, 180, 0.72);
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+	top: var(--y);
+	left: var(--x);
+	width: var(--s);
+	height: var(--s);
+	border-radius: 50%;
+	background: rgba(255, 244, 220, 0.75);
+	box-shadow: 0 0 6px rgba(255, 236, 200, 0.6);
+	animation: mote var(--d) ease-in-out var(--delay) infinite;
 }
-.case-paper > .paper-tape.left {
-	left: -18px;
-	rotate: -28deg;
+@keyframes mote {
+	0%,
+	100% {
+		opacity: 0;
+		transform: translate(0, 0);
+	}
+	20%,
+	80% {
+		opacity: 0.9;
+	}
+	50% {
+		transform: translate(34px, -46px);
+	}
 }
-.case-paper > .paper-tape.right {
-	right: -18px;
-	rotate: 26deg;
+@media (prefers-reduced-motion: reduce) {
+	.blind-light i {
+		display: none;
+	}
 }
 
-/* ───────── Lights off: the room goes dark except the lamp's pool of light ───────── */
+/* ───────── The red pushpin that travels with you between pages ───────── */
+.pin-target,
+.travel-pin {
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: radial-gradient(circle at 35% 30%, #ff9a8b, #c0392b 55%, #6a1d16);
+	box-shadow:
+		0 4px 4px -1px rgba(0, 0, 0, 0.45),
+		inset 0 -2px 3px rgba(0, 0, 0, 0.25);
+}
+.travel-pin {
+	position: fixed;
+	z-index: 9999;
+	translate: -50% -50%;
+	pointer-events: none;
+	view-transition-name: travel-pin;
+}
+:root:not([data-traveling]) .pin-target {
+	view-transition-name: travel-pin;
+}
+/* On every page: pinned through the top-left corner of the sheet */
+.page-pin {
+	position: absolute;
+	z-index: 6;
+	top: 14px;
+	left: 18px;
+	animation: pin-press 0.35s cubic-bezier(0.3, 1.6, 0.5, 1) 0.15s both;
+}
+@keyframes pin-press {
+	from {
+		transform: translateY(-10px) scale(1.5);
+		opacity: 0;
+	}
+}
+@media (prefers-reduced-motion: no-preference) {
+	::view-transition-group(travel-pin) {
+		z-index: 100;
+		animation-duration: 0.7s;
+		animation-timing-function: cubic-bezier(0.3, 0.9, 0.25, 1);
+	}
+	::view-transition-old(travel-pin) {
+		animation: none;
+		opacity: 0;
+	}
+	::view-transition-new(travel-pin) {
+		animation: pin-land 0.3s cubic-bezier(0.3, 1.6, 0.5, 1) 0.6s both;
+	}
+	@keyframes pin-land {
+		from {
+			transform: scale(1.6);
+		}
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.page-pin {
+		animation: none;
+	}
+}
+
+/* The book's bookmarks, sticking out of its right edge: the way around the site.
+   Narrow screens get thin upright tabs (the desk leaves room for them). */
+.paper-marks {
+	position: absolute;
+	top: 90px;
+	right: -27px;
+	bottom: 0;
+	z-index: 0;
+}
+.paper-marks-inner {
+	position: sticky;
+	top: 80px;
+	display: grid;
+	gap: 6px;
+}
+.paper-mark {
+	display: block;
+	width: 26px;
+	padding: 10px 0 8px;
+	border-radius: 0 5px 5px 0;
+	background: var(--c);
+	color: #fff;
+	font-size: 0.72rem;
+	letter-spacing: 0.15em;
+	text-align: center;
+	writing-mode: vertical-rl;
+	box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.35);
+	translate: -4px 0;
+	transition: translate 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.paper-mark:hover,
+.paper-mark:focus-visible {
+	translate: 0 0;
+}
+.paper-mark.is-open {
+	translate: 4px 0;
+	box-shadow:
+		2px 3px 5px rgba(0, 0, 0, 0.35),
+		inset 3px 0 0 rgba(255, 255, 255, 0.5);
+}
+@media (max-width: 1159px) {
+	.desk {
+		padding-right: 36px;
+	}
+}
+@media (min-width: 1160px) {
+	.paper-marks {
+		top: 110px;
+		right: -60px;
+	}
+	.paper-marks-inner {
+		top: 96px;
+		gap: 8px;
+	}
+	.paper-mark {
+		width: 74px;
+		padding: 7px 10px 7px 20px;
+		font-size: 0.78rem;
+		letter-spacing: 0.06em;
+		text-align: left;
+		white-space: nowrap;
+		writing-mode: horizontal-tb;
+		translate: -10px 0;
+	}
+	.paper-mark:hover,
+	.paper-mark:focus-visible {
+		translate: 0 0;
+	}
+	.paper-mark.is-open {
+		translate: 8px 0;
+	}
+}
+/* The chapter's other pages, typed along the top of the sheet */
+.chapter-entries {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 18px;
+	margin: 0 clamp(16px, 4vw, 48px);
+	padding: 16px 0 10px 28px;
+	border-bottom: 1px dashed #d4c39f;
+	font-family: var(--font-mono-hack);
+	font-size: 0.78rem;
+	letter-spacing: 0.08em;
+}
+.chapter-entries a {
+	position: relative;
+	color: #8a7458;
+	transition: color 0.15s;
+}
+.chapter-entries a:hover {
+	color: #2c2118;
+}
+.chapter-entries a.is-here {
+	color: #8e1d12;
+}
+.chapter-entries a.is-here::after {
+	content: '';
+	position: absolute;
+	right: 0;
+	bottom: -3px;
+	left: 0;
+	height: 2px;
+	background: #b3261e;
+	border-radius: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+	.case-book {
+		animation: none;
+	}
+}
+
+/* ───────── Lights off: the room goes dark except the detective's torch, which follows the cursor ───────── */
 .room-dark {
 	position: fixed;
 	left: 0;
@@ -524,6 +947,10 @@ html {
 	:root:not([data-theme]) .room-dark {
 		opacity: 1;
 	}
+}
+/* The study (homepage) has its own lamp and screen light. */
+:root:has(.study) .room-dark {
+	display: none;
 }
 
 /* Pages were laid out under a fixed top bar; on paper they start closer to the edge. */

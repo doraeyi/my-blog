@@ -1,18 +1,27 @@
 <!--
-	Heart toggle for any page with a `?/like` form action. Signed-out visitors
-	get a link to the login page instead of a 401.
+	Liking a page is stamping it: a round 推薦 rubber stamp that slams onto the
+	paper in red ink. Works on any page with a `?/like` form action; signed-out
+	visitors get a link to the login page instead of a 401.
 -->
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { resolve } from '$app/paths';
-	import Heart from '@lucide/svelte/icons/heart';
 
 	let { liked, count, signedIn }: { liked: boolean; count: number; signedIn: boolean } = $props();
 
 	let pending = $state(false);
-	// Bumped on each new like so the pop animation replays.
-	let pops = $state(0);
+	// Bumped on each new like so the slam replays.
+	let slams = $state(0);
 </script>
+
+{#snippet seal(inked: boolean)}
+	{#key slams}
+		<span class="seal" class:inked class:slam={slams > 0 && inked}>
+			<span class="seal-word">推薦</span>
+			<span class="seal-count font-mono-hack">{count}</span>
+		</span>
+	{/key}
+{/snippet}
 
 {#if signedIn}
 	<form
@@ -20,7 +29,7 @@
 		action="?/like"
 		use:enhance={() => {
 			pending = true;
-			if (!liked) pops++;
+			if (!liked) slams++;
 			return async ({ update }) => {
 				await update({ reset: false });
 				pending = false;
@@ -31,69 +40,91 @@
 			type="submit"
 			disabled={pending}
 			aria-pressed={liked}
-			aria-label={liked ? `取消按讚，目前 ${count} 個讚` : `按讚，目前 ${count} 個讚`}
-			class="like-btn {liked ? 'is-liked' : ''}"
+			aria-label={liked ? `取消推薦，目前 ${count} 個推薦` : `蓋章推薦，目前 ${count} 個推薦`}
+			class="stamp-btn"
 		>
-			{#key pops}
-				<span class="heart" class:pop={pops > 0 && liked}>
-					<Heart class="size-4" fill={liked ? 'currentColor' : 'none'} />
-				</span>
-			{/key}
-			<span class="font-mono-hack text-xs tabular-nums">{count}</span>
+			{@render seal(liked)}
+			<span class="stamp-hint">{liked ? '已蓋章' : '蓋章推薦'}</span>
 		</button>
 	</form>
 {:else}
-	<a href={resolve('/login')} class="like-btn" title="登入後就能按讚">
-		<span class="heart"><Heart class="size-4" /></span>
-		<span class="font-mono-hack text-xs tabular-nums">{count}</span>
+	<a href={resolve('/login')} class="stamp-btn" title="登入後就能蓋章推薦">
+		{@render seal(false)}
+		<span class="stamp-hint">登入後蓋章</span>
 	</a>
 {/if}
 
 <style>
-	.like-btn {
+	.stamp-btn {
 		display: inline-flex;
+		flex-direction: column;
 		align-items: center;
 		gap: 0.45rem;
-		padding: 0.4rem 0.9rem;
-		border: 1px solid var(--color-border-case);
-		border-radius: 999px;
-		color: var(--color-ink-muted);
-		transition:
-			color 0.2s,
-			border-color 0.2s,
-			background-color 0.2s;
+		color: #b3261e;
 	}
-	.like-btn:hover {
-		color: var(--color-accent);
-		border-color: color-mix(in srgb, var(--color-accent) 50%, transparent);
-	}
-	.like-btn.is-liked {
-		color: var(--color-accent);
-		border-color: color-mix(in srgb, var(--color-accent) 60%, transparent);
-		background: color-mix(in srgb, var(--color-accent) 10%, transparent);
-	}
-	.like-btn:disabled {
+	.stamp-btn:disabled {
 		cursor: progress;
 	}
-	.heart {
-		display: inline-flex;
+	.seal {
+		display: grid;
+		place-items: center;
+		align-content: center;
+		width: 4.6rem;
+		height: 4.6rem;
+		border: 3px dashed color-mix(in srgb, #b3261e 55%, transparent);
+		border-radius: 50%;
+		color: color-mix(in srgb, #b3261e 70%, transparent);
+		rotate: -10deg;
+		transition:
+			transform 0.2s,
+			border-color 0.2s,
+			color 0.2s;
 	}
-	.pop {
-		animation: pop 0.45s cubic-bezier(0.2, 1.6, 0.4, 1);
+	.stamp-btn:hover .seal {
+		border-color: #b3261e;
+		color: #b3261e;
+		transform: translateY(-3px) scale(1.04);
 	}
-	@keyframes pop {
+	.seal.inked {
+		border: 4px double #b3261e;
+		background: radial-gradient(circle, rgba(179, 38, 30, 0.12), rgba(179, 38, 30, 0.04) 70%);
+		color: #b3261e;
+		mix-blend-mode: multiply;
+	}
+	.seal-word {
+		font-family: var(--font-display);
+		font-size: 1.05rem;
+		letter-spacing: 0.15em;
+		line-height: 1.1;
+	}
+	.seal-count {
+		font-size: 0.75rem;
+		font-variant-numeric: tabular-nums;
+	}
+	.stamp-hint {
+		color: var(--color-ink-muted);
+		font-family: var(--font-mono-hack);
+		font-size: 0.7rem;
+		letter-spacing: 0.2em;
+	}
+	.slam {
+		animation: slam 0.45s cubic-bezier(0.3, 1.5, 0.5, 1);
+	}
+	@keyframes slam {
 		0% {
-			transform: scale(0.6);
+			opacity: 0;
+			transform: translateY(-18px) scale(1.6);
 		}
 		60% {
-			transform: scale(1.35);
+			opacity: 1;
+			transform: scale(0.94);
 		}
 		100% {
 			transform: scale(1);
 		}
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.pop {
+		.slam {
 			animation: none;
 		}
 	}

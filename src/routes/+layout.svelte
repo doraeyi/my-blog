@@ -13,19 +13,32 @@
 	import CaseEnd from '$lib/components/CaseEnd.svelte';
 	import GlobalFx from '$lib/components/GlobalFx.svelte';
 	import { theme } from '$lib/theme.svelte';
-	import { drawerFor } from '$lib/site-nav';
+	import { bookmarks, drawerFor, isEntryActive } from '$lib/site-nav';
 	import { SITE_DESCRIPTION, SITE_TITLE } from '$lib/site';
 
 	let { children, data }: { children: Snippet; data: LayoutData } = $props();
 
-	// The homepage is the evidence board itself; every other page is a sheet
-	// pinned to that same cork board, under its section's label.
+	// The homepage is Liam's office; every other page is a page of the book on
+	// his desk, seen up close: the same red cover, the same bookmarks.
 	const onPaper = $derived(page.url.pathname !== '/');
-	const zone = $derived(
+	const section = $derived(drawerFor(page.url.pathname));
+	const openMark = $derived(bookmarks.find((b) => b.id === section?.id));
+	// The chapter, as the cover's gold foil says it: 參 · 作品收藏.
+	const chapterTitle = $derived(
 		page.url.pathname.startsWith('/admin')
 			? '後台'
-			: (drawerFor(page.url.pathname)?.label ?? '卷宗')
+			: section?.no
+				? `${section.no} · ${section.label}`
+				: (section?.label ?? '卷宗')
 	);
+	// Dust drifting in the light from the blinds: fixed spots so server and client agree.
+	const motes = Array.from({ length: 18 }, (_, i) => ({
+		x: (i * 53 + 11) % 100,
+		y: (i * 37 + 5) % 100,
+		d: 16 + ((i * 7) % 14),
+		s: 2 + (i % 3),
+		delay: -((i * 1.7) % 20)
+	}));
 
 	// WebSite + Person JSON-LD so search engines pick up the site name and the
 	// seal as its logo.
@@ -57,16 +70,49 @@
 		theme.sync();
 	});
 
-	// Cross-fades between pages via the View Transitions API; falls back to an
-	// instant swap on browsers without support. Browsers auto-disable the
-	// animation (but keep the instant swap) for prefers-reduced-motion.
+	// Page changes via the View Transitions API, moving the camera in the
+	// office: from the desk into the book ("into"), out of the book back to the
+	// desk ("out"), or turning a page inside it ("turn"). Falls back to an
+	// instant swap on browsers without support; reduced motion skips the
+	// animation (layout.css).
+	//
+	// Every move also carries the red pushpin: it leaves from where you clicked
+	// and flies to the pin on the next page (.pin-target), pinning it down.
+	let lastClick: { x: number; y: number } | null = null;
+	function onClickCapture(e: MouseEvent) {
+		lastClick = { x: e.clientX, y: e.clientY };
+	}
 	onNavigate((navigation) => {
 		if (!document.startViewTransition) return;
+		const from = navigation.from?.url.pathname;
+		const to = navigation.to?.url.pathname;
+		if (from === to) return;
+		const root = document.documentElement;
+		root.dataset.nav = to === '/' ? 'out' : from === '/' ? 'into' : 'turn';
+
+		let pin: HTMLElement | null = null;
+		if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			const at = lastClick ?? { x: innerWidth / 2, y: innerHeight / 2 };
+			pin = document.createElement('span');
+			pin.className = 'travel-pin';
+			pin.style.left = `${at.x}px`;
+			pin.style.top = `${at.y}px`;
+			document.body.append(pin);
+			root.dataset.traveling = '';
+		}
+		lastClick = null;
 
 		return new Promise((resolve) => {
-			document.startViewTransition(async () => {
+			const t = document.startViewTransition(async () => {
 				resolve();
 				await navigation.complete;
+				pin?.remove();
+				delete root.dataset.traveling;
+			});
+			t.finished.finally(() => {
+				delete root.dataset.nav;
+				pin?.remove();
+				delete root.dataset.traveling;
 			});
 		});
 	});
@@ -122,7 +168,7 @@
 	<link rel="webmention" href="/webmention" />
 </svelte:head>
 
-<svelte:window onkeydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} onclickcapture={onClickCapture} />
 
 <DetectiveDepth />
 <GlobalFx />
@@ -132,14 +178,55 @@
 
 <main class:desk={onPaper}>
 	{#if onPaper}
-		<div class="cork">
-			<span class="cork-zone">{zone}</span>
-			<div class="case-paper">
-				<span class="paper-tack" aria-hidden="true"></span>
-				<span class="paper-tape left" aria-hidden="true"></span>
-				<span class="paper-tape right" aria-hidden="true"></span>
-				{@render children()}
-				{#if !page.url.pathname.startsWith('/admin')}<CaseEnd />{/if}
+		<!-- Light through the office blinds, the colour of the real time of day (GlobalFx). -->
+		<div class="blind-light" aria-hidden="true">
+			{#each motes as m, i (i)}
+				<i style="--x: {m.x}%; --y: {m.y}%; --d: {m.d}s; --s: {m.s}px; --delay: {m.delay}s"></i>
+			{/each}
+		</div>
+		<div class="file-desk">
+			<div class="case-book">
+				<p class="book-band" aria-hidden="true">
+					<span>LIAM · 調查檔案</span>
+					<span>{chapterTitle}</span>
+				</p>
+				<div class="case-paper">
+					<span class="page-pin pin-target" aria-hidden="true"></span>
+					{#if openMark}
+						<span class="page-ribbon" style="--c: {openMark.color}" aria-hidden="true"></span>
+					{/if}
+					{#if section?.cards.length}
+						<!-- What else is in this chapter, typed along the top of the page -->
+						<nav class="chapter-entries" aria-label="{section.label}這一章">
+							<!-- eslint-disable svelte/no-navigation-without-resolve -- static app paths (some with a query) from site-nav -->
+							{#each section.cards as c (c.href)}
+								{@const here = isEntryActive(page.url, c.href)}
+								<a href={c.href} class:is-here={here} aria-current={here ? 'page' : undefined}
+									>{c.label}</a
+								>
+							{/each}
+							<!-- eslint-enable svelte/no-navigation-without-resolve -->
+						</nav>
+					{/if}
+					{@render children()}
+					{#if !page.url.pathname.startsWith('/admin')}<CaseEnd />{/if}
+				</div>
+				<!-- The book's bookmarks, still in it: the sections, the open one pulled out. -->
+				<nav class="paper-marks" aria-label="書籤：網站的各個部分">
+					<div class="paper-marks-inner">
+						<!-- eslint-disable svelte/no-navigation-without-resolve -- static app paths from site-nav -->
+						{#each bookmarks as b (b.id)}
+							<a
+								href={b.href}
+								class="paper-mark"
+								class:is-open={section?.id === b.id}
+								aria-current={section?.id === b.id ? 'true' : undefined}
+								style="--c: {b.color}">{b.label}</a
+							>
+						{/each}
+						<!-- eslint-enable svelte/no-navigation-without-resolve -->
+					</div>
+				</nav>
 			</div>
 		</div>
 	{:else}

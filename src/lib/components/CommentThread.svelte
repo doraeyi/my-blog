@@ -78,9 +78,7 @@
 {/snippet}
 
 {#snippet bubble(c: Comment)}
-	<div
-		class="bubble min-w-0 flex-1 rounded-2xl rounded-tl-sm border border-border-case/70 bg-surface-alt/50 px-4 py-3"
-	>
+	<div class="bubble index-card min-w-0 flex-1 rounded-sm px-4 py-3">
 		<p class="flex items-baseline gap-2 text-sm">
 			<span class="font-medium text-ink">{c.author.name}</span>
 			<time class="text-xs text-ink-muted" datetime={c.createdAt.toISOString()}>
@@ -108,7 +106,7 @@
 		method="post"
 		action="?/comment"
 		use:enhance={submitWith(() => (replyingTo = null))}
-		class="mt-3 rounded-2xl border border-border-case bg-surface-alt/60 p-3 focus-within:border-accent/60"
+		class="index-card mt-3 rounded-sm p-3 focus-within:outline-2 focus-within:outline-accent/40"
 	>
 		<input type="hidden" name="replyTo" value={target.id} />
 		<!-- svelte-ignore a11y_autofocus -->
@@ -132,7 +130,7 @@
 			<button
 				type="submit"
 				disabled={sending}
-				class="flex items-center gap-1.5 rounded-full bg-accent px-4 py-1 text-sm font-medium text-white transition hover:bg-accent-strong disabled:opacity-60"
+				class="flex items-center gap-1.5 rounded-sm bg-accent px-4 py-1 text-sm font-medium text-white transition hover:bg-accent-strong disabled:opacity-60"
 			>
 				<Send class="size-3.5" />
 				{sending ? '送出中…' : '回覆'}
@@ -153,7 +151,7 @@
 			method="post"
 			action="?/comment"
 			use:enhance={submitWith()}
-			class="mt-5 rounded-2xl border border-border-case bg-surface-alt/60 p-3 focus-within:border-accent/60"
+			class="index-card mt-5 rounded-sm p-3 focus-within:outline-2 focus-within:outline-accent/40"
 		>
 			<div class="flex items-start gap-3">
 				{@render avatar(user)}
@@ -171,7 +169,7 @@
 				<button
 					type="submit"
 					disabled={sending}
-					class="flex items-center gap-1.5 rounded-full bg-accent px-4 py-1.5 text-sm font-medium text-white transition hover:bg-accent-strong disabled:opacity-60"
+					class="flex items-center gap-1.5 rounded-sm bg-accent px-4 py-1.5 text-sm font-medium text-white transition hover:bg-accent-strong disabled:opacity-60"
 				>
 					<Send class="size-3.5" />
 					{sending ? '送出中…' : '送出'}
@@ -180,12 +178,12 @@
 		</form>
 	{:else}
 		<div
-			class="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-dashed border-border-case p-4"
+			class="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-sm border-2 border-dashed border-[#c9b48a] p-4"
 		>
 			<p class="text-sm text-ink-muted">登入後就能留言和回覆，頭像跟暱稱會自動帶入。</p>
 			<a
 				href={resolve('/login')}
-				class="rounded-full border border-border-case bg-surface px-4 py-1.5 text-sm font-medium text-ink transition hover:border-accent hover:text-accent"
+				class="rounded-sm border border-[#b9a682] bg-[#f8f1df] px-4 py-1.5 text-sm font-medium text-ink transition hover:border-accent hover:text-accent"
 			>
 				登入留言
 			</a>

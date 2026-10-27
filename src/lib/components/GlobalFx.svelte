@@ -1,9 +1,11 @@
 <!--
 	Page-wide effects driven from one place:
-	- lights off: the room goes dark except the desk lamp's pool of light, which
-	  follows the cursor (or stays put on touch screens);
+	- lights off: the room goes dark except the detective's torch, which follows
+	  the cursor (or stays put on touch screens);
+	- the time of day outside (data-sky), for the light through the blinds;
 	- a frame-rate guard that switches slow devices to light-effects mode.
-	Only CSS custom properties are written here; the look lives in layout.css.
+	Only CSS custom properties and data attributes are written here; the look
+	lives in layout.css.
 -->
 <script lang="ts">
 	let dark: HTMLDivElement | undefined = $state();
@@ -23,6 +25,18 @@
 			cancelAnimationFrame(frame);
 			window.removeEventListener('pointermove', onMove);
 		};
+	});
+
+	// The time of day outside the office window (the homepage window works it out the same way).
+	$effect(() => {
+		const root = document.documentElement;
+		const set = () => {
+			const h = new Date().getHours();
+			root.dataset.sky = h < 5 || h >= 19 ? 'night' : h < 7 ? 'dawn' : h < 17 ? 'day' : 'dusk';
+		};
+		set();
+		const t = setInterval(set, 60_000);
+		return () => clearInterval(t);
 	});
 
 	// Frame-rate guard: watch ~3s of frames after load; if this device can't hold

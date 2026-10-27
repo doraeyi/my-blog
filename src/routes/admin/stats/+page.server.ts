@@ -11,7 +11,7 @@ const RANGES = [7, 30, 90];
 /** Titles for the fixed pages; posts get theirs from the content index. */
 const PAGE_TITLES: Record<string, string> = {
 	'/': '封面',
-	'/blog': '案件簿',
+	'/blog': '文章',
 	'/about': '關於我',
 	'/english': 'English profile',
 	'/friends': '線人名單',

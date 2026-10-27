@@ -16,11 +16,7 @@
 </script>
 
 {#if page.data.mailEnabled}
-	<div
-		class="rounded-md border border-border-case bg-surface/70 backdrop-blur-sm {compact
-			? 'p-4'
-			: 'p-6'}"
-	>
+	<div class="dispatch-slip {compact ? 'p-4' : 'p-6'}">
 		{#if phase === 'done'}
 			<p class="flex items-center gap-2 font-display text-lg text-ink">
 				<MailCheck class="size-5 text-accent" /> 確認信寄出了
@@ -64,7 +60,7 @@
 					required
 					autocomplete="email"
 					placeholder="you@example.com"
-					class="min-w-0 flex-1 rounded-full border border-border-case bg-surface px-4 py-2 text-sm text-ink placeholder:text-ink-muted/60 focus:border-accent focus:ring-2 focus:ring-accent/40 focus:outline-none"
+					class="min-w-0 flex-1 rounded-none border-0 border-b-2 border-dashed border-[#b9a682] bg-transparent px-1 py-2 text-sm text-ink placeholder:text-ink-muted/60 focus:border-accent focus:ring-2 focus:ring-accent/40 focus:outline-none"
 				/>
 				<input
 					name="nickname"
@@ -76,7 +72,7 @@
 				<button
 					type="submit"
 					disabled={phase === 'sending'}
-					class="shrink-0 rounded-full bg-accent px-5 py-2 text-sm font-medium text-white transition hover:bg-accent-strong disabled:opacity-60"
+					class="shrink-0 rounded-sm bg-accent px-5 py-2 font-display text-sm font-medium tracking-[0.2em] text-white transition hover:bg-accent-strong disabled:opacity-60"
 				>
 					{phase === 'sending' ? '寄送中…' : '訂閱'}
 				</button>

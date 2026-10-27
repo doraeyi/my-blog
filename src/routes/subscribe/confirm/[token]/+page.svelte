@@ -16,7 +16,7 @@
 			stamp="已登記"
 			description="之後有新文章會寄到 {data.email}。謝謝你願意收這些信。"
 		/>
-		<a href={resolve('/blog')} class="text-sm text-accent hover:underline">先去翻翻案件簿 →</a>
+		<a href={resolve('/blog')} class="text-sm text-accent hover:underline">先去翻翻文章 →</a>
 	{:else}
 		<PageHeader
 			title="連結失效了"

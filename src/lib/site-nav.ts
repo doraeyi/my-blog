@@ -1,7 +1,8 @@
 /**
- * The site as a filing cabinet: each drawer is an index tab on the left edge,
- * and its items are the index cards inside. The cabinet nav, the mobile drawer
- * and the footer all read from here, so a page is registered once.
+ * The site as Liam's book: each section is a chapter (a bookmark on the book,
+ * a line on its contents page), and its items are the entries under it. The
+ * office desk, the bookmarks, the contents page and the page chrome all read
+ * from here, so a page is registered once.
  * Hrefs are plain app paths (some carry a query string).
  */
 
@@ -14,7 +15,14 @@ export interface CabinetCard {
 
 export interface Drawer {
 	id: string;
+	/** The chapter's name in Liam's book: bookmarks, contents, page header. */
 	label: string;
+	/** Chapter number, 壹 to 伍 (the contents page itself has none). */
+	no?: string;
+	/** Its bookmark ribbon's colour. */
+	color?: string;
+	/** One line for the contents page when the chapter has no sub-entries. */
+	blurb?: string;
 	href: string;
 	/** Routes that count as "inside" this drawer (whole-segment match). */
 	match: string[];
@@ -24,8 +32,46 @@ export interface Drawer {
 export const drawers: Drawer[] = [
 	{ id: 'cover', label: '封面', href: '/', match: ['/'], cards: [] },
 	{
+		id: 'contents',
+		label: '目錄',
+		color: '#4a3a2a',
+		href: '/contents',
+		match: ['/contents'],
+		cards: []
+	},
+	{
+		id: 'files',
+		label: '關於',
+		no: '壹',
+		color: '#2f6b4a',
+		href: '/about',
+		match: ['/about', '/now', '/about-site', '/history'],
+		cards: [
+			{ label: '人物檔案', href: '/about', note: '關於 Liam' },
+			{ label: '近況', href: '/now', note: '這陣子在忙什麼' },
+			{ label: '本站說明', href: '/about-site', note: '這個網站怎麼做的' },
+			{ label: '結案紀錄', href: '/history', note: '網站走過的轉折' }
+		]
+	},
+	{
+		id: 'evidence',
+		label: '作品收藏',
+		no: '貳',
+		color: '#b8860b',
+		href: '/portfolio',
+		match: ['/portfolio', '/watch', '/bookshelf', '/setup'],
+		cards: [
+			{ label: '證物', href: '/portfolio', note: '做過的專案' },
+			{ label: '監視紀錄', href: '/watch', note: '最近在看的劇和電影' },
+			{ label: '參考卷宗', href: '/bookshelf', note: '讀過、在讀、想讀的書' },
+			{ label: '裝備清單', href: '/setup', note: '每天用的硬體和工具' }
+		]
+	},
+	{
 		id: 'cases',
-		label: '案件簿',
+		label: '文章',
+		no: '參',
+		color: '#8e1d12',
 		href: '/blog',
 		match: ['/blog', '/articles', '/moods', '/tags', '/archive', '/board', '/stats'],
 		cards: [
@@ -41,38 +87,19 @@ export const drawers: Drawer[] = [
 	},
 	{
 		id: 'notes',
-		label: '現場筆記',
+		label: '筆記',
+		no: '肆',
+		color: '#2b4c9b',
+		blurb: '現場筆記：短句、隨手記，想到什麼寫什麼。',
 		href: '/thinking',
 		match: ['/thinking'],
 		cards: []
 	},
 	{
-		id: 'evidence',
-		label: '證物室',
-		href: '/portfolio',
-		match: ['/portfolio', '/watch', '/bookshelf', '/setup'],
-		cards: [
-			{ label: '證物', href: '/portfolio', note: '做過的專案' },
-			{ label: '監視紀錄', href: '/watch', note: '最近在看的劇和電影' },
-			{ label: '參考卷宗', href: '/bookshelf', note: '讀過、在讀、想讀的書' },
-			{ label: '裝備清單', href: '/setup', note: '每天用的硬體和工具' }
-		]
-	},
-	{
-		id: 'files',
-		label: '檔案室',
-		href: '/about',
-		match: ['/about', '/now', '/about-site', '/history'],
-		cards: [
-			{ label: '人物檔案', href: '/about', note: '關於 Liam' },
-			{ label: '近況', href: '/now', note: '這陣子在忙什麼' },
-			{ label: '本站說明', href: '/about-site', note: '這個網站怎麼做的' },
-			{ label: '結案紀錄', href: '/history', note: '網站走過的轉折' }
-		]
-	},
-	{
 		id: 'testimony',
-		label: '證詞',
+		label: '留言',
+		no: '伍',
+		color: '#5b3a8a',
 		href: '/messages',
 		match: ['/messages', '/friends'],
 		cards: [
@@ -115,3 +142,19 @@ export type NoteCategory = (typeof noteCategories)[number]['key'];
 
 /** First commit of this repo — the case was opened that day. */
 export const SITE_LAUNCHED_AT = new Date('2026-08-07T00:00:00+08:00');
+
+/** The bookmarks in Liam's book (home desk and every inner page): 目錄 first, then the chapters. */
+export const bookmarks = drawers
+	.filter((d) => d.id !== 'cover')
+	.map((d) => ({ ...d, color: d.color ?? '#8e1d12' }));
+
+/** The chapters, as the contents page lists them. */
+export const chapters = drawers.filter((d) => d.no);
+
+/** Is this entry (some carry a ?query) the page being shown? */
+export function isEntryActive(url: URL, href: string): boolean {
+	const [path, query] = href.split('?');
+	if (query) return url.pathname === path && url.search === `?${query}`;
+	if (path === '/blog') return url.pathname === '/blog' && !url.searchParams.get('cat');
+	return onRoute(url.pathname, path);
+}

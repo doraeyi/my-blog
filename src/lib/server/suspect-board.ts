@@ -1,4 +1,4 @@
-import { listEntries } from '$lib/server/content-index';
+import { kindLabel, listEntries } from '$lib/server/content-index';
 import * as watchService from '$lib/server/services/watch-service';
 import { posterUrl } from '$lib/server/services/tmdb-service';
 import { listProjects } from '$lib/server/services/projects-service';
@@ -37,6 +37,9 @@ export async function loadSuspectBoard(): Promise<SuspectBoardData> {
 			.filter((e) => e.kind !== 'mood')
 			.slice(0, 3)
 			.map((e) => ({ title: e.title, href: e.path, date: e.date })),
+		latest: entries
+			.slice(0, 6)
+			.map((e) => ({ title: e.title, href: e.path, date: e.date, kind: kindLabel[e.kind] })),
 		evidence: {
 			badge: { since: '2024.08', org: 'MSI 微星科技', role: '前端工程師' },
 			project: project
