@@ -1,107 +1,112 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="40 40 320 420" width="320" height="420">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 10 320 420" width="320" height="420">
 	<title>Q 版 Liam</title>
 	<!--
-		Chibi Liam, drawn from his photo: thick black hair with a straight, slightly
-		separated fringe and a full crown, round face, calm narrow eyes, white shirt
-		and black tie under a dark hooded jacket with beige check lining. Holding a
-		magnifying glass for the detective theme. Transparent background so the
-		particle portrait keys it out cleanly.
+		Chibi Liam, measured off his photo (scaled 0.84): a wide, round-square face
+		with a broad jaw, short black hair of moderate volume with a straight fringe
+		to just above the brows, ears showing, calm narrow monolid eyes, a broad nose,
+		full lips held level. Dark hooded jacket with beige check lining, white
+		shirt, black tie, and a magnifying glass for the detective theme.
 	-->
 	<defs>
-		<radialGradient id="skin" cx="0.45" cy="0.42" r="0.65">
-			<stop offset="0" stop-color="#fbe0c8" />
-			<stop offset="1" stop-color="#efc6a6" />
-		</radialGradient>
+		<linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#f7d9c6" />
+			<stop offset="1" stop-color="#efc8b2" />
+		</linearGradient>
 		<linearGradient id="hair" x1="0" y1="0" x2="0" y2="1">
-			<stop offset="0" stop-color="#2a2420" />
-			<stop offset="1" stop-color="#141110" />
+			<stop offset="0" stop-color="#2b2522" />
+			<stop offset="1" stop-color="#171312" />
 		</linearGradient>
 		<linearGradient id="jacket" x1="0" y1="0" x2="0" y2="1">
-			<stop offset="0" stop-color="#34343d" />
-			<stop offset="1" stop-color="#1d1d23" />
+			<stop offset="0" stop-color="#33333b" />
+			<stop offset="1" stop-color="#1c1c22" />
 		</linearGradient>
-		<pattern id="check" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(-24)">
-			<rect width="14" height="14" fill="#dcc7a2" />
-			<path d="M0 3h14M0 10h14" stroke="#8a6d45" stroke-width="1.2" opacity="0.7" />
-			<path d="M4 0v14M11 0v14" stroke="#2c2118" stroke-width="1.4" opacity="0.55" />
-			<path d="M7 0v14" stroke="#b3362b" stroke-width="0.8" opacity="0.6" />
+		<pattern id="check" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(-26)">
+			<rect width="12" height="12" fill="#dccaa8" />
+			<path d="M0 3h12M0 9h12" stroke="#8a6d45" stroke-width="1" opacity="0.7" />
+			<path d="M3 0v12M9 0v12" stroke="#2c2118" stroke-width="1.3" opacity="0.6" />
+			<path d="M6 0v12" stroke="#b3362b" stroke-width="0.7" opacity="0.6" />
 		</pattern>
 	</defs>
 
 	<!-- ── Body ── -->
-	<path d="M98 460 C98 384 126 340 170 326 L230 326 C274 340 302 384 302 460 Z" fill="url(#jacket)" />
-	<!-- Shirt and collar -->
-	<path d="M174 328 L200 398 L226 328 Z" fill="#fbfaf6" />
-	<path d="M174 328 L164 356 L198 344 Z" fill="#f1efe8" />
-	<path d="M226 328 L236 356 L202 344 Z" fill="#f1efe8" />
-	<!-- Tie -->
-	<path d="M192 338 L208 338 L210 352 L190 352 Z" fill="#141418" />
-	<path d="M190 350 L210 350 L215 428 L200 444 L185 428 Z" fill="#141418" />
-	<path d="M197 356 L202 356 L206 424 L200 432 Z" fill="#2c2c34" />
-	<!-- Check lining on the right lapel -->
-	<path d="M226 328 L254 348 L236 460 L216 432 Z" fill="url(#check)" />
-	<path d="M226 328 L254 348 L236 460" fill="none" stroke="#141418" stroke-width="2" opacity="0.5" />
-	<!-- Left lapel edge -->
-	<path d="M174 328 L146 348 L164 460" fill="none" stroke="#45454f" stroke-width="3" />
+	<path d="M30 430 C32 396 60 372 112 362 L208 362 C260 372 288 396 290 430 Z" fill="url(#jacket)" />
 	<!-- Hood rolled behind the neck -->
-	<path d="M146 334 C150 306 250 306 254 334 C236 322 164 322 146 334 Z" fill="#3e3e48" />
+	<path d="M98 372 C104 346 216 346 222 372 C204 360 116 360 98 372 Z" fill="#3e3e47" />
+	<!-- Neck -->
+	<path d="M132 318 L188 318 L194 372 L126 372 Z" fill="#e6b9a2" />
+	<!-- Shirt + collar -->
+	<path d="M128 366 L160 420 L192 366 Z" fill="#fbfaf6" />
+	<path d="M128 366 L118 392 L156 380 Z" fill="#f0eee7" />
+	<path d="M192 366 L202 392 L164 380 Z" fill="#f0eee7" />
+	<!-- Tie -->
+	<path d="M152 374 L168 374 L170 388 L150 388 Z" fill="#131317" />
+	<path d="M150 386 L170 386 L174 430 L146 430 Z" fill="#131317" />
+	<!-- Check lining, his left side -->
+	<path d="M192 366 L222 382 L206 430 L186 430 L188 410 Z" fill="url(#check)" />
+	<!-- Left lapel edge -->
+	<path d="M128 366 L98 382 L112 430" fill="none" stroke="#45454e" stroke-width="3" />
 
-	<!-- ── Arm + magnifying glass (his left, viewer's right) ── -->
-	<path d="M282 372 C300 392 304 414 296 432 L276 428 C280 414 276 398 266 386 Z" fill="#2a2a32" />
-	<line x1="288" y1="420" x2="306" y2="394" stroke="#6b4f2a" stroke-width="9" stroke-linecap="round" />
-	<circle cx="288" cy="428" r="15" fill="url(#skin)" />
-	<path d="M280 422 Q288 416 296 424" stroke="#d9a07c" stroke-width="2.5" fill="none" stroke-linecap="round" />
-	<circle cx="318" cy="368" r="25" fill="rgba(210,232,255,0.35)" stroke="#b8904f" stroke-width="7" />
-	<path d="M305 357 Q311 349 320 347" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.85" />
+	<!-- Magnifying glass, held up at the side -->
+	<path d="M262 400 C276 392 284 380 286 366 L270 360 C268 372 262 382 252 388 Z" fill="#2a2a31" />
+	<line x1="274" y1="360" x2="290" y2="336" stroke="#6b4f2a" stroke-width="8" stroke-linecap="round" />
+	<circle cx="276" cy="364" r="12" fill="#efc8b2" />
+	<circle cx="298" cy="318" r="21" fill="rgba(210,232,255,0.35)" stroke="#b8904f" stroke-width="6" />
+	<path d="M287 309 Q292 302 300 301" stroke="#fff" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.85" />
 
 	<!-- ── Head ── -->
-	<!-- Ears -->
-	<ellipse cx="100" cy="238" rx="14" ry="19" fill="#efc6a6" />
-	<ellipse cx="300" cy="238" rx="14" ry="19" fill="#ecc2a1" />
-	<path d="M96 232 Q102 240 98 248" stroke="#d9a07c" stroke-width="2.5" fill="none" stroke-linecap="round" />
-	<path d="M304 232 Q298 240 302 248" stroke="#d9a07c" stroke-width="2.5" fill="none" stroke-linecap="round" />
-	<!-- Face -->
-	<ellipse cx="200" cy="214" rx="101" ry="98" fill="url(#skin)" />
-	<!-- Neck shadow -->
-	<path d="M178 306 Q200 318 222 306 L222 328 L178 328 Z" fill="#e2b493" />
+	<!-- Ears: they show, and they stick out a little -->
+	<path d="M64 200 C46 196 38 214 42 232 C46 252 56 262 68 260 Z" fill="#efc8b2" />
+	<path d="M256 200 C274 196 282 214 278 232 C274 252 264 262 252 260 Z" fill="#ecc4ae" />
+	<path d="M56 214 Q50 228 58 244" stroke="#d9a28a" stroke-width="2.5" fill="none" stroke-linecap="round" />
+	<path d="M264 214 Q270 228 262 244" stroke="#d9a28a" stroke-width="2.5" fill="none" stroke-linecap="round" />
+	<!-- Face: wide and round-square, broad jaw, soft chin -->
+	<path d="M64 150 C58 200 60 240 74 270 C92 308 126 328 160 329 C194 328 228 308 246 270 C260 240 262 200 256 150 Z" fill="url(#skin)" />
+	<!-- Jaw shadow -->
+	<path d="M106 300 C128 322 192 322 214 300 C194 314 126 314 106 300 Z" fill="#e2b29b" opacity="0.55" />
 
-	<!-- Hair: full crown, sides over the temples, a straight fringe in clumps -->
+	<!-- Hair: moderate volume, sides to the top of the ears, straight fringe -->
 	<path
-		d="M96 232
-		   C84 150 116 66 200 58
-		   C284 66 316 150 304 232
-		   L294 214
-		   L290 186
-		   Q276 198 262 184
-		   Q248 200 233 185
-		   Q218 200 203 185
-		   Q188 200 173 185
-		   Q158 199 144 185
-		   Q130 197 118 186
-		   L108 214 Z"
+		d="M52 198
+		   C44 150 54 92 92 62
+		   C122 38 198 38 228 62
+		   C266 92 276 150 268 198
+		   L260 194
+		   C258 178 256 166 250 156
+		   L242 162 L236 146 L226 164 L214 145 L204 165 L192 147 L182 161 L170 143
+		   L158 163 L146 147 L134 160 L122 145 L110 162 L100 149 L90 163 L80 153 L70 162
+		   C66 172 64 184 62 196 Z"
 		fill="url(#hair)"
 	/>
-	<!-- Fringe clump separations -->
-	<path d="M174 150 Q170 168 173 184 M204 146 Q202 166 203 184 M234 150 Q236 168 233 184 M146 158 Q142 172 144 184 M262 158 Q266 172 262 184" stroke="#3b332e" stroke-width="2.5" fill="none" stroke-linecap="round" />
-	<!-- Crown tuft and shine -->
-	<path d="M192 62 Q198 46 212 52 Q204 56 206 64 Z" fill="#141110" />
-	<path d="M136 112 Q164 80 206 76" stroke="#5a4f48" stroke-width="7" stroke-linecap="round" fill="none" opacity="0.55" />
+	<!-- A few strands in the fringe -->
+	<path d="M122 108 Q118 128 122 145 M170 104 Q168 124 170 143 M214 108 Q218 128 214 145 M92 120 Q86 138 90 149 M236 120 Q242 134 236 146" stroke="#3a322e" stroke-width="2.2" fill="none" stroke-linecap="round" />
+	<path d="M98 72 Q130 46 176 44" stroke="#5a504a" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.5" />
 
-	<!-- Eyes: calm and narrow, like his -->
-	<path d="M146 236 Q162 228 178 236" stroke="#1f1814" stroke-width="4.5" stroke-linecap="round" fill="none" />
-	<path d="M222 236 Q238 228 254 236" stroke="#1f1814" stroke-width="4.5" stroke-linecap="round" fill="none" />
-	<ellipse cx="162" cy="241" rx="10" ry="8" fill="#1f1814" />
-	<ellipse cx="238" cy="241" rx="10" ry="8" fill="#1f1814" />
-	<circle cx="165.5" cy="238" r="2.8" fill="#fff" />
-	<circle cx="241.5" cy="238" r="2.8" fill="#fff" />
-	<!-- Brows peeking under the fringe -->
-	<path d="M150 214 Q162 210 176 213" stroke="#2a2420" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.8" />
-	<path d="M224 213 Q238 210 250 214" stroke="#2a2420" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.8" />
-	<!-- Nose -->
-	<path d="M200 256 Q206 266 198 270" stroke="#d9a07c" stroke-width="3.5" stroke-linecap="round" fill="none" />
-	<!-- Cheeks -->
-	<ellipse cx="140" cy="268" rx="15" ry="9" fill="#f29a8a" opacity="0.35" />
-	<ellipse cx="260" cy="268" rx="15" ry="9" fill="#f29a8a" opacity="0.35" />
-	<!-- Mouth: small and even, the faintest smile -->
-	<path d="M186 286 Q200 293 214 285" stroke="#9c5444" stroke-width="4" stroke-linecap="round" fill="none" />
+	<!-- Brows: relaxed, a soft lift -->
+	<path d="M100 170 Q116 163 132 167" stroke="#2b2522" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.72" />
+	<path d="M188 167 Q204 163 220 170" stroke="#2b2522" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.72" />
+	<!-- Eyes: his narrow monolids, but bright and smiling — warm brown irises with
+	     catchlights, the upper lid resting on top, a smile crease underneath -->
+	<ellipse cx="116" cy="195" rx="9.5" ry="8.5" fill="#2e211b" />
+	<ellipse cx="204" cy="195" rx="9.5" ry="8.5" fill="#2e211b" />
+	<circle cx="116" cy="196" r="4.6" fill="#140e0b" />
+	<circle cx="204" cy="196" r="4.6" fill="#140e0b" />
+	<path d="M99 191 Q116 180 133 189" stroke="#1f1814" stroke-width="3.6" stroke-linecap="round" fill="none" />
+	<path d="M187 189 Q204 180 221 191" stroke="#1f1814" stroke-width="3.6" stroke-linecap="round" fill="none" />
+	<circle cx="120" cy="191.5" r="3" fill="#fff" />
+	<circle cx="208" cy="191.5" r="3" fill="#fff" />
+	<circle cx="112.5" cy="199" r="1.4" fill="#fff" opacity="0.9" />
+	<circle cx="200.5" cy="199" r="1.4" fill="#fff" opacity="0.9" />
+	<path d="M106 207 Q116 211 127 206" stroke="#cf9179" stroke-width="2.2" stroke-linecap="round" fill="none" />
+	<path d="M193 206 Q204 211 214 207" stroke="#cf9179" stroke-width="2.2" stroke-linecap="round" fill="none" />
+	<!-- Nose: broad, nostrils showing -->
+	<path d="M150 240 Q146 248 152 250 M170 240 Q174 248 168 250" stroke="#d29a82" stroke-width="3" stroke-linecap="round" fill="none" />
+	<path d="M154 250 Q160 253 166 250" stroke="#d29a82" stroke-width="2.5" stroke-linecap="round" fill="none" />
+	<!-- Cheeks, lifted by the smile -->
+	<ellipse cx="92" cy="232" rx="15" ry="8.5" fill="#f2998a" opacity="0.32" />
+	<ellipse cx="228" cy="232" rx="15" ry="8.5" fill="#f2998a" opacity="0.32" />
+	<!-- Mouth: the small, closed smile from his photo — corners up, full lower lip -->
+	<path d="M139 269 Q160 284 181 269" stroke="#9a5243" stroke-width="3.4" stroke-linecap="round" fill="none" />
+	<path d="M146 276 Q160 289 174 276 Q160 283 146 276 Z" fill="#df9282" opacity="0.75" />
+	<path d="M136 266 Q138 271 141 270" stroke="#c98a74" stroke-width="2" stroke-linecap="round" fill="none" />
+	<path d="M184 266 Q182 271 179 270" stroke="#c98a74" stroke-width="2" stroke-linecap="round" fill="none" />
 </svg>
