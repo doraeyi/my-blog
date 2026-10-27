@@ -14,7 +14,7 @@
 	import Timer from '@lucide/svelte/icons/timer';
 	import Hand from '@lucide/svelte/icons/hand';
 	import MoonStar from '@lucide/svelte/icons/moon-star';
-	import profilePhoto from '$lib/assets/avatar.svg';
+	import seal from '$lib/assets/brand/seal.svg';
 	import logo from '$lib/assets/logo.png';
 	import {
 		siSvelte,
@@ -130,7 +130,7 @@
 					class="absolute -top-4 left-8 size-8 -rotate-12 text-case-500 drop-shadow"
 				/>
 				<div class="relative aspect-[3/4] overflow-hidden rounded-sm bg-case-950">
-					<ParticlePortrait photoSrc={profilePhoto} logoSrc={logo} />
+					<ParticlePortrait photoSrc={logo} logoSrc={seal} />
 				</div>
 				<div
 					class="mt-3 flex items-center justify-between font-mono-hack text-[0.7rem] text-ink-muted"
