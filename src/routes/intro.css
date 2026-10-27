@@ -1,15 +1,31 @@
 /*
- * 開案 — the first-visit intro. A desk lamp flickers on, a fingerprint is lifted
- * and scanned, the match comes back, the seal stamps down, and the case folder
- * flips open onto the page. Markup and the timeline script live in app.html so
- * it starts before the app hydrates; this sheet only styles it.
+ * 開案 — the intro played on every full page load. Same props as ever (lamp,
+ * fingerprint, scanner, readout, seal); the choreography is a noir opening:
  *
- * Everything runs on CSS time (delays below), so a busy main thread while the
- * page hydrates can't stall it. The beats: lamp 0.1s, ridges 0.35s, scan 0.55s,
- * match + stamp 1.55s, folder opens 2.6s.
+ *   0.05s  the desk lamp swings into place and settles
+ *   0.30s  fingerprint powder puffs out; the print develops from the core outward
+ *   0.95s  one scanner pass — the ridges it crosses light up
+ *   1.75s  match: the frame brackets snap tight, the readout switches
+ *   1.85s  the seal hovers, its shadow closing in… then slams down (≈2.15s)
+ *   2.75s  iris out from the seal onto the page
+ *
+ * Markup and the small setup script live in app.html so it starts before the
+ * app hydrates. All timing is CSS, so a busy main thread can't stall it.
  *
  * html[data-intro]: unset = never shown, "on" = playing, "out" = skipped, open now.
  */
+
+/* Animatable custom properties: the iris radius and the scanner's position. */
+@property --iris {
+	syntax: '<length>';
+	inherits: false;
+	initial-value: 0px;
+}
+@property --scan {
+	syntax: '<percentage>';
+	inherits: false;
+	initial-value: -20%;
+}
 
 #intro {
 	display: none;
@@ -19,8 +35,9 @@ html[data-intro] #intro {
 	inset: 0;
 	z-index: 1000;
 	display: block;
-	perspective: 1400px;
 	cursor: pointer;
+	/* Clicks go through to the page once the iris starts opening. */
+	animation: intro-passthrough 0.01s 2.85s forwards;
 }
 html[data-intro] {
 	overflow: hidden;
@@ -28,9 +45,8 @@ html[data-intro] {
 html[data-intro='out'] {
 	overflow: auto;
 }
-/* Once the cover starts lifting, clicks go through to the page. */
-html[data-intro] #intro {
-	animation: intro-passthrough 0.01s 2.7s forwards;
+html[data-intro='out'] #intro {
+	pointer-events: none;
 }
 @keyframes intro-passthrough {
 	to {
@@ -38,7 +54,7 @@ html[data-intro] #intro {
 	}
 }
 
-/* The folder cover: dark desk with lamp light, grain and a vignette. */
+/* The desk: dark, grain and a vignette over the lamp light. */
 .intro-sheet {
 	position: absolute;
 	inset: 0;
@@ -46,15 +62,15 @@ html[data-intro] #intro {
 	place-items: center;
 	overflow: hidden;
 	background: #0d0907;
-	transform-origin: 50% 0;
-	backface-visibility: hidden;
-	/* The folder's brass-bound edge, which catches the eye as the cover lifts. */
-	box-shadow:
-		inset 0 -3px 0 #b8904f,
-		inset 0 -4px 0 rgba(0, 0, 0, 0.6);
+	/* The iris: a growing transparent hole centred on the seal (--ix/--iy set by
+	   the setup script). Soft-edged so it reads as a lens, not a cut-out. */
+	mask-image: radial-gradient(
+		circle at var(--ix, 50%) var(--iy, 50%),
+		transparent calc(var(--iris) - 26px),
+		#000 var(--iris)
+	);
 }
 .intro-sheet::after {
-	/* Paper grain + vignette, above the light. */
 	content: '';
 	position: absolute;
 	inset: 0;
@@ -65,6 +81,7 @@ html[data-intro] #intro {
 	mix-blend-mode: screen;
 }
 
+/* ── Lamp: swung in from the upper left on its arm, overshoots, settles ── */
 .intro-lamp {
 	position: absolute;
 	inset: -20%;
@@ -77,48 +94,55 @@ html[data-intro] #intro {
 		),
 		radial-gradient(circle at 50% 46%, rgba(255, 230, 190, 0.08), transparent 30%);
 	opacity: 0;
-	animation: intro-lamp 0.75s 0.1s steps(1, end) forwards;
+	transform-origin: 20% 0;
+	animation: intro-lamp 1.05s 0.05s cubic-bezier(0.3, 0.7, 0.3, 1) forwards;
 }
-/* A tungsten bulb catching: two stutters, then steady. */
 @keyframes intro-lamp {
 	0% {
 		opacity: 0;
+		transform: translate(-22%, -18%) rotate(-10deg);
 	}
-	18% {
-		opacity: 0.75;
-	}
-	26% {
-		opacity: 0.15;
-	}
-	42% {
+	35% {
 		opacity: 0.9;
 	}
-	52% {
-		opacity: 0.45;
+	62% {
+		transform: translate(2.5%, 1.5%) rotate(1.4deg);
 	}
-	64%,
+	82% {
+		transform: translate(-0.8%, -0.4%) rotate(-0.4deg);
+		opacity: 1;
+	}
+	90% {
+		opacity: 0.82;
+	}
 	100% {
 		opacity: 1;
+		transform: none;
 	}
 }
 
-/* Dust drifting through the light. */
+/* ── Fingerprint powder: a puff out from the print's core ── */
 .intro-dust {
 	position: absolute;
-	width: 2px;
-	height: 2px;
+	width: 3px;
+	height: 3px;
 	border-radius: 50%;
-	background: rgba(255, 228, 180, 0.7);
+	background: rgba(255, 232, 190, 0.85);
+	box-shadow: 0 0 4px rgba(255, 220, 160, 0.6);
 	opacity: 0;
-	animation: intro-dust 3.2s ease-in-out forwards;
+	animation: intro-dust 1.6s cubic-bezier(0.1, 0.7, 0.3, 1) forwards;
 }
 @keyframes intro-dust {
-	15% {
-		opacity: 0.8;
+	0% {
+		opacity: 0;
+		transform: translate(0, 0) scale(0.6);
+	}
+	12% {
+		opacity: 0.95;
 	}
 	100% {
 		opacity: 0;
-		transform: translate(var(--dx), var(--dy));
+		transform: translate(var(--dx), var(--dy)) scale(1);
 	}
 }
 
@@ -127,6 +151,18 @@ html[data-intro] #intro {
 	display: grid;
 	justify-items: center;
 	gap: 1.4rem;
+	animation: intro-thud 0.32s 2.15s;
+}
+@keyframes intro-thud {
+	20% {
+		transform: translate(1px, 4px);
+	}
+	45% {
+		transform: translate(-2px, -1px);
+	}
+	70% {
+		transform: translate(1px, 1px);
+	}
 }
 
 .intro-evidence {
@@ -136,40 +172,78 @@ html[data-intro] #intro {
 	/* Lets the scan line move by its own height (cqh) with a transform. */
 	container-type: size;
 }
-.intro-print {
+
+/* ── The print develops: each ridge fades up out of a blur, core first ── */
+.intro-print,
+.intro-print-hot {
+	position: absolute;
+	inset: 0;
 	width: 100%;
 	height: 100%;
 	overflow: visible;
-	animation: intro-dim 0.5s 1.55s forwards;
+}
+.intro-print {
+	animation: intro-dim 0.6s 1.8s forwards;
 }
 @keyframes intro-dim {
 	to {
-		opacity: 0.32;
+		opacity: 0.3;
 		filter: sepia(1) saturate(3) hue-rotate(-28deg);
 	}
 }
-.intro-print path {
+.intro-print path,
+.intro-print-hot path {
 	fill: none;
-	stroke: #f4ead2;
 	stroke-width: 1.7;
 	stroke-linecap: round;
-	stroke-dasharray: 1;
-	stroke-dashoffset: 1;
-	opacity: 0.85;
-	animation: intro-ridge 0.7s cubic-bezier(0.5, 0, 0.3, 1) forwards;
 }
-@keyframes intro-ridge {
+.intro-print path {
+	stroke: #f4ead2;
+	opacity: 0;
+	filter: blur(3px);
+	animation: intro-develop 0.6s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+@keyframes intro-develop {
+	40% {
+		opacity: 0.5;
+	}
 	to {
-		stroke-dashoffset: 0;
+		opacity: 0.82;
+		filter: blur(0);
+	}
+}
+/* The same ridges in hot amber, visible only in a band that follows the scanner. */
+.intro-print-hot path {
+	stroke: #ffd59a;
+	stroke-width: 2.1;
+}
+.intro-print-hot {
+	filter: drop-shadow(0 0 3px rgba(255, 190, 120, 0.8));
+	mask-image: linear-gradient(
+		to bottom,
+		transparent calc(var(--scan) - 14%),
+		#000 var(--scan),
+		transparent calc(var(--scan) + 6%)
+	);
+	animation: intro-hot 0.75s 0.95s cubic-bezier(0.45, 0, 0.55, 1) forwards;
+}
+@keyframes intro-hot {
+	from {
+		--scan: -20%;
+	}
+	to {
+		--scan: 120%;
 	}
 }
 
-/* Corner brackets of the evidence frame. */
+/* ── Frame brackets: appear loose, snap tight on the match ── */
 .intro-frame {
 	position: absolute;
-	inset: -14px;
+	inset: -18px;
 	opacity: 0;
-	animation: intro-fade 0.4s 0.35s forwards;
+	animation:
+		intro-fade 0.4s 0.3s forwards,
+		intro-lock 0.45s 1.75s cubic-bezier(0.2, 0.9, 0.3, 1.4) forwards;
 	background:
 		linear-gradient(#d4ad6e, #d4ad6e) top left / 18px 1.5px,
 		linear-gradient(#d4ad6e, #d4ad6e) top left / 1.5px 18px,
@@ -186,8 +260,21 @@ html[data-intro] #intro {
 		opacity: 1;
 	}
 }
+@keyframes intro-lock {
+	0% {
+		inset: -18px;
+		filter: none;
+	}
+	45% {
+		filter: drop-shadow(0 0 6px #e24a3b) brightness(1.6) hue-rotate(-30deg);
+	}
+	100% {
+		inset: -6px;
+		filter: none;
+	}
+}
 
-/* The scanner: a red line with a glow sweeping down, twice. */
+/* ── Scanner: a single pass, timed with the hot band above ── */
 .intro-scan {
 	position: absolute;
 	left: -8%;
@@ -199,38 +286,46 @@ html[data-intro] #intro {
 		0 0 12px 2px rgba(226, 74, 59, 0.75),
 		0 -40px 40px -10px rgba(226, 74, 59, 0.18);
 	opacity: 0;
-	animation: intro-scan 0.95s 0.55s cubic-bezier(0.45, 0, 0.55, 1) 2 alternate;
+	animation: intro-scan 0.75s 0.95s cubic-bezier(0.45, 0, 0.55, 1) forwards;
 }
 /* transform, not top: moving `top` counts as a layout shift. */
 @keyframes intro-scan {
 	0% {
 		transform: translateY(0);
+		opacity: 0;
+	}
+	8%,
+	88% {
 		opacity: 1;
 	}
 	100% {
 		transform: translateY(100cqh);
-		opacity: 1;
+		opacity: 0;
 	}
 }
 
-/* The seal comes down hard, slightly askew. */
+/* ── Seal: hovers in with its shadow closing in, then comes down hard ── */
 .intro-seal {
 	position: absolute;
 	right: -18%;
 	bottom: -6%;
 	width: 52%;
 	opacity: 0;
-	transform: scale(2.6) rotate(-24deg);
-	filter: drop-shadow(0 30px 30px rgba(0, 0, 0, 0.6));
-	animation: intro-stamp 0.34s 1.55s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+	transform: scale(2.4) rotate(-22deg);
+	animation: intro-stamp 0.62s 1.85s forwards;
 }
 @keyframes intro-stamp {
 	0% {
 		opacity: 0;
-		transform: scale(2.6) rotate(-24deg);
+		transform: translate(18%, -30%) scale(2.4) rotate(-22deg);
+		filter: blur(4px) drop-shadow(30px 60px 30px rgba(0, 0, 0, 0.25));
+		animation-timing-function: cubic-bezier(0.2, 0.8, 0.3, 1);
 	}
-	30% {
+	50% {
 		opacity: 1;
+		transform: translate(4%, -8%) scale(1.45) rotate(-13deg);
+		filter: blur(0.5px) drop-shadow(14px 26px 14px rgba(0, 0, 0, 0.5));
+		animation-timing-function: cubic-bezier(0.8, 0, 1, 0.6);
 	}
 	100% {
 		opacity: 0.96;
@@ -254,36 +349,20 @@ html[data-intro] #intro {
 		radial-gradient(circle at 20% 88%, #b3362b 0 2px, transparent 3px),
 		radial-gradient(circle at 60% 4%, #b3362b 0 1.5px, transparent 2.5px),
 		radial-gradient(circle at 3% 62%, #b3362b 0 1.5px, transparent 2.5px);
-}
-.intro-ink {
-	animation: intro-ink 0.5s 1.87s ease-out forwards;
+	animation: intro-ink 0.5s 2.15s ease-out forwards;
 }
 @keyframes intro-ink {
 	from {
-		opacity: 0.9;
-		transform: scale(0.7);
+		opacity: 0.95;
+		transform: scale(0.6);
 	}
 	to {
 		opacity: 0.75;
 		transform: scale(1);
 	}
 }
-.intro-stage {
-	animation: intro-thud 0.28s 1.88s;
-}
-@keyframes intro-thud {
-	25% {
-		transform: translate(2px, 3px);
-	}
-	50% {
-		transform: translate(-2px, -1px);
-	}
-	75% {
-		transform: translate(1px, 1px);
-	}
-}
 
-/* Typewriter readout under the print. */
+/* ── Readout under the print ── */
 .intro-readout {
 	display: grid;
 	/* Fixed box: the mono font arriving mid-intro mustn't resize anything. */
@@ -310,7 +389,7 @@ html[data-intro] #intro {
 	animation: intro-fade 0.01s forwards;
 }
 .intro-line1 {
-	animation: intro-hide 0.01s 1.55s forwards;
+	animation: intro-hide 0.01s 1.75s forwards;
 }
 @keyframes intro-hide {
 	to {
@@ -330,38 +409,31 @@ html[data-intro] #intro {
 	animation: intro-fade 0.4s 0.8s forwards;
 }
 
-/* The folder cover swings up and over, the page underneath slides into place. */
+/* ── Exit: iris out from the seal; the page settles in behind it ── */
 html[data-intro] .intro-sheet {
-	animation: intro-open 0.9s 2.6s cubic-bezier(0.65, 0, 0.25, 1) forwards;
+	animation: intro-iris 1s 2.75s cubic-bezier(0.55, 0, 0.25, 1) forwards;
 }
 html[data-intro='out'] .intro-sheet {
 	animation-delay: 0s;
+	animation-duration: 0.6s;
 }
-html[data-intro='out'] #intro {
-	pointer-events: none;
-}
-@keyframes intro-open {
-	0% {
-		transform: rotateX(0);
-		filter: brightness(1);
+@keyframes intro-iris {
+	from {
+		--iris: 0px;
 	}
-	35% {
-		transform: rotateX(-14deg) translateY(-2%);
-	}
-	100% {
-		transform: rotateX(-96deg) translateY(-8%);
-		filter: brightness(0.45);
+	to {
+		--iris: 125vmax;
 	}
 }
 html[data-intro] main {
-	animation: intro-reveal 0.9s 2.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+	animation: intro-reveal 0.9s 2.75s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 html[data-intro='out'] main {
 	animation-delay: 0s;
 }
 @keyframes intro-reveal {
 	from {
-		transform: translateY(18px) scale(0.985);
-		opacity: 0.4;
+		transform: scale(1.03);
+		filter: brightness(0.6);
 	}
 }

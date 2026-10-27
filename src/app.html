@@ -99,6 +99,7 @@
 				var cy = 140;
 				var ridges = 22;
 				var html = '';
+				var plain = '';
 				for (var i = 0; i < ridges; i++) {
 					var base = 6 + i * 5.4;
 					var whorl = i < 6;
@@ -125,27 +126,43 @@
 						d += (pen ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1);
 						pen = true;
 					}
+					// Developed core first, outward ridge by ridge.
 					html +=
-						'<path pathLength="1" d="' +
-						d +
-						'" style="animation-delay:' +
-						(0.35 + i * 0.035).toFixed(3) +
-						's"/>';
+						'<path d="' + d + '" style="animation-delay:' + (0.35 + i * 0.035).toFixed(3) + 's"/>';
+					plain += '<path d="' + d + '"/>';
 				}
 				svg.innerHTML = html;
+				// An amber copy of the same ridges, shown only where the scanner is.
+				svg.insertAdjacentHTML(
+					'afterend',
+					'<svg class="intro-print-hot" viewBox="0 0 240 300" aria-hidden="true">' +
+						plain +
+						'</svg>'
+				);
 
-				// Dust motes in the lamp light.
+				// Fingerprint powder: a puff out from the print's core, drifting up as it
+				// settles. Positions come from one layout read, done here before paint.
 				var sheet = intro.querySelector('.intro-sheet');
-				for (var k = 0; k < 18; k++) {
+				var box = sheet.getBoundingClientRect();
+				var ev = intro.querySelector('.intro-evidence').getBoundingClientRect();
+				var coreX = ev.left - box.left + ev.width / 2;
+				var coreY = ev.top - box.top + ev.height * (140 / 300);
+				for (var k = 0; k < 28; k++) {
 					var dot = document.createElement('i');
+					var angle = rnd() * Math.PI * 2;
+					var dist = 50 + rnd() * 120;
 					dot.className = 'intro-dust';
-					dot.style.left = 30 + rnd() * 40 + '%';
-					dot.style.top = 25 + rnd() * 45 + '%';
-					dot.style.setProperty('--dx', (rnd() - 0.5) * 60 + 'px');
-					dot.style.setProperty('--dy', -20 - rnd() * 50 + 'px');
-					dot.style.animationDelay = 0.3 + rnd() * 0.8 + 's';
+					dot.style.left = coreX + 'px';
+					dot.style.top = coreY + 'px';
+					dot.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+					dot.style.setProperty('--dy', Math.sin(angle) * dist * 0.8 - 30 + 'px');
+					dot.style.animationDelay = 0.28 + rnd() * 0.18 + 's';
 					sheet.appendChild(dot);
 				}
+				// The iris opens from where the seal lands (scale/rotate keep its centre).
+				var seal = intro.querySelector('.intro-seal').getBoundingClientRect();
+				sheet.style.setProperty('--ix', seal.left - box.left + seal.width / 2 + 'px');
+				sheet.style.setProperty('--iy', seal.top - box.top + seal.height / 2 + 'px');
 
 				// The readout: every character is its own span with its own delay, so the
 				// typing runs on CSS time and keeps pace while the page is busy loading.
@@ -172,9 +189,9 @@
 				}
 				out.innerHTML =
 					typed('intro-line1', ['EXHIBIT A · LATENT PRINT № ' + no, '比對指紋中…'], 0.4) +
-					typed('intro-line2', ['MATCH FOUND · 99.8%', '身分確認：[LIAM]'], 1.6);
+					typed('intro-line2', ['MATCH FOUND · 99.8%', '身分確認：[LIAM]'], 1.78);
 
-				// The whole timeline runs in CSS; this only tidies up after the folder has
+				// The whole timeline runs in CSS; this only tidies up after the iris has
 				// opened, or skips straight to opening on a click, key or scroll.
 				var done = false;
 				function cleanup() {
@@ -184,7 +201,7 @@
 					delete root.dataset.intro;
 				}
 				sheet.addEventListener('animationend', function (e) {
-					if (e.animationName === 'intro-open') cleanup();
+					if (e.animationName === 'intro-iris') cleanup();
 				});
 				setTimeout(cleanup, 4500);
 				function skip() {
