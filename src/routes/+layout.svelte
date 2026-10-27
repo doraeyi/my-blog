@@ -7,15 +7,25 @@
 	import { locales, localizeHref } from '$lib/paraglide/runtime';
 	import type { Snippet } from 'svelte';
 	import type { LayoutData } from './$types';
-	import CabinetNav from '$lib/components/CabinetNav.svelte';
+	import CaseChrome from '$lib/components/CaseChrome.svelte';
 	import DetectiveDepth from '$lib/components/DetectiveDepth.svelte';
 	import SearchPalette from '$lib/components/SearchPalette.svelte';
-	import SiteFooter from '$lib/components/SiteFooter.svelte';
+	import CaseEnd from '$lib/components/CaseEnd.svelte';
 	import GlobalFx from '$lib/components/GlobalFx.svelte';
 	import { theme } from '$lib/theme.svelte';
+	import { drawerFor } from '$lib/site-nav';
 	import { SITE_DESCRIPTION, SITE_TITLE } from '$lib/site';
 
 	let { children, data }: { children: Snippet; data: LayoutData } = $props();
+
+	// The homepage is the evidence board itself; every other page is a sheet
+	// pinned to that same cork board, under its section's label.
+	const onPaper = $derived(page.url.pathname !== '/');
+	const zone = $derived(
+		page.url.pathname.startsWith('/admin')
+			? '後台'
+			: (drawerFor(page.url.pathname)?.label ?? '卷宗')
+	);
 
 	// WebSite + Person JSON-LD so search engines pick up the site name and the
 	// seal as its logo.
@@ -117,16 +127,25 @@
 <DetectiveDepth />
 <GlobalFx />
 
-<CabinetNav user={data.user} unread={data.unread} />
+<CaseChrome user={data.user} unread={data.unread} />
 <SearchPalette />
 
-<main class="lg:pl-10">
-	{@render children()}
+<main class:desk={onPaper}>
+	{#if onPaper}
+		<div class="cork">
+			<span class="cork-zone">{zone}</span>
+			<div class="case-paper">
+				<span class="paper-tack" aria-hidden="true"></span>
+				<span class="paper-tape left" aria-hidden="true"></span>
+				<span class="paper-tape right" aria-hidden="true"></span>
+				{@render children()}
+				{#if !page.url.pathname.startsWith('/admin')}<CaseEnd />{/if}
+			</div>
+		</div>
+	{:else}
+		{@render children()}
+	{/if}
 </main>
-
-{#if !page.url.pathname.startsWith('/admin')}
-	<SiteFooter />
-{/if}
 
 <div style="display:none">
 	{#each locales as locale (locale)}

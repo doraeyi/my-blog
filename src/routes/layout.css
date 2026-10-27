@@ -2,7 +2,10 @@
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
 
-@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+/* The site is a physical scene (cork, paper, ink), so nothing swaps its colours
+   for a dark theme — "dark" is the room's lights going off (see .room-dark).
+   The variant is kept so existing dark: classes stay valid; it never matches. */
+@custom-variant dark (&:where(.never-dark, .never-dark *));
 
 @theme {
 	--font-display: 'Special Elite', 'LXGW WenKai TC', ui-monospace, Menlo, monospace;
@@ -52,36 +55,12 @@
 
 :root {
 	color-scheme: light;
-}
-
-/* Explicit user choice (via ThemeToggle), always wins once set. */
-:root[data-theme='dark'] {
-	color-scheme: dark;
-	--color-surface: var(--color-case-950);
-	--color-surface-alt: var(--color-case-900);
-	--color-ink: var(--color-cream-100);
-	--color-ink-muted: var(--color-case-400);
-	--color-border-case: var(--color-case-700);
-	--color-accent: #e2574a;
-	--color-accent-strong: #f2795e;
-}
-
-/* No-JS / pre-hydration fallback: mirrors system preference until data-theme is set. */
-@media (prefers-color-scheme: dark) {
-	:root:not([data-theme]) {
-		color-scheme: dark;
-		--color-surface: var(--color-case-950);
-		--color-surface-alt: var(--color-case-900);
-		--color-ink: var(--color-cream-100);
-		--color-ink-muted: var(--color-case-400);
-		--color-border-case: var(--color-case-700);
-		--color-accent: #e2574a;
-		--color-accent-strong: #f2795e;
-	}
+	/* The room behind the cork board. */
+	--room: #17110c;
 }
 
 html {
-	background-color: var(--color-surface);
+	background-color: var(--room);
 	color: var(--color-ink);
 	scroll-behavior: smooth;
 }
@@ -243,49 +222,6 @@ html {
 	opacity: 1;
 }
 
-/* ───────── Dark mode: the cursor is a flashlight ───────── */
-.flashlight {
-	position: fixed;
-	left: 0;
-	top: 0;
-	z-index: -8;
-	width: 840px;
-	height: 840px;
-	margin: -420px 0 0 -420px;
-	pointer-events: none;
-	opacity: 0;
-	border-radius: 50%;
-	/* Moved with transform only (see GlobalFx) — composited, never repainted. */
-	transform: translate3d(var(--fx, 50vw), var(--fy, 40vh), 0);
-	will-change: transform;
-	transition: opacity 0.6s ease;
-	background: radial-gradient(
-		circle closest-side,
-		color-mix(in srgb, var(--color-phosphor-400) 9%, transparent),
-		transparent
-	);
-}
-:root[data-theme='dark'] .flashlight {
-	opacity: 1;
-}
-:root[data-lite='1'] .flashlight {
-	display: none;
-}
-
-/* ───────── Reading progress ───────── */
-.read-progress {
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	height: 2px;
-	z-index: 60;
-	transform-origin: 0 50%;
-	transform: scaleX(var(--p, 0));
-	background: linear-gradient(90deg, var(--color-accent), var(--color-phosphor-400));
-	pointer-events: none;
-}
-
 @media (prefers-reduced-motion: reduce) {
 	.icon-btn,
 	.icon-btn > svg {
@@ -408,9 +344,6 @@ html {
 		0 1px 0 rgba(255, 255, 255, 0.6) inset,
 		0 18px 40px -18px rgba(20, 12, 6, 0.55);
 }
-:root[data-theme='dark'] .index-card {
-	background-color: #e7dbc0;
-}
 .punch {
 	position: absolute;
 	left: 50%;
@@ -482,4 +415,120 @@ html {
 	text-align: center;
 	font-size: 0.85rem;
 	color: rgba(244, 234, 210, 0.85);
+}
+
+/* ───────── Every page but the homepage is pinned to the same cork board ───────── */
+.desk {
+	padding: 84px 12px 40px;
+}
+.cork {
+	position: relative;
+	max-width: 1240px;
+	margin: 0 auto;
+	padding: 64px clamp(10px, 4vw, 56px) 44px;
+	border-radius: 6px;
+	background:
+		radial-gradient(circle at 20% 30%, rgba(0, 0, 0, 0.13) 0 1px, transparent 2px) 0 0 / 9px 9px,
+		radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.07) 0 1px, transparent 2px) 0 0 / 13px
+			13px,
+		linear-gradient(135deg, #bb905f, #a77d4e 55%, #b58b5b);
+	box-shadow:
+		inset 0 0 0 12px #6b4f33,
+		inset 0 0 0 14px #3a2b1d,
+		inset 0 14px 50px rgba(0, 0, 0, 0.35),
+		0 40px 80px -40px rgba(0, 0, 0, 0.7);
+}
+/* Which part of the site this is, as the board's black zone labels. */
+.cork-zone {
+	position: absolute;
+	top: 26px;
+	left: clamp(22px, 4vw, 60px);
+	padding: 2px 14px;
+	background: #2c2118;
+	color: #f4ead2;
+	font-family: var(--font-display);
+	font-size: 0.95rem;
+	letter-spacing: 0.4em;
+	rotate: -2deg;
+	box-shadow: 0 4px 10px -4px rgba(0, 0, 0, 0.6);
+}
+/* The page itself: one long typed sheet, pinned at the top. */
+.case-paper {
+	position: relative;
+	max-width: 1080px;
+	margin: 0 auto;
+	padding: 4px 0 8px;
+	color: var(--color-ink);
+	rotate: -0.25deg;
+	background:
+		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E"),
+		#fbf6e9;
+	box-shadow: 0 22px 40px -18px rgba(20, 12, 6, 0.6);
+}
+.case-paper > .paper-tack {
+	position: absolute;
+	z-index: 5;
+	top: -7px;
+	left: 50%;
+	width: 16px;
+	height: 16px;
+	translate: -50% 0;
+	border-radius: 50%;
+	background: radial-gradient(circle at 35% 30%, #ff8f80, #b3362b 60%, #6a1d16);
+	box-shadow: 0 3px 3px rgba(0, 0, 0, 0.45);
+}
+.case-paper > .paper-tape {
+	position: absolute;
+	top: -10px;
+	width: 70px;
+	height: 22px;
+	background: rgba(240, 225, 180, 0.72);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+.case-paper > .paper-tape.left {
+	left: -18px;
+	rotate: -28deg;
+}
+.case-paper > .paper-tape.right {
+	right: -18px;
+	rotate: 26deg;
+}
+
+/* ───────── Lights off: the room goes dark except the lamp's pool of light ───────── */
+.room-dark {
+	position: fixed;
+	left: 0;
+	top: 0;
+	z-index: 45;
+	width: 400vmax;
+	height: 400vmax;
+	margin: -200vmax 0 0 -200vmax;
+	pointer-events: none;
+	opacity: 0;
+	/* Lamp centre follows the cursor (GlobalFx); on touch it rests upper-centre. */
+	transform: translate3d(var(--fx, 50vw), var(--fy, 34vh), 0);
+	will-change: transform;
+	transition: opacity 0.6s ease;
+	background: radial-gradient(
+		circle at center,
+		rgba(255, 196, 120, 0.05) 0,
+		transparent 220px,
+		rgba(10, 6, 3, 0.5) 560px,
+		rgba(10, 6, 3, 0.66) 1000px
+	);
+}
+:root[data-theme='dark'] .room-dark {
+	opacity: 1;
+}
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme]) .room-dark {
+		opacity: 1;
+	}
+}
+
+/* Pages were laid out under a fixed top bar; on paper they start closer to the edge. */
+.case-paper .cover,
+.case-paper .pt-28,
+.case-paper .sm\:pt-32 {
+	padding-top: 3rem;
 }

@@ -14,9 +14,25 @@
 	import Download from '@lucide/svelte/icons/download';
 	import X from '@lucide/svelte/icons/x';
 	import type { SuspectBoardData } from '$lib/suspect-board';
+	import { drawers } from '$lib/site-nav';
 
 	let { board: boardData }: { board: SuspectBoardData } = $props();
 	const ev = $derived(boardData.evidence);
+
+	// One drawer per section of the site, labelled with what's inside.
+	const cabinet = drawers
+		.filter((d) => d.id !== 'cover')
+		.map((d) => ({
+			id: d.id,
+			label: d.label,
+			href: d.href,
+			note: d.cards.length
+				? d.cards
+						.map((c) => c.label)
+						.slice(0, 3)
+						.join('・')
+				: '短句、隨手記'
+		}));
 
 	type Id = 'badge' | 'project' | 'notes' | 'thinking' | 'gear' | 'diary' | 'tapes';
 
@@ -496,15 +512,13 @@
 				<div class="suspect-photo mx-auto">
 					<img src={mark} alt="Liam 的 L 字標誌" class="size-full object-cover" />
 				</div>
-				<div class="mt-3 text-center">
-					<span class="block font-display text-2xl text-ink">Liam</span>
-					<span class="font-mono-hack text-[11px] tracking-[0.2em] text-ink-muted"
+				<div class="suspect-tag">
+					<span class="font-display text-xl text-case-900">Liam</span>
+					<span class="font-mono-hack text-[10px] tracking-[0.2em] text-case-700"
 						>前端工程師 · MSI</span
 					>
 				</div>
-				<p class="hand mt-2 text-center text-[15px] text-stamp-500">
-					在意細節、卡關會追到底，也會老實寫下生活的人。
-				</p>
+				<p class="m-summary hand">在意細節、卡關會追到底，<br />也會老實寫下生活的人。</p>
 			</div>
 			{#each ['工作', '思考', '生活'] as zone (zone)}
 				<p class="m-zone font-display">{zone}</p>
@@ -526,26 +540,19 @@
 			>
 		</div>
 
-		<!-- Ways out -->
-		<nav
-			class="mt-10 flex flex-wrap items-center justify-center gap-3 text-sm"
-			aria-label="繼續調查"
-		>
-			<a
-				href={resolve('/blog')}
-				class="rounded-full bg-accent px-5 py-2 text-white transition hover:bg-accent-strong"
-				>翻他的案件簿</a
-			>
-			<a
-				href={resolve('/about')}
-				class="rounded-full border border-border-case px-5 py-2 text-ink transition hover:border-accent hover:text-accent"
-				>完整人物檔案</a
-			>
-			<a
-				href="mailto:{contactEmail}"
-				class="rounded-full border border-border-case px-5 py-2 text-ink transition hover:border-accent hover:text-accent"
-				>聯絡他</a
-			>
+		<!-- The filing cabinet under the board: one drawer per part of the site. -->
+		<nav class="cabinet" aria-label="檔案櫃">
+			{#each cabinet as d, i (d.id)}
+				<!-- eslint-disable svelte/no-navigation-without-resolve -- static app paths from site-nav -->
+				<a href={d.href} class="drawer" style="--i: {i}">
+					<span class="drawer-label">
+						<span class="font-display text-base text-case-900">{d.label}</span>
+						<span class="font-mono-hack text-[10px] tracking-wide text-case-700">{d.note}</span>
+					</span>
+					<span class="drawer-handle" aria-hidden="true"></span>
+				</a>
+				<!-- eslint-enable svelte/no-navigation-without-resolve -->
+			{/each}
 		</nav>
 	</section>
 
@@ -1051,33 +1058,115 @@
 		border: 1px solid #000;
 	}
 
+	/* ════ Filing cabinet under the board ════ */
+	.cabinet {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+		gap: 10px;
+		margin-top: 22px;
+		padding: 14px;
+		border-radius: 6px;
+		background: linear-gradient(180deg, #4a3925, #3a2b1d);
+		box-shadow:
+			inset 0 2px 0 rgba(255, 255, 255, 0.06),
+			0 30px 50px -30px rgba(0, 0, 0, 0.7);
+	}
+	.drawer {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 10px;
+		padding: 14px 10px 12px;
+		border-radius: 3px;
+		background: linear-gradient(180deg, #6b4f33, #5a4129);
+		box-shadow:
+			inset 0 1px 0 rgba(255, 255, 255, 0.12),
+			inset 0 -3px 0 rgba(0, 0, 0, 0.25);
+		transition:
+			transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+			box-shadow 0.3s;
+		animation: drop 0.5s calc(1s + var(--i) * 0.06s) cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+	}
+	.drawer:hover,
+	.drawer:focus-visible {
+		/* pulled out toward you */
+		transform: translateY(6px) scale(1.03);
+		box-shadow:
+			inset 0 1px 0 rgba(255, 255, 255, 0.12),
+			0 14px 18px -8px rgba(0, 0, 0, 0.6);
+		outline: none;
+	}
+	.drawer-label {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1px;
+		min-width: 80%;
+		padding: 5px 10px 6px;
+		background: #f4ead2;
+		box-shadow:
+			0 0 0 2px #b8904f,
+			0 0 0 3px #8a6a36;
+		text-align: center;
+	}
+	.drawer-handle {
+		width: 56px;
+		height: 9px;
+		border-radius: 0 0 999px 999px;
+		background: linear-gradient(to bottom, #d9b26a, #8a6a36);
+		box-shadow: 0 4px 6px -2px rgba(0, 0, 0, 0.5);
+	}
+
 	/* ════ Mobile thread ════ */
 	.thread-view {
 		position: relative;
-		padding: 8px 0 8px 22px;
+		padding: 26px 14px 22px 36px;
+		border-radius: 6px;
+		background:
+			radial-gradient(circle at 20% 30%, rgba(0, 0, 0, 0.13) 0 1px, transparent 2px) 0 0 / 9px 9px,
+			linear-gradient(135deg, #bb905f, #a77d4e 55%, #b58b5b);
+		box-shadow:
+			inset 0 0 0 8px #6b4f33,
+			inset 0 0 0 10px #3a2b1d,
+			inset 0 10px 30px rgba(0, 0, 0, 0.3);
 	}
 	.thread-view::before {
 		/* the red string running down the page */
 		content: '';
 		position: absolute;
-		top: 120px;
-		bottom: 40px;
-		left: 7px;
+		top: 300px;
+		bottom: 70px;
+		left: 21px;
 		width: 2px;
 		background: #b8261b;
 		box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
 	}
 	.m-suspect {
 		margin: 0 0 8px -22px;
+		text-align: center;
+	}
+	.m-summary {
+		width: fit-content;
+		margin: 12px auto 0;
+		padding: 6px 12px 8px;
+		background: #f8f1df;
+		color: #6a1d16;
+		font-size: 15px;
+		line-height: 1.6;
+		box-shadow: 0 8px 14px -8px rgba(0, 0, 0, 0.5);
+		rotate: -1deg;
 	}
 	.m-zone {
 		position: relative;
 		width: fit-content;
 		margin: 28px 0 12px;
 		padding: 2px 12px;
-		background: var(--color-ink);
-		color: var(--color-surface);
+		background: #2c2118;
+		color: #f4ead2;
 		letter-spacing: 0.4em;
+		rotate: -2deg;
+		box-shadow: 0 4px 10px -4px rgba(0, 0, 0, 0.6);
 	}
 	.m-zone::before {
 		content: '';
@@ -1106,9 +1195,14 @@
 		filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.3));
 	}
 	.m-ink {
-		color: var(--color-accent);
-		font-size: 16px;
+		justify-self: start;
+		padding: 3px 9px 4px;
+		background: #f6eedb;
+		color: #8e1d12;
+		font-size: 15px;
 		line-height: 1.4;
+		box-shadow: 0 4px 8px -4px rgba(0, 0, 0, 0.45);
+		rotate: 2deg;
 	}
 	.m-ink::before {
 		content: '← ';
@@ -1117,10 +1211,11 @@
 		margin-top: 28px;
 		width: 100%;
 		padding: 12px;
-		border: 1px dashed var(--color-border-case);
-		border-radius: 6px;
-		color: var(--color-ink);
+		border-radius: 2px 6px 6px 6px;
+		background: linear-gradient(160deg, #ecdcae, #d9c38d);
+		color: #2c2118;
 		font-family: var(--font-display);
+		box-shadow: 0 10px 16px -8px rgba(0, 0, 0, 0.55);
 	}
 
 	/* ════ Dossier ════ */

@@ -1,16 +1,12 @@
 <!--
-	Two page-wide effects driven from one place:
-	- the dark-mode flashlight (a lamp-coloured pool of light under the cursor)
-	- a reading-progress hairline on post pages
-	Both write CSS custom properties only; the look lives in layout.css.
+	Page-wide effects driven from one place:
+	- lights off: the room goes dark except the desk lamp's pool of light, which
+	  follows the cursor (or stays put on touch screens);
+	- a frame-rate guard that switches slow devices to light-effects mode.
+	Only CSS custom properties are written here; the look lives in layout.css.
 -->
 <script lang="ts">
-	import { page } from '$app/state';
-
-	let light: HTMLDivElement | undefined = $state();
-	let bar: HTMLDivElement | undefined = $state();
-
-	const isPost = $derived(/^\/(blog|articles|moods)\/[^/]+\/?$/.test(page.url.pathname));
+	let dark: HTMLDivElement | undefined = $state();
 
 	$effect(() => {
 		let frame = 0;
@@ -18,8 +14,8 @@
 			if (e.pointerType !== 'mouse') return;
 			cancelAnimationFrame(frame);
 			frame = requestAnimationFrame(() => {
-				light?.style.setProperty('--fx', `${e.clientX}px`);
-				light?.style.setProperty('--fy', `${e.clientY}px`);
+				dark?.style.setProperty('--fx', `${e.clientX}px`);
+				dark?.style.setProperty('--fy', `${e.clientY}px`);
 			});
 		};
 		window.addEventListener('pointermove', onMove, { passive: true });
@@ -63,20 +59,6 @@
 		raf = requestAnimationFrame(tick);
 		return () => cancelAnimationFrame(raf);
 	});
-
-	$effect(() => {
-		if (!isPost) return;
-		const onScroll = () => {
-			const max = document.documentElement.scrollHeight - window.innerHeight;
-			bar?.style.setProperty('--p', String(max > 0 ? Math.min(1, window.scrollY / max) : 0));
-		};
-		onScroll();
-		window.addEventListener('scroll', onScroll, { passive: true });
-		return () => window.removeEventListener('scroll', onScroll);
-	});
 </script>
 
-<div bind:this={light} class="flashlight" aria-hidden="true"></div>
-{#if isPost}
-	<div bind:this={bar} class="read-progress" aria-hidden="true"></div>
-{/if}
+<div bind:this={dark} class="room-dark" aria-hidden="true"></div>
