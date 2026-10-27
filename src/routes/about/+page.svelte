@@ -14,7 +14,7 @@
 	import Timer from '@lucide/svelte/icons/timer';
 	import Hand from '@lucide/svelte/icons/hand';
 	import MoonStar from '@lucide/svelte/icons/moon-star';
-	import profilePhoto from '$lib/assets/profile.png';
+	import profilePhoto from '$lib/assets/avatar.svg';
 	import logo from '$lib/assets/logo.png';
 	import {
 		siSvelte,

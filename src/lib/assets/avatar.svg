@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="106 78 300 384" width="300" height="384">
+	<title>Liam（偵探版）</title>
+	<!--
+		Liam's stand-in: a detective in a fedora and a popped trench-coat collar,
+		keeping the real details (short black hair, white shirt, black tie) without
+		being a photo of his face. Flat shapes in the site's palette; transparent
+		background so the particle portrait keys it out cleanly.
+	-->
+	<defs>
+		<linearGradient id="coat" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#c49a58" />
+			<stop offset="1" stop-color="#9c7640" />
+		</linearGradient>
+		<linearGradient id="crown" x1="0" y1="0" x2="1" y2="0">
+			<stop offset="0" stop-color="#3a2c20" />
+			<stop offset="0.55" stop-color="#2c2118" />
+			<stop offset="1" stop-color="#1c140e" />
+		</linearGradient>
+		<radialGradient id="face" cx="0.45" cy="0.4" r="0.7">
+			<stop offset="0" stop-color="#f6d3ad" />
+			<stop offset="1" stop-color="#e6b88e" />
+		</radialGradient>
+	</defs>
+
+	<!-- Coat and shoulders -->
+	<path d="M36 512 C44 436 112 392 198 370 L314 370 C400 392 468 436 476 512 Z" fill="url(#coat)" />
+	<!-- Neck -->
+	<path d="M226 300 L286 300 L292 382 L220 382 Z" fill="#d9a77c" />
+	<!-- Shirt -->
+	<path d="M208 370 L256 466 L304 370 Z" fill="#f8f1df" />
+	<!-- Tie -->
+	<path d="M245 378 L267 378 L271 398 L241 398 Z" fill="#1f1814" />
+	<path d="M243 396 L269 396 L276 470 L256 494 L236 470 Z" fill="#1f1814" />
+	<path d="M249 402 L256 402 L262 466 L256 474 Z" fill="#3a2c20" />
+	<!-- Lapels -->
+	<path d="M198 370 L256 470 L228 512 L148 512 C156 452 172 402 198 370 Z" fill="#cfa96a" />
+	<path d="M314 370 L256 470 L284 512 L364 512 C356 452 340 402 314 370 Z" fill="#b58e52" />
+	<!-- Popped collar -->
+	<path d="M200 372 L160 318 L222 348 Z" fill="#d8b678" />
+	<path d="M312 372 L352 318 L290 348 Z" fill="#c09a5c" />
+	<!-- Coat seam + buttons -->
+	<path d="M256 494 L256 512" stroke="#7d5c2e" stroke-width="3" />
+	<circle cx="214" cy="486" r="6" fill="#6b4f2a" />
+	<circle cx="298" cy="486" r="6" fill="#6b4f2a" />
+	<!-- Red seal pin on the lapel -->
+	<rect x="318" y="420" width="26" height="26" rx="3" fill="#b3362b" transform="rotate(-8 331 433)" />
+	<rect x="322" y="424" width="18" height="18" rx="1.5" fill="none" stroke="#f8f1df" stroke-width="1.6" transform="rotate(-8 331 433)" />
+
+	<!-- Ears -->
+	<ellipse cx="182" cy="260" rx="14" ry="21" fill="#e6b88e" />
+	<ellipse cx="330" cy="260" rx="14" ry="21" fill="#e2b389" />
+	<!-- Face -->
+	<ellipse cx="256" cy="250" rx="75" ry="86" fill="url(#face)" />
+	<!-- Hair at the temples, under the hat -->
+	<path d="M182 206 C176 232 180 254 188 270 L198 236 L206 214 Z" fill="#1f1814" />
+	<path d="M330 206 C336 232 332 254 324 270 L314 236 L306 214 Z" fill="#1f1814" />
+	<!-- Fringe peeking out under the brim -->
+	<path d="M196 214 C214 232 236 226 250 216 C262 230 286 232 316 214 Z" fill="#1f1814" />
+	<!-- Brim shadow across the forehead -->
+	<ellipse cx="256" cy="222" rx="76" ry="14" fill="#c7926a" opacity="0.55" />
+
+	<!-- Brows -->
+	<path d="M214 238 Q228 230 242 236" stroke="#1f1814" stroke-width="6" stroke-linecap="round" fill="none" />
+	<path d="M270 236 Q284 229 298 236" stroke="#1f1814" stroke-width="6" stroke-linecap="round" fill="none" />
+	<!-- Eyes -->
+	<ellipse cx="229" cy="256" rx="7" ry="8.5" fill="#1f1814" />
+	<ellipse cx="284" cy="256" rx="7" ry="8.5" fill="#1f1814" />
+	<circle cx="231.5" cy="253" r="2.2" fill="#fff" />
+	<circle cx="286.5" cy="253" r="2.2" fill="#fff" />
+	<!-- Nose -->
+	<path d="M258 262 Q266 284 252 290" stroke="#c98d64" stroke-width="4" stroke-linecap="round" fill="none" />
+	<!-- Cheeks -->
+	<circle cx="210" cy="288" r="13" fill="#e8907a" opacity="0.28" />
+	<circle cx="302" cy="288" r="13" fill="#e8907a" opacity="0.28" />
+	<!-- A small, sure smile -->
+	<path d="M234 308 Q258 322 282 304" stroke="#8e4b3a" stroke-width="5" stroke-linecap="round" fill="none" />
+
+	<!-- Fedora: crown with a pinched top, red band, wide brim -->
+	<path d="M176 202 C172 140 198 98 238 92 C248 104 264 104 274 92 C314 98 340 140 336 202 Z" fill="url(#crown)" />
+	<path d="M238 92 C248 110 264 110 274 92 C262 100 250 100 238 92 Z" fill="#1c140e" />
+	<path d="M178 176 L334 176 L336 202 L176 202 Z" fill="#b3362b" />
+	<path d="M178 176 L334 176" stroke="#922a21" stroke-width="2" />
+	<ellipse cx="256" cy="204" rx="132" ry="24" fill="#241a12" />
+	<path d="M126 202 Q256 178 386 202" stroke="#4a3a2b" stroke-width="3" fill="none" opacity="0.8" />
+	<path d="M198 134 C203 121 214 112 228 108" stroke="#5a4635" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.6" />
+</svg>
