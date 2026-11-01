@@ -258,6 +258,55 @@
 	const pinned = $derived(friends.slice(0, places.length));
 	const slots = $derived(places.map((p, i) => ({ ...p, friend: pinned[i] ?? null })));
 	const magnets = ['#c0392b', '#2b4c9b', '#d4a017', '#2f7a4f'];
+
+	// ── The camera (wide screens) ──
+	// The room is built at a fixed 1600 × 900 frame and scaled to the window, so
+	// it always reads like the same shot. The pointer turns the camera a few
+	// degrees; once the intro has gone, the camera flies in from the doorway.
+	let studyEl: HTMLElement | undefined = $state();
+	let k = $state(0.8);
+	let yaw = $state(0);
+	let tilt = $state(0);
+	let flown = $state(false);
+	$effect(() => {
+		const el = studyEl;
+		if (!el) return;
+		const fit = () => (k = Math.min(el.clientWidth / 1600, el.clientHeight / 900));
+		fit();
+		const ro = new ResizeObserver(fit);
+		ro.observe(el);
+		return () => ro.disconnect();
+	});
+	$effect(() => {
+		const root = document.documentElement;
+		const mo = new MutationObserver(() => go());
+		function go() {
+			if (root.dataset.intro === 'on') return;
+			flown = true;
+			mo.disconnect();
+		}
+		mo.observe(root, { attributes: true, attributeFilter: ['data-intro'] });
+		go();
+		return () => mo.disconnect();
+	});
+	let lookFrame = 0;
+	function look(e: PointerEvent) {
+		if (e.pointerType !== 'mouse' || !studyEl) return;
+		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+		const r = studyEl.getBoundingClientRect();
+		const x = (e.clientX - r.left) / r.width - 0.5;
+		const y = (e.clientY - r.top) / r.height - 0.5;
+		cancelAnimationFrame(lookFrame);
+		lookFrame = requestAnimationFrame(() => {
+			yaw = x * 7;
+			tilt = y * -4;
+		});
+	}
+	function unlook() {
+		cancelAnimationFrame(lookFrame);
+		yaw = 0;
+		tilt = 0;
+	}
 	const fmt = (d: Date) =>
 		`${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
 </script>
@@ -271,7 +320,7 @@
 
 <h1 class="sr-only">Liam 的辦公室：前端工程師的偵探手記</h1>
 
-<div class="study sky-{sky}" class:is-dark={dark} class:hint>
+<div bind:this={studyEl} class="study sky-{sky}" class:is-dark={dark} class:hint class:flown>
 	<div
 		bind:this={scene}
 		class="scene"
@@ -279,371 +328,450 @@
 		class:quick={diving === 'quick'}
 		style="transform-origin: {diveOrigin}"
 	>
-		<!-- ════ The wall ════ -->
-		<div class="wall" aria-hidden="true"></div>
-
-		<svg class="wall-clock" viewBox="0 0 100 100" aria-hidden="true">
-			<circle cx="50" cy="50" r="46" fill="#f1e6cc" stroke="#2a1a0f" stroke-width="5" />
-			{#each Array.from({ length: 12 }, (_, i) => i) as i (i)}
-				<line
-					x1="50"
-					y1="10"
-					x2="50"
-					y2={i % 3 === 0 ? 18 : 14}
-					stroke="#2a1a0f"
-					stroke-width={i % 3 === 0 ? 3 : 1.5}
-					transform="rotate({i * 30} 50 50)"
-				/>
-			{/each}
-			<line
-				x1="50"
-				y1="50"
-				x2="50"
-				y2="28"
-				stroke="#2c2118"
-				stroke-width="4"
-				stroke-linecap="round"
-				transform="rotate({(hh % 12) * 30 + mm / 2} 50 50)"
-			/>
-			<line
-				x1="50"
-				y1="50"
-				x2="50"
-				y2="17"
-				stroke="#2c2118"
-				stroke-width="2.5"
-				stroke-linecap="round"
-				transform="rotate({mm * 6} 50 50)"
-			/>
-			<circle cx="50" cy="50" r="3.5" fill="#8e1d12" />
-		</svg>
-
-		<!-- The window, blinds half open -->
-		<div class="window" aria-hidden="true">
-			<div class="sky">
-				<span class="sun"></span>
-				<span class="moon"></span>
-				<span class="skyline"></span>
-			</div>
-			<span class="blinds"></span>
-			<span class="mullion"></span>
-			<span class="sill"></span>
-		</div>
-
-		<!-- ── The whiteboard: Liam in the middle, his friends strung to him in red ── -->
-		<section class="whiteboard" aria-labelledby="wb-title">
-			<h2 id="wb-title" class="wb-title hand">朋友們</h2>
-			{#each ['wide', 'narrow'] as fit (fit)}
-				<svg
-					class="wb-strings {fit}"
-					viewBox="0 0 100 100"
-					preserveAspectRatio="none"
-					aria-hidden="true"
-				>
-					{#each slots as s, i (i)}
-						<line
-							x1="50"
-							y1="50"
-							x2={fit === 'wide' ? s.x : s.mx}
-							y2={fit === 'wide' ? s.y : s.my}
-							class:loose={!s.friend}
-							style="--i: {i}"
-						/>
-					{/each}
-				</svg>
-			{/each}
-			<div class="wb-suspect">
-				<span class="wb-pin" aria-hidden="true"></span>
-				<img src={mark} alt="Liam 的 L 字標誌" class="wb-photo" />
-				<span class="wb-me hand">Liam</span>
-			</div>
-			{#each slots as s, i (i)}
-				<div
-					class="wb-slot"
-					style="--x: {s.x}%; --y: {s.y}%; --mx: {s.mx}%; --my: {s.my}%; rotate: {[
-						-3, 2.5, 2, -2.5
-					][i]}deg"
-				>
-					{#if s.friend}
-						{@const f = s.friend}
-						<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- external friend site -->
-						<a href={f.url} target="_blank" rel="noopener" class="wb-friend" class:lost={f.lost}>
-							<span
-								class="magnet"
-								style="background: {magnets[i % magnets.length]}"
-								aria-hidden="true"
-							></span>
-							<span class="face">
-								<span aria-hidden="true">{f.name.charAt(0)}</span>
-								{#if f.avatar}
-									<img
-										src={f.avatar}
-										alt=""
-										loading="lazy"
-										referrerpolicy="no-referrer"
-										onerror={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
-									/>
-								{/if}
-							</span>
-							<span class="min-w-0">
-								<span class="wb-name hand">{f.name}</span>
-								<span class="wb-desc">{f.description}</span>
-							</span>
-						</a>
-					{:else}
-						<a href={resolve('/friends')} class="wb-friend unknown">
-							<span class="magnet" style="background: #9aa0a6" aria-hidden="true"></span>
-							<span class="face" aria-hidden="true">?</span>
-							<span class="min-w-0">
-								<span class="wb-name hand">待查</span>
-								<span class="wb-desc">交換友鏈，就掛上來</span>
-							</span>
-						</a>
-					{/if}
-				</div>
-			{/each}
-			<a href={resolve('/friends')} class="wb-sticky hand">
-				{friends.length > pinned.length
-					? `還有 ${friends.length - pinned.length} 位 · `
-					: ''}交換友鏈 →
-			</a>
-			<span class="wb-tray" aria-hidden="true">
-				<span class="marker" style="--c: #2b4c9b"></span>
-				<span class="marker" style="--c: #c0392b"></span>
-				<span class="eraser"></span>
-			</span>
-		</section>
-
-		<!-- ── The light switch ── -->
-		<button
-			type="button"
-			class="switch"
-			aria-pressed={!dark}
-			aria-label={dark ? '電燈開關：開燈' : '電燈開關：關燈'}
-			title={dark ? '開燈' : '關燈'}
-			onclick={flip}
+		<!-- Wide screens: one perspective camera on a real room; the pointer moves it a little. -->
+		<div
+			class="stage"
+			style="--k: {k}"
+			role="presentation"
+			onpointermove={look}
+			onpointerleave={unlook}
 		>
-			<span class="plate" aria-hidden="true">
-				<span class="screw"></span>
-				<span class="slot"><span class="lever" class:off={dark}></span></span>
-				<span class="screw"></span>
-			</span>
-			<span class="switch-note hand" aria-hidden="true">{dark ? '開燈' : '關燈'}</span>
-		</button>
-
-		<!-- ════ The desk ════ -->
-		<div class="desk" aria-hidden="true"></div>
-		<div class="mat flat" aria-hidden="true"></div>
-
-		<!-- ── The computer ── -->
-		<div class="monitor">
-			<div class="bezel">
-				<div class="screen">
-					<div class="menubar">
-						<span class="font-bold">Liam</span>
-						<span class="menu-decor" aria-hidden="true">檔案&emsp;編輯&emsp;顯示&emsp;視窗</span>
-						<span class="ml-auto opacity-80">{clockText}</span>
-						<div bind:this={menuEl} class="relative">
-							{#if user}
-								<button
-									type="button"
-									class="account"
-									aria-expanded={menuOpen}
-									onclick={() => (menuOpen = !menuOpen)}
-								>
-									<span class="avatar">{user.name.charAt(0)}</span>
-									<span class="max-w-20 truncate">{user.name}</span>
-									{#if unread}<span class="dot" aria-label="{unread} 則新通知"></span>{/if}
-								</button>
-								{#if menuOpen}
-									<div class="account-menu" transition:fly={{ y: -4, duration: 140 }}>
-										<a href={resolve('/notifications')}
-											>通知{#if unread}<span class="text-amber-300"> · {unread}</span>{/if}</a
-										>
-										{#if user.role === 'Liam'}
-											<a href={resolve('/admin/posts')}>後台</a>
-											<a href={resolve('/admin/comments')}>證詞審核</a>
-										{/if}
-										<form method="post" action="{resolve('/login')}?/signOut" use:enhance>
-											<button type="submit">登出</button>
-										</form>
-									</div>
-								{/if}
-							{:else}
-								<a href={resolve('/login')} class="account">
-									<span class="avatar">?</span>
-									登入
-								</a>
-							{/if}
-						</div>
+			<div class="rig">
+				<div class="world" style="--yaw: {yaw}deg; --tilt: {tilt}deg">
+					<!-- ════ The room ════ -->
+					<div class="room" aria-hidden="true">
+						<span class="plane back-paint lit"></span>
+						<span class="plane wainscot lit"></span>
+						<span class="plane side left lit"></span>
+						<span class="plane side right lit"></span>
+						<span class="plane floor lit"></span>
+						<span class="plane ceiling lit"></span>
+						<span class="slats"></span>
 					</div>
 
-					<div class="finder">
-						<label class="search-row">
-							<svg viewBox="0 0 24 24" class="search-icon" aria-hidden="true">
+					<!-- ════ On the back wall ════ -->
+					<div class="backwall">
+						<svg class="wall-clock lit" viewBox="0 0 100 100" aria-hidden="true">
+							<circle cx="50" cy="50" r="46" fill="#f1e6cc" stroke="#2a1a0f" stroke-width="5" />
+							{#each Array.from({ length: 12 }, (_, i) => i) as i (i)}
+								<line
+									x1="50"
+									y1="10"
+									x2="50"
+									y2={i % 3 === 0 ? 18 : 14}
+									stroke="#2a1a0f"
+									stroke-width={i % 3 === 0 ? 3 : 1.5}
+									transform="rotate({i * 30} 50 50)"
+								/>
+							{/each}
+							<line
+								x1="50"
+								y1="50"
+								x2="50"
+								y2="28"
+								stroke="#2c2118"
+								stroke-width="4"
+								stroke-linecap="round"
+								transform="rotate({(hh % 12) * 30 + mm / 2} 50 50)"
+							/>
+							<line
+								x1="50"
+								y1="50"
+								x2="50"
+								y2="17"
+								stroke="#2c2118"
+								stroke-width="2.5"
+								stroke-linecap="round"
+								transform="rotate({mm * 6} 50 50)"
+							/>
+							<circle cx="50" cy="50" r="3.5" fill="#8e1d12" />
+						</svg>
+
+						<!-- The window, blinds half open -->
+						<div class="window" aria-hidden="true">
+							<div class="sky">
+								<span class="sun"></span>
+								<span class="moon"></span>
+								<span class="skyline"></span>
+							</div>
+							<span class="blinds"></span>
+							<span class="mullion"></span>
+							<span class="sill"></span>
+						</div>
+
+						<!-- ── The whiteboard: Liam in the middle, his friends strung to him in red ── -->
+						<section class="whiteboard lit" aria-labelledby="wb-title">
+							<h2 id="wb-title" class="wb-title hand">朋友們</h2>
+							{#each ['wide', 'narrow'] as fit (fit)}
+								<svg
+									class="wb-strings {fit}"
+									viewBox="0 0 100 100"
+									preserveAspectRatio="none"
+									aria-hidden="true"
+								>
+									{#each slots as s, i (i)}
+										<line
+											x1="50"
+											y1="50"
+											x2={fit === 'wide' ? s.x : s.mx}
+											y2={fit === 'wide' ? s.y : s.my}
+											class:loose={!s.friend}
+											style="--i: {i}"
+										/>
+									{/each}
+								</svg>
+							{/each}
+							<div class="wb-suspect">
+								<span class="wb-pin" aria-hidden="true"></span>
+								<img src={mark} alt="Liam 的 L 字標誌" class="wb-photo" />
+								<span class="wb-me hand">Liam</span>
+							</div>
+							{#each slots as s, i (i)}
+								<div
+									class="wb-slot"
+									style="--x: {s.x}%; --y: {s.y}%; --mx: {s.mx}%; --my: {s.my}%; rotate: {[
+										-3, 2.5, 2, -2.5
+									][i]}deg"
+								>
+									<!-- eslint-disable svelte/no-navigation-without-resolve -- external friend site, or the friends page -->
+									{#if s.friend}
+										{@const f = s.friend}
+										<a
+											href={f.url}
+											target="_blank"
+											rel="noopener"
+											class="wb-friend"
+											class:lost={f.lost}
+										>
+											<span
+												class="magnet"
+												style="background: {magnets[i % magnets.length]}"
+												aria-hidden="true"
+											></span>
+											<span class="face">
+												<span aria-hidden="true">{f.name.charAt(0)}</span>
+												{#if f.avatar}
+													<img
+														src={f.avatar}
+														alt=""
+														loading="lazy"
+														referrerpolicy="no-referrer"
+														onerror={(e) =>
+															((e.currentTarget as HTMLImageElement).style.display = 'none')}
+													/>
+												{/if}
+											</span>
+											<span class="min-w-0">
+												<span class="wb-name hand">{f.name}</span>
+												<span class="wb-desc">{f.description}</span>
+											</span>
+										</a>
+									{:else}
+										<a href={resolve('/friends')} class="wb-friend unknown">
+											<span class="magnet" style="background: #9aa0a6" aria-hidden="true"></span>
+											<span class="face" aria-hidden="true">?</span>
+											<span class="min-w-0">
+												<span class="wb-name hand">待查</span>
+												<span class="wb-desc">交換友鏈，就掛上來</span>
+											</span>
+										</a>
+									{/if}
+									<!-- eslint-enable svelte/no-navigation-without-resolve -->
+								</div>
+							{/each}
+							<a href={resolve('/friends')} class="wb-sticky hand">
+								{friends.length > pinned.length
+									? `還有 ${friends.length - pinned.length} 位 · `
+									: ''}交換友鏈 →
+							</a>
+							<span class="wb-tray" aria-hidden="true">
+								<span class="marker" style="--c: #2b4c9b"></span>
+								<span class="marker" style="--c: #c0392b"></span>
+								<span class="eraser"></span>
+							</span>
+						</section>
+
+						<!-- ── The light switch ── -->
+						<button
+							type="button"
+							class="switch"
+							aria-pressed={!dark}
+							aria-label={dark ? '電燈開關：開燈' : '電燈開關：關燈'}
+							title={dark ? '開燈' : '關燈'}
+							onclick={flip}
+						>
+							<span class="plate" aria-hidden="true">
+								<span class="screw"></span>
+								<span class="slot"><span class="lever" class:off={dark}></span></span>
+								<span class="screw"></span>
+							</span>
+							<span class="switch-note hand" aria-hidden="true">{dark ? '開燈' : '關燈'}</span>
+						</button>
+					</div>
+
+					<!-- ════ The desk ════ -->
+					<div class="desk3d">
+						<span class="plane desk-top lit" aria-hidden="true"></span>
+						<span class="plane desk-front lit" aria-hidden="true"></span>
+						<span class="plane desk-side left lit" aria-hidden="true"></span>
+						<span class="plane desk-side right lit" aria-hidden="true"></span>
+
+						<!-- Everything on the desk sits on this plane (a top-down map of the desk). -->
+						<div class="surface">
+							<span class="sh-monitor shadow" aria-hidden="true"></span>
+							<span class="sh-book shadow" aria-hidden="true"></span>
+							<span class="sh-mug shadow" aria-hidden="true"></span>
+							<span class="screen-glow" aria-hidden="true"></span>
+							<div class="mat flat lit" aria-hidden="true"></div>
+							<!-- ── The keyboard and mouse ── -->
+							<div class="keyboard flat lit" aria-hidden="true">
+								<div class="kb-body">
+									{#each rows as row, r (r)}
+										<div class="kb-row">
+											{#each row as k (k.code + k.label)}
+												<button
+													type="button"
+													tabindex="-1"
+													class="key"
+													class:down={pressed.has(k.code)}
+													style="flex: {k.w ?? 1}"
+													onpointerdown={(e) => {
+														e.preventDefault();
+														tap(k);
+													}}
+												>
+													<span class="key-en">{k.label}</span>
+													{#if k.zy}<span class="key-zy">{k.zy}</span>{/if}
+												</button>
+											{/each}
+										</div>
+									{/each}
+								</div>
+							</div>
+							<span class="mouse flat lit" aria-hidden="true"><span></span></span>
+							<svg class="magnifier flat lit" viewBox="0 0 120 60" aria-hidden="true">
+								<rect x="58" y="25" width="56" height="10" rx="5" fill="#3b2516" />
+								<rect x="52" y="24" width="10" height="12" rx="2" fill="#b8904f" />
 								<circle
-									cx="10.5"
-									cy="10.5"
-									r="6.5"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2.2"
+									cx="28"
+									cy="30"
+									r="24"
+									fill="rgba(200,226,255,0.25)"
+									stroke="#b8904f"
+									stroke-width="5"
 								/>
 								<path
-									d="M15.5 15.5 L21 21"
-									stroke="currentColor"
-									stroke-width="2.6"
-									stroke-linecap="round"
+									d="M14 22 Q20 12 30 11"
+									stroke="#fff"
+									stroke-width="2.5"
+									fill="none"
+									opacity="0.7"
 								/>
 							</svg>
-							<span class="sr-only">搜尋整個網站</span>
-							<input
-								bind:this={searchInput}
-								type="search"
-								bind:value={query}
-								onkeydown={onSearchKey}
-								placeholder="直接打字搜尋，英文、注音都可以"
-								autocomplete="off"
-								spellcheck="false"
-							/>
-						</label>
-						<p class="finder-label">{query.trim() ? '搜尋結果' : '最新案件'}</p>
-						<ul class="finder-list" aria-label={query.trim() ? '搜尋結果' : '最新文章'}>
-							{#if query.trim()}
-								{#each hits as h, i (h.doc.path)}
-									<li>
-										<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- path from the search index -->
-										<a href={h.doc.path} class="row" class:is-sel={i === selected}>
-											<span class="row-kind">{kindLabel[h.doc.type] ?? h.doc.type}</span>
-											<span class="truncate">{h.doc.title}</span>
+							<span class="mon-foot lit" aria-hidden="true"></span>
+
+							<!-- The computer, standing, with a back and sides -->
+							<div class="upright mon3d">
+								<span class="mon-neck lit" aria-hidden="true"></span>
+								<span class="mon-back lit" aria-hidden="true"></span>
+								<span class="mon-side left lit" aria-hidden="true"></span>
+								<span class="mon-side right lit" aria-hidden="true"></span>
+								<span class="mon-top lit" aria-hidden="true"></span>
+								<!-- ── The computer ── -->
+								<div class="monitor">
+									<div class="bezel">
+										<div class="screen">
+											<div class="menubar">
+												<span class="font-bold">Liam</span>
+												<span class="menu-decor" aria-hidden="true"
+													>檔案&emsp;編輯&emsp;顯示&emsp;視窗</span
+												>
+												<span class="ml-auto opacity-80">{clockText}</span>
+												<div bind:this={menuEl} class="relative">
+													{#if user}
+														<button
+															type="button"
+															class="account"
+															aria-expanded={menuOpen}
+															onclick={() => (menuOpen = !menuOpen)}
+														>
+															<span class="avatar">{user.name.charAt(0)}</span>
+															<span class="max-w-20 truncate">{user.name}</span>
+															{#if unread}<span class="dot" aria-label="{unread} 則新通知"
+																></span>{/if}
+														</button>
+														{#if menuOpen}
+															<div class="account-menu" transition:fly={{ y: -4, duration: 140 }}>
+																<a href={resolve('/notifications')}
+																	>通知{#if unread}<span class="text-amber-300">
+																			· {unread}</span
+																		>{/if}</a
+																>
+																{#if user.role === 'Liam'}
+																	<a href={resolve('/admin/posts')}>後台</a>
+																	<a href={resolve('/admin/comments')}>證詞審核</a>
+																{/if}
+																<form
+																	method="post"
+																	action="{resolve('/login')}?/signOut"
+																	use:enhance
+																>
+																	<button type="submit">登出</button>
+																</form>
+															</div>
+														{/if}
+													{:else}
+														<a href={resolve('/login')} class="account">
+															<span class="avatar">?</span>
+															登入
+														</a>
+													{/if}
+												</div>
+											</div>
+
+											<div class="finder">
+												<label class="search-row">
+													<svg viewBox="0 0 24 24" class="search-icon" aria-hidden="true">
+														<circle
+															cx="10.5"
+															cy="10.5"
+															r="6.5"
+															fill="none"
+															stroke="currentColor"
+															stroke-width="2.2"
+														/>
+														<path
+															d="M15.5 15.5 L21 21"
+															stroke="currentColor"
+															stroke-width="2.6"
+															stroke-linecap="round"
+														/>
+													</svg>
+													<span class="sr-only">搜尋整個網站</span>
+													<input
+														bind:this={searchInput}
+														type="search"
+														bind:value={query}
+														onkeydown={onSearchKey}
+														placeholder="直接打字搜尋，英文、注音都可以"
+														autocomplete="off"
+														spellcheck="false"
+													/>
+												</label>
+												<p class="finder-label">{query.trim() ? '搜尋結果' : '最新案件'}</p>
+												<ul class="finder-list" aria-label={query.trim() ? '搜尋結果' : '最新文章'}>
+													{#if query.trim()}
+														{#each hits as h, i (h.doc.path)}
+															<li>
+																<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- path from the search index -->
+																<a href={h.doc.path} class="row" class:is-sel={i === selected}>
+																	<span class="row-kind">{kindLabel[h.doc.type] ?? h.doc.type}</span
+																	>
+																	<span class="truncate">{h.doc.title}</span>
+																</a>
+															</li>
+														{:else}
+															<li class="row opacity-60">找不到「{query.trim()}」</li>
+														{/each}
+													{:else}
+														{#each board.latest as n (n.href)}
+															<li>
+																<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- content path -->
+																<a href={n.href} class="row">
+																	<span class="row-kind">{n.kind}</span>
+																	<span class="truncate">{n.title}</span>
+																	<span class="row-date">{fmt(n.date)}</span>
+																</a>
+															</li>
+														{/each}
+													{/if}
+												</ul>
+												<a href={resolve('/blog')} class="finder-more">所有案件 →</a>
+											</div>
+											<span class="glare" aria-hidden="true"></span>
+										</div>
+										<span class="led" aria-hidden="true"></span>
+									</div>
+									<span class="neck" aria-hidden="true"></span>
+									<span class="foot" aria-hidden="true"></span>
+								</div>
+							</div>
+
+							<!-- The book, open on a reading stand -->
+							<div class="upright book3d">
+								<span class="book-back lit" aria-hidden="true"></span>
+								<span class="book-edge lit" aria-hidden="true"></span>
+								<div class="book lit">
+									<div class="book-3d">
+										<span class="book-pin pin-target" aria-hidden="true"></span>
+										<a
+											href={resolve('/about')}
+											class="pages"
+											onclick={(e) => dive(e, resolve('/about'))}
+										>
+											<span class="page left">
+												<img src={mark} alt="" class="polaroid" />
+												<span class="mt-3 block font-display text-[1.5em] leading-none">Liam</span>
+												<span
+													class="mt-1 block font-mono-hack text-[0.62em] tracking-[0.25em] text-[#8a7458]"
+													>前端工程師 · MSI</span
+												>
+												<span class="hand mt-2 block text-[0.95em] leading-snug text-[#8e1d12]"
+													>在意細節、卡關會追到底，<br />也會老實寫下生活的人。</span
+												>
+											</span>
+											<span class="page right">
+												<span
+													class="block border-b border-[#c0392b] pb-1 font-display text-[1.05em] tracking-[0.3em]"
+													>人物檔案</span
+												>
+												{#each findings as [field, note] (field)}
+													<span class="finding">
+														<span class="finding-field font-mono-hack">{field}</span>
+														<span class="hand">{note}</span>
+													</span>
+												{/each}
+												<span class="hand mt-auto block text-right text-[0.85em] text-[#8a7458]"
+													>拉一張書籤，翻進去看 →</span
+												>
+											</span>
+											<span class="sr-only">打開完整人物檔案</span>
 										</a>
-									</li>
-								{:else}
-									<li class="row opacity-60">找不到「{query.trim()}」</li>
-								{/each}
-							{:else}
-								{#each board.latest as n (n.href)}
-									<li>
-										<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- content path -->
-										<a href={n.href} class="row">
-											<span class="row-kind">{n.kind}</span>
-											<span class="truncate">{n.title}</span>
-											<span class="row-date">{fmt(n.date)}</span>
-										</a>
-									</li>
-								{/each}
-							{/if}
-						</ul>
-						<a href={resolve('/blog')} class="finder-more">所有案件 →</a>
+										<nav class="bookmarks" aria-label="書籤：網站的各個部分">
+											<!-- eslint-disable svelte/no-navigation-without-resolve -- static app paths from site-nav -->
+											{#each bookmarks as d, i (d.id)}
+												<a
+													href={d.href}
+													class="bookmark"
+													style="--c: {d.color}; --i: {i}"
+													onclick={(e) => dive(e, d.href)}
+												>
+													{d.label}
+												</a>
+											{/each}
+											<!-- eslint-enable svelte/no-navigation-without-resolve -->
+										</nav>
+									</div>
+								</div>
+							</div>
+
+							<div class="upright mug3d" aria-hidden="true">
+								<span class="mug lit" aria-hidden="true"><span class="steam"></span></span>
+							</div>
+							<div class="upright plate3d" aria-hidden="true">
+								<span class="nameplate lit" aria-hidden="true">
+									<span class="font-display">LIAM</span>
+									<span class="font-mono-hack">FRONT-END DETECTIVE</span>
+								</span>
+							</div>
+						</div>
 					</div>
-					<span class="glare" aria-hidden="true"></span>
 				</div>
-				<span class="led" aria-hidden="true"></span>
-			</div>
-			<span class="neck" aria-hidden="true"></span>
-			<span class="foot" aria-hidden="true"></span>
-		</div>
-
-		<!-- ── The keyboard and mouse ── -->
-		<div class="keyboard flat" aria-hidden="true">
-			<div class="kb-body">
-				{#each rows as row, r (r)}
-					<div class="kb-row">
-						{#each row as k (k.code + k.label)}
-							<button
-								type="button"
-								tabindex="-1"
-								class="key"
-								class:down={pressed.has(k.code)}
-								style="flex: {k.w ?? 1}"
-								onpointerdown={(e) => {
-									e.preventDefault();
-									tap(k);
-								}}
-							>
-								<span class="key-en">{k.label}</span>
-								{#if k.zy}<span class="key-zy">{k.zy}</span>{/if}
-							</button>
-						{/each}
-					</div>
-				{/each}
-			</div>
-		</div>
-		<span class="mouse flat" aria-hidden="true"><span></span></span>
-
-		<!-- ── The case folder and the open book ── -->
-		<span class="folder flat" aria-hidden="true"><span class="stamp">機密</span></span>
-		<div class="book">
-			<div class="book-3d">
-				<span class="book-pin pin-target" aria-hidden="true"></span>
-				<a href={resolve('/about')} class="pages" onclick={(e) => dive(e, resolve('/about'))}>
-					<span class="page left">
-						<img src={mark} alt="" class="polaroid" />
-						<span class="mt-3 block font-display text-[1.5em] leading-none">Liam</span>
-						<span class="mt-1 block font-mono-hack text-[0.62em] tracking-[0.25em] text-[#8a7458]"
-							>前端工程師 · MSI</span
-						>
-						<span class="hand mt-2 block text-[0.95em] leading-snug text-[#8e1d12]"
-							>在意細節、卡關會追到底，<br />也會老實寫下生活的人。</span
-						>
-					</span>
-					<span class="page right">
-						<span
-							class="block border-b border-[#c0392b] pb-1 font-display text-[1.05em] tracking-[0.3em]"
-							>人物檔案</span
-						>
-						{#each findings as [field, note] (field)}
-							<span class="finding">
-								<span class="finding-field font-mono-hack">{field}</span>
-								<span class="hand">{note}</span>
-							</span>
-						{/each}
-						<span class="hand mt-auto block text-right text-[0.85em] text-[#8a7458]"
-							>拉一張書籤，翻進去看 →</span
-						>
-					</span>
-					<span class="sr-only">打開完整人物檔案</span>
-				</a>
-				<nav class="bookmarks" aria-label="書籤：網站的各個部分">
-					<!-- eslint-disable svelte/no-navigation-without-resolve -- static app paths from site-nav -->
-					{#each bookmarks as d, i (d.id)}
-						<a
-							href={d.href}
-							class="bookmark"
-							style="--c: {d.color}; --i: {i}"
-							onclick={(e) => dive(e, d.href)}
-						>
-							{d.label}
-						</a>
-					{/each}
-					<!-- eslint-enable svelte/no-navigation-without-resolve -->
-				</nav>
 			</div>
 		</div>
 
-		<!-- ── The right of the desk ── -->
-		<svg class="magnifier flat" viewBox="0 0 120 60" aria-hidden="true">
-			<rect x="58" y="25" width="56" height="10" rx="5" fill="#3b2516" />
-			<rect x="52" y="24" width="10" height="12" rx="2" fill="#b8904f" />
-			<circle
-				cx="28"
-				cy="30"
-				r="24"
-				fill="rgba(200,226,255,0.25)"
-				stroke="#b8904f"
-				stroke-width="5"
-			/>
-			<path d="M14 22 Q20 12 30 11" stroke="#fff" stroke-width="2.5" fill="none" opacity="0.7" />
-		</svg>
-		<span class="mug" aria-hidden="true"><span class="steam"></span></span>
-		<span class="nameplate" aria-hidden="true">
-			<span class="font-display">LIAM</span>
-			<span class="font-mono-hack">FRONT-END DETECTIVE</span>
-		</span>
-
-		<!-- ── Lights off: the screen and the moon through the blinds ── -->
+		<!-- Phones: lights off dims the stacked room -->
 		<div class="night" aria-hidden="true"></div>
-		<div class="slats-light" aria-hidden="true"></div>
 	</div>
 	<div
 		class="dive-paper"
@@ -699,26 +827,36 @@
 	.dive-paper.quick {
 		transition: opacity 0.2s;
 	}
-	.wall {
-		position: absolute;
-		inset: 0;
-		background:
-			radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.035) 0 2px, transparent 3px) 0 0 /
-				26px 26px,
-			repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.08) 0 1px, transparent 1px 52px),
-			radial-gradient(ellipse at 50% 0%, #5d6553, #474d40 60%, #3a3f34);
+	/* Phones stack the useful things; the room itself only exists on wide screens. */
+	.stage,
+	.rig,
+	.world,
+	.backwall,
+	.desk3d,
+	.surface,
+	.mon3d,
+	.book3d {
+		display: contents;
 	}
+	.room,
+	.plane,
+	.shadow,
+	.screen-glow,
 	.wall-clock,
 	.window,
-	.desk,
 	.mat,
 	.keyboard,
 	.mouse,
-	.folder,
 	.magnifier,
-	.mug,
-	.nameplate,
-	.slats-light {
+	.mon-foot,
+	.mon-neck,
+	.mon-back,
+	.mon-side,
+	.mon-top,
+	.book-back,
+	.book-edge,
+	.mug3d,
+	.plate3d {
 		display: none;
 	}
 
@@ -1455,10 +1593,30 @@
 	}
 
 	/* ════ Wide screens: the whole office in one view ════ */
+	/* ════ Wide screens: a real room, one camera ════
+	   World units: the room is built at a 1600 × 900 frame (--k scales it to the
+	   window). x right, y down, z toward you; the origin is just above the desk's
+	   centre. Every piece is centred on its point with a trailing translate(-50%,-50%). */
 	@media (min-width: 900px) {
 		.study {
+			--lit: 1;
 			height: max(680px, 100svh);
-			container-type: size;
+			background: #15110d;
+		}
+		.study.is-dark {
+			--lit: 0.3;
+		}
+		.study.is-dark.sky-day,
+		.study.is-dark.sky-dawn,
+		.study.is-dark.sky-dusk {
+			--lit: 0.5;
+		}
+		.lit {
+			filter: brightness(var(--lit));
+			transition: filter 0.6s;
+		}
+		.night {
+			display: none;
 		}
 		.scene {
 			position: absolute;
@@ -1466,61 +1624,183 @@
 			display: block;
 			padding: 0;
 		}
-		/* Things lying on the desk share one camera angle. */
-		.flat {
-			transform: perspective(1200px) rotateX(46deg);
-			transform-origin: center bottom;
+		.stage {
+			position: absolute;
+			inset: 0;
+			display: block;
+			overflow: hidden;
+			perspective: calc(1250px * var(--k));
+			perspective-origin: 50% 40%;
 		}
-
-		/* ── Wall ── */
-		.wall {
-			bottom: 38%;
-		}
-		.wall::after {
-			/* walnut wainscot under the chair rail */
+		/* A lens vignette over the shot */
+		.stage::after {
 			content: '';
 			position: absolute;
-			right: 0;
-			bottom: 0;
+			inset: 0;
+			background: radial-gradient(ellipse 75% 70% at 50% 45%, transparent 55%, rgba(8, 5, 3, 0.55));
+			pointer-events: none;
+		}
+		.rig,
+		.world,
+		.backwall,
+		.desk3d,
+		.room {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			display: block;
+			width: 0;
+			height: 0;
+			transform-style: preserve-3d;
+		}
+		.room,
+		.backwall,
+		.desk3d {
+			top: 0;
 			left: 0;
-			height: 26%;
-			border-top: 6px solid #2a1a0f;
+		}
+		/* The camera flies in from the doorway once the intro has gone. */
+		.rig {
+			transform: translate3d(0, calc(var(--k) * -120px), calc(var(--k) * -1100px)) rotateX(16deg);
+			transition: transform 2.2s cubic-bezier(0.16, 0.8, 0.2, 1);
+		}
+		.flown .rig {
+			transform: none;
+		}
+		.world {
+			transform: scale3d(var(--k), var(--k), var(--k)) translate3d(0, 150px, -620px)
+				rotateX(calc(-20deg + var(--tilt))) rotateY(var(--yaw));
+			transition: transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+		}
+		.plane,
+		.shadow,
+		.screen-glow,
+		.slats {
+			position: absolute;
+			top: 0;
+			left: 0;
+			display: block;
+			transform-origin: 0 0;
+		}
+
+		/* ── The room shell ── */
+		.back-paint {
+			width: 2600px;
+			height: 1500px;
+			transform: translate3d(0, -150px, -520px) translate(-50%, -50%);
+			background:
+				radial-gradient(ellipse 60% 55% at 62% 30%, rgba(255, 236, 200, 0.16), transparent 70%),
+				radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.035) 0 2px, transparent 3px) 0 0 /
+					26px 26px,
+				repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.08) 0 1px, transparent 1px 52px),
+				linear-gradient(180deg, #4b5243, #5d6553 40%, #4a5042);
+			box-shadow: inset 0 0 220px rgba(0, 0, 0, 0.55);
+		}
+		.wainscot {
+			width: 2600px;
+			height: 620px;
+			transform: translate3d(0, 290px, -519px) translate(-50%, -50%);
+			border-top: 12px solid #2a1a0f;
 			background:
 				repeating-linear-gradient(
 					90deg,
-					transparent 0 2cqw,
-					rgba(0, 0, 0, 0.25) 2cqw calc(2cqw + 2px),
-					rgba(255, 220, 170, 0.06) calc(2cqw + 2px) calc(2cqw + 4px),
-					transparent calc(2cqw + 4px) 14cqw
+					transparent 0 30px,
+					rgba(0, 0, 0, 0.28) 30px 33px,
+					rgba(255, 220, 170, 0.07) 33px 36px,
+					transparent 36px 210px
 				),
 				linear-gradient(180deg, #4a2e1b, #3b2516);
-			box-shadow: 0 -2px 0 rgba(255, 220, 170, 0.12);
+			box-shadow: 0 -3px 0 rgba(255, 220, 170, 0.12);
 		}
+		.side {
+			width: 1420px;
+			height: 1500px;
+			background:
+				repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.08) 0 1px, transparent 1px 52px),
+				linear-gradient(180deg, #3e4437, #4c5345 40%, #3a3f33);
+		}
+		.side.left {
+			transform: translate3d(-1300px, -150px, 190px) rotateY(90deg) translate(-50%, -50%);
+			box-shadow: inset 260px 0 220px -60px rgba(0, 0, 0, 0.6);
+		}
+		.side.right {
+			transform: translate3d(1300px, -150px, 190px) rotateY(-90deg) translate(-50%, -50%);
+			box-shadow: inset -260px 0 220px -60px rgba(0, 0, 0, 0.45);
+		}
+		.floor {
+			width: 2600px;
+			height: 1420px;
+			transform: translate3d(0, 600px, 190px) rotateX(90deg) translate(-50%, -50%);
+			background:
+				repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.3) 0 2px, transparent 2px 120px),
+				linear-gradient(180deg, #2c1a10, #3b2416);
+		}
+		.ceiling {
+			width: 2600px;
+			height: 1420px;
+			transform: translate3d(0, -900px, 190px) rotateX(-90deg) translate(-50%, -50%);
+			background: #2c2f27;
+		}
+		/* Daylight (or moonlight) through the blinds, across the wall */
+		.slats {
+			width: 1500px;
+			height: 1100px;
+			transform: translate3d(420px, -200px, -517px) translate(-50%, -50%);
+			background: repeating-linear-gradient(
+				158deg,
+				transparent 0 34px,
+				rgba(255, 226, 160, 0.12) 34px 52px
+			);
+			mask-image: radial-gradient(ellipse 60% 60% at 70% 40%, #000, transparent 75%);
+			opacity: 0.9;
+			pointer-events: none;
+			transition: opacity 0.5s;
+		}
+		.sky-dawn .slats,
+		.sky-dusk .slats {
+			background: repeating-linear-gradient(
+				158deg,
+				transparent 0 34px,
+				rgba(255, 170, 110, 0.14) 34px 52px
+			);
+		}
+		.sky-night .slats {
+			background: repeating-linear-gradient(
+				158deg,
+				transparent 0 34px,
+				rgba(150, 180, 255, 0.14) 34px 52px
+			);
+			opacity: 0.4;
+		}
+		.sky-night.is-dark .slats {
+			opacity: 1;
+		}
+
+		/* ── On the back wall (a hair in front of it) ── */
 		.wall-clock {
 			position: absolute;
-			top: 6cqh;
-			left: 13cqw;
 			display: block;
-			width: 9cqh;
-			filter: drop-shadow(0 8px 8px rgba(0, 0, 0, 0.45));
+			width: 150px;
+			height: 150px;
+			transform: translate3d(-760px, -500px, -505px) translate(-50%, -50%);
+			filter: brightness(var(--lit)) drop-shadow(0 10px 10px rgba(0, 0, 0, 0.45));
 		}
 		.window {
 			position: absolute;
-			top: 6cqh;
-			left: 78cqw;
 			display: block;
-			width: 16cqw;
-			height: 36cqh;
-			padding: 0.7cqw;
+			width: 380px;
+			height: 520px;
+			padding: 12px;
+			transform: translate3d(880px, -380px, -506px) translate(-50%, -50%);
 			border-radius: 2px;
 			background: linear-gradient(180deg, #3b2516, #2a1a0f);
 			box-shadow:
 				inset 0 0 0 2px rgba(255, 220, 170, 0.08),
-				0 16px 24px -10px rgba(0, 0, 0, 0.6);
+				0 24px 34px -14px rgba(0, 0, 0, 0.7);
 		}
 		.sky {
 			position: absolute;
-			inset: 0.7cqw;
+			inset: 12px;
 			overflow: hidden;
 			background: linear-gradient(180deg, #a9c6d8, #e9dcc0 85%);
 			transition: background 0.6s;
@@ -1581,20 +1861,7 @@
 			bottom: 0;
 			left: 0;
 			height: 42%;
-			background: linear-gradient(
-				90deg,
-				transparent 0 4%,
-				#6d7480 4% 18%,
-				transparent 18% 22%,
-				#5c6370 22% 30%,
-				transparent 30% 34%,
-				#737a86 34% 52%,
-				transparent 52% 56%,
-				#5c6370 56% 70%,
-				transparent 70% 74%,
-				#6d7480 74% 92%,
-				transparent 92%
-			);
+			background: #6d7480;
 			clip-path: polygon(
 				0 40%,
 				4% 40%,
@@ -1630,121 +1897,79 @@
 		}
 		.blinds {
 			position: absolute;
-			inset: 0.7cqw 0.7cqw 42% 0.7cqw;
+			inset: 12px 12px 42% 12px;
 			background: repeating-linear-gradient(
 				180deg,
-				#e6dcc4 0 7px,
-				#b9ab8c 7px 8px,
-				transparent 8px 13px
+				#e6dcc4 0 9px,
+				#b9ab8c 9px 10px,
+				transparent 10px 16px
 			);
 			box-shadow: 0 6px 8px -4px rgba(0, 0, 0, 0.4);
 		}
 		.is-dark .blinds {
 			background: repeating-linear-gradient(
 				180deg,
-				#8f8774 0 7px,
-				#5e5748 7px 8px,
-				transparent 8px 13px
+				#8f8774 0 9px,
+				#5e5748 9px 10px,
+				transparent 10px 16px
 			);
 		}
 		.mullion {
 			position: absolute;
-			top: 0.7cqw;
-			bottom: 0.7cqw;
+			top: 12px;
+			bottom: 12px;
 			left: 50%;
-			width: 0.5cqw;
-			margin-left: -0.25cqw;
+			width: 8px;
+			margin-left: -4px;
 			background: #2a1a0f;
 		}
 		.sill {
 			position: absolute;
-			right: -0.8cqw;
-			bottom: -1.1cqh;
-			left: -0.8cqw;
-			height: 1.6cqh;
+			right: -14px;
+			bottom: -16px;
+			left: -14px;
+			height: 22px;
 			border-radius: 2px;
 			background: linear-gradient(180deg, #5a3a22, #3b2516);
-		}
-		/* Light through the blinds, across the wall and the desk */
-		.slats-light {
-			position: absolute;
-			inset: 30cqh 0 0 34cqw;
-			z-index: 5;
-			display: block;
-			background: repeating-linear-gradient(
-				158deg,
-				transparent 0 2.2cqh,
-				rgba(255, 226, 160, 0.1) 2.2cqh 3.4cqh
-			);
-			opacity: 0.8;
-			mask-image: linear-gradient(200deg, #000 10%, transparent 75%);
-			pointer-events: none;
-			mix-blend-mode: screen;
-			transition:
-				background 0.5s,
-				opacity 0.5s;
-		}
-		.sky-dawn .slats-light,
-		.sky-dusk .slats-light {
-			background: repeating-linear-gradient(
-				158deg,
-				transparent 0 2.2cqh,
-				rgba(255, 170, 110, 0.12) 2.2cqh 3.4cqh
-			);
-		}
-		.sky-night .slats-light {
-			background: repeating-linear-gradient(
-				158deg,
-				transparent 0 2.2cqh,
-				rgba(150, 180, 255, 0.13) 2.2cqh 3.4cqh
-			);
-		}
-		/* With the room light off, whatever comes through the blinds shows up more. */
-		.is-dark .slats-light {
-			opacity: 1;
-		}
-		.sky-night:not(.is-dark) .slats-light {
-			opacity: 0.35;
+			box-shadow: 0 10px 14px -6px rgba(0, 0, 0, 0.6);
 		}
 		.whiteboard {
 			position: absolute;
-			top: 5cqh;
-			left: 50%;
-			width: 38cqw;
-			height: 43cqh;
-			translate: -50% 0;
+			top: 0;
+			left: 0;
+			width: 900px;
+			height: 500px;
+			transform: translate3d(150px, -390px, -500px) translate(-50%, -50%);
+			box-shadow:
+				inset 0 0 0 1px #9aa0a6,
+				0 0 0 1px #8a9096,
+				0 30px 40px -18px rgba(0, 0, 0, 0.75);
 		}
 		.wb-strings.wide {
 			display: block;
 		}
-		.wb-sticky {
-			top: 12px;
-			bottom: auto;
-		}
 		.wb-strings.narrow {
 			display: none;
 		}
+		.wb-sticky {
+			top: 14px;
+			bottom: auto;
+		}
 		.wb-suspect {
 			top: 50%;
-			width: 21%;
+			width: 20%;
 		}
 		.wb-slot {
 			top: var(--y);
 			left: var(--x);
 			width: 30%;
 		}
-		.wb-name {
-			font-size: clamp(13px, 1.05cqw, 17px);
-		}
-		.face {
-			width: clamp(28px, 2.4cqw, 38px);
-			height: clamp(28px, 2.4cqw, 38px);
-		}
 		.switch {
-			top: 25cqh;
+			top: 0;
 			right: auto;
-			left: 72cqw;
-			width: clamp(30px, 2.4cqw, 44px);
+			left: 0;
+			width: 46px;
+			transform: translate3d(660px, -280px, -505px) translate(-50%, -50%);
 		}
 		.switch-note {
 			display: block;
@@ -1752,82 +1977,136 @@
 			padding: 1px 8px 3px;
 			background: #f8f1df;
 			color: #8e1d12;
-			font-size: 13px;
+			font-size: 15px;
 			white-space: nowrap;
 			box-shadow: 0 4px 8px -4px rgba(0, 0, 0, 0.5);
 			rotate: 4deg;
 		}
 
-		/* ── Desk ── */
-		.desk {
+		/* ── The desk: a top, a front panel, two sides ── */
+		.desk-top {
+			width: 1520px;
+			height: 640px;
+			transform: translate3d(0, 120px, -60px) rotateX(90deg) translate(-50%, -50%);
+			background:
+				radial-gradient(ellipse 70% 80% at 70% 0%, rgba(255, 220, 170, 0.14), transparent 70%),
+				repeating-linear-gradient(
+					92deg,
+					rgba(30, 15, 5, 0.13) 0 2px,
+					transparent 2px 23px,
+					rgba(255, 220, 170, 0.04) 23px 25px,
+					transparent 25px 47px
+				),
+				linear-gradient(180deg, #5e331d, #7a4428 70%, #8a4f2f);
+		}
+		.desk-front {
+			width: 1520px;
+			height: 480px;
+			transform: translate3d(0, 360px, 260px) translate(-50%, -50%);
+			background:
+				linear-gradient(180deg, #a0653f 0 3px, #5e331d 3px 26px, transparent 26px),
+				linear-gradient(180deg, transparent 40px, rgba(0, 0, 0, 0.25) 41px, transparent 44px),
+				repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.1) 0 2px, transparent 2px 31px),
+				linear-gradient(180deg, #5a321c, #3b2112);
+			box-shadow: inset 0 -120px 120px -40px rgba(0, 0, 0, 0.6);
+		}
+		.desk-side {
+			width: 640px;
+			height: 480px;
+			background: linear-gradient(180deg, #4a2816, #2c180c);
+		}
+		.desk-side.left {
+			transform: translate3d(-760px, 360px, -60px) rotateY(-90deg) translate(-50%, -50%);
+		}
+		.desk-side.right {
+			transform: translate3d(760px, 360px, -60px) rotateY(90deg) translate(-50%, -50%);
+		}
+		/* The desk's top as a map: x 0–1520 across, y 0 (back) – 640 (front edge). */
+		.surface {
 			position: absolute;
-			top: 62%;
-			right: 0;
-			bottom: 0;
+			top: 0;
 			left: 0;
 			display: block;
-			background:
-				linear-gradient(180deg, transparent 90%, #2a1a0f 90%, #3b2516 91%, #2a1a0f),
-				repeating-linear-gradient(177deg, rgba(30, 15, 5, 0.12) 0 2px, transparent 2px 21px),
-				linear-gradient(180deg, #7a4428, #5e331d 90%);
-			box-shadow:
-				inset 0 2px 0 rgba(255, 210, 160, 0.25),
-				0 -18px 30px -16px rgba(0, 0, 0, 0.7);
+			width: 1520px;
+			height: 640px;
+			transform-origin: 0 0;
+			transform: translate3d(0, 119px, -60px) rotateX(90deg) translate(-50%, -50%);
+			transform-style: preserve-3d;
+		}
+		.surface > * {
+			position: absolute;
+		}
+		.flat {
+			transform: translateZ(1px);
+		}
+		.shadow {
+			border-radius: 50%;
+			background: radial-gradient(closest-side, rgba(0, 0, 0, 0.55), transparent);
+			transform: translateZ(0.5px);
+		}
+		.sh-monitor {
+			top: 120px;
+			left: 160px;
+			width: 360px;
+			height: 120px;
+		}
+		.sh-book {
+			top: 500px;
+			left: 560px;
+			width: 680px;
+			height: 150px;
+		}
+		.sh-mug {
+			top: 168px;
+			left: 1280px;
+			width: 120px;
+			height: 56px;
+		}
+		.screen-glow {
+			top: 120px;
+			left: 20px;
+			width: 760px;
+			height: 420px;
+			border-radius: 50%;
+			background: radial-gradient(closest-side, rgba(150, 180, 255, 0.3), transparent);
+			opacity: 0;
+			transform: translateZ(0.6px);
+			transition: opacity 0.6s;
+		}
+		.is-dark .screen-glow {
+			opacity: 1;
 		}
 		.mat {
-			position: absolute;
-			bottom: 5cqh;
-			left: 4cqw;
+			top: 300px;
+			left: 70px;
 			display: block;
-			width: 70cqw;
-			height: 34cqh;
-			border: 1.2cqh solid #4a2e1b;
-			border-radius: 3px;
-			background:
-				radial-gradient(
-					circle at 78% 30%,
-					transparent 2.2cqh,
-					rgba(60, 35, 15, 0.25) 2.4cqh,
-					transparent 2.9cqh
-				),
-				linear-gradient(160deg, #2f4a3a, #22382b);
+			width: 780px;
+			height: 300px;
+			border: 14px solid #4a2e1b;
+			border-radius: 4px;
+			background: linear-gradient(160deg, #2f4a3a, #22382b);
 			box-shadow:
 				inset 0 0 0 2px rgba(184, 144, 79, 0.45),
-				0 8px 14px -6px rgba(0, 0, 0, 0.6);
-		}
-		.monitor {
-			position: absolute;
-			bottom: 36cqh;
-			left: 3cqw;
-			width: min(29cqw, 56cqh);
-			transform: perspective(1400px) rotateY(9deg);
-			transform-origin: left center;
-		}
-		.screen {
-			min-height: 0;
-			aspect-ratio: 16 / 10;
-			font-size: clamp(11px, 0.88cqw, 14px);
+				0 6px 10px rgba(0, 0, 0, 0.45);
 		}
 		.keyboard {
-			position: absolute;
-			bottom: 11cqh;
-			left: 7.5cqw;
-			z-index: 4;
+			top: 350px;
+			left: 150px;
 			display: block;
-			width: 23cqw;
-			font-size: clamp(6px, 0.5cqw, 9px);
+			width: 480px;
+			font-size: 10px;
+			transform: translateZ(3px);
 		}
 		.mouse {
-			position: absolute;
-			bottom: 13cqh;
-			left: 32.5cqw;
-			z-index: 4;
+			top: 400px;
+			left: 680px;
 			display: block;
-			width: 2.2cqw;
-			aspect-ratio: 0.62;
+			width: 46px;
+			height: 74px;
 			border-radius: 50% 50% 46% 46% / 40% 40% 60% 60%;
-			background: linear-gradient(180deg, #3a3632, #1f1d1a);
-			box-shadow: 0 0.8cqh 0.8cqh rgba(0, 0, 0, 0.5);
+			background: radial-gradient(ellipse at 40% 30%, #4a4540, #1f1d1a 70%);
+			box-shadow: 0 8px 10px rgba(0, 0, 0, 0.55);
+			transform: translateZ(3px);
 		}
 		.mouse span {
 			position: absolute;
@@ -1837,55 +2116,136 @@
 			height: 26%;
 			background: rgba(255, 255, 255, 0.25);
 		}
-		.folder {
-			position: absolute;
-			bottom: 12cqh;
-			left: 41cqw;
+		.magnifier {
+			top: 400px;
+			left: 1080px;
 			display: block;
-			width: 28cqw;
-			height: 28cqh;
-			border-radius: 2px 6px 3px 3px;
-			background: linear-gradient(160deg, #e2c98f, #cfb173);
-			box-shadow: 0 6px 10px -4px rgba(0, 0, 0, 0.5);
-			rotate: -7deg;
+			width: 220px;
+			transform: translateZ(3px) rotate(-18deg);
+			filter: brightness(var(--lit)) drop-shadow(0 8px 6px rgba(0, 0, 0, 0.5));
 		}
-		.folder::before {
-			content: '';
-			position: absolute;
-			top: -2.4cqh;
-			left: 8%;
-			width: 26%;
-			height: 2.6cqh;
-			border-radius: 4px 4px 0 0;
-			background: #d9bf83;
+		.mon-foot {
+			top: 132px;
+			left: 230px;
+			display: block;
+			width: 220px;
+			height: 80px;
+			border-radius: 50%;
+			background: radial-gradient(ellipse at 50% 35%, #46423d, #1b1917 75%);
+			box-shadow: 0 0 0 2px #121110;
+			transform: translateZ(2px);
 		}
-		.stamp {
+
+		/* Things that stand on the desk hinge up on their bottom edge. */
+		.upright {
+			display: block;
+			transform-origin: 50% 100%;
+			transform-style: preserve-3d;
+		}
+		.mon3d {
+			top: -345px;
+			left: 30px;
+			width: 620px;
+			height: 515px;
+			transform: rotateX(-90deg) rotateY(14deg);
+		}
+		.mon3d > span {
 			position: absolute;
-			top: 8%;
-			right: 6%;
-			padding: 0.2em 0.6em;
-			border: 3px double #b3261e;
-			color: #b3261e;
-			font-family: var(--font-display);
-			font-size: clamp(12px, 1.2cqw, 20px);
-			letter-spacing: 0.3em;
-			opacity: 0.8;
-			rotate: 12deg;
+			display: block;
+			background: linear-gradient(180deg, #2a2724, #151413);
+		}
+		.mon-back {
+			top: 0;
+			left: 0;
+			width: 620px;
+			height: 405px;
+			border-radius: 12px;
+			transform: translateZ(-12px) rotateY(180deg);
+		}
+		.mon-side {
+			top: 0;
+			width: 24px;
+			height: 405px;
+		}
+		.mon-side.left {
+			left: -12px;
+			transform: rotateY(90deg);
+		}
+		.mon-side.right {
+			left: 608px;
+			transform: rotateY(90deg);
+		}
+		.mon-top {
+			top: -12px;
+			left: 0;
+			width: 620px;
+			height: 24px;
+			transform: rotateX(90deg);
+		}
+		.mon3d > .mon-neck {
+			top: 380px;
+			left: 275px;
+			width: 70px;
+			height: 135px;
+			transform: translateZ(-24px);
+			background: linear-gradient(90deg, #1b1917, #3a3632 50%, #1b1917);
+		}
+		.monitor {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 620px;
+			transform: translateZ(12px);
+		}
+		.monitor > .neck,
+		.monitor > .foot {
+			display: none;
+		}
+		.screen {
+			min-height: 0;
+			aspect-ratio: 16 / 10;
+			font-size: 14px;
+		}
+
+		/* The book leans back on a reading stand, pages up. */
+		.book3d {
+			top: 207px;
+			left: 580px;
+			width: 600px;
+			height: 393px;
+			transform: rotateX(-58deg) scale(0.82);
+			transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+		}
+		.book3d:hover,
+		.book3d:focus-within {
+			transform: rotateX(-68deg) translateZ(14px) scale(0.82);
+		}
+		.book-back,
+		.book-edge {
+			position: absolute;
+			display: block;
+		}
+		.book-back {
+			inset: 0;
+			border-radius: 6px;
+			background: #3a0f09;
+			transform: translateZ(-16px);
+		}
+		.book-edge {
+			top: 377px;
+			left: 8px;
+			width: 584px;
+			height: 16px;
+			background: repeating-linear-gradient(180deg, #efe5cc 0 2px, #d9c9a3 2px 3px);
+			transform: translateZ(-8px) rotateX(90deg);
 		}
 		.book {
 			position: absolute;
-			bottom: 6cqh;
-			left: 42cqw;
-			z-index: 4;
-			width: 30cqw;
-			font-size: clamp(11px, 0.95cqw, 16px);
-			transform: perspective(1400px) rotateX(24deg);
-			transform-origin: center bottom;
-			transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
-		}
-		.book:hover,
-		.book:focus-within {
-			transform: perspective(1400px) rotateX(8deg) translateY(-1.5cqh);
+			inset: 0;
+			width: 600px;
+			margin: 0;
+			font-size: 13px;
+			transform: translateZ(1px);
 		}
 		.book-3d {
 			margin-right: 0;
@@ -1908,48 +2268,41 @@
 		}
 		.bookmark {
 			width: 5.2em;
-			font-size: 0.8em;
+			font-size: 0.85em;
 		}
-		.magnifier {
-			position: absolute;
-			bottom: 15cqh;
-			left: 77cqw;
-			z-index: 4;
-			display: block;
-			width: 11cqw;
-			rotate: -18deg;
-			filter: drop-shadow(0 0.8cqh 0.6cqh rgba(0, 0, 0, 0.5));
+
+		.mug3d {
+			top: 95px;
+			left: 1295px;
+			width: 74px;
+			height: 96px;
+			transform: rotateX(-90deg);
 		}
 		.mug {
 			position: absolute;
-			bottom: 31cqh;
-			left: 88cqw;
-			z-index: 4;
+			inset: 0;
 			display: block;
-			width: 3.6cqw;
-			height: 5.6cqh;
-			border-radius: 2px 2px 8px 8px;
-			background: linear-gradient(90deg, #d9d1bd, #fbf6ea 40%, #c9bfa8);
-			box-shadow: 0 8px 8px -4px rgba(0, 0, 0, 0.5);
+			border-radius: 3px 3px 12px 12px;
+			background: linear-gradient(90deg, #b8b0a0, #fbf6ea 38%, #e0d8c5 60%, #9f9785);
 		}
 		.mug::after {
 			content: '';
 			position: absolute;
 			top: 22%;
-			right: -34%;
-			width: 40%;
+			right: -30%;
+			width: 36%;
 			height: 50%;
-			border: 3px solid #d2c9b4;
+			border: 6px solid #cfc6b1;
 			border-left: 0;
-			border-radius: 0 10px 10px 0;
+			border-radius: 0 16px 16px 0;
 		}
 		.steam {
 			position: absolute;
 			bottom: 110%;
 			left: 30%;
 			width: 40%;
-			height: 3cqh;
-			border-left: 2px solid rgba(255, 255, 255, 0.5);
+			height: 40px;
+			border-left: 3px solid rgba(255, 255, 255, 0.5);
 			border-radius: 50%;
 			animation: steam 3.6s ease-in-out infinite;
 		}
@@ -1961,95 +2314,37 @@
 			}
 			50% {
 				opacity: 1;
-				transform: translateY(-6px) skewX(12deg);
+				transform: translateY(-8px) skewX(12deg);
 			}
+		}
+		.plate3d {
+			top: 526px;
+			left: 1160px;
+			width: 240px;
+			height: 64px;
+			transform: rotateX(-70deg);
 		}
 		.nameplate {
 			position: absolute;
-			bottom: 3cqh;
-			left: 78cqw;
-			z-index: 4;
+			inset: 0;
 			display: flex;
 			flex-direction: column;
 			align-items: center;
 			justify-content: center;
-			width: 15cqw;
-			height: 6.5cqh;
 			border: 2px solid #8a6a36;
 			border-radius: 2px;
-			background: linear-gradient(180deg, #e8cf8f, #b8904f 60%, #9c7739);
+			background: linear-gradient(180deg, #f0d898, #b8904f 60%, #9c7739);
 			color: #2a1a0f;
-			box-shadow:
-				0 0.9cqh 0 #2a1a0f,
-				0 1.6cqh 1.2cqh rgba(0, 0, 0, 0.5);
 		}
 		.nameplate span:first-child {
-			font-size: clamp(14px, 1.5cqw, 24px);
+			font-size: 24px;
 			letter-spacing: 0.4em;
 			line-height: 1;
 		}
 		.nameplate span:last-child {
 			margin-top: 0.3em;
-			font-size: clamp(7px, 0.6cqw, 10px);
+			font-size: 10px;
 			letter-spacing: 0.25em;
-		}
-
-		/* ── Lights off: the screen, the window and its slats stay lit ── */
-		.night {
-			background: rgba(6, 5, 10, 0.7);
-			mask-image:
-				radial-gradient(ellipse 22cqw 30cqh at 19% 42%, rgba(0, 0, 0, 0.35) 20%, #000 100%),
-				radial-gradient(ellipse 20cqw 18cqh at 57% 80%, rgba(0, 0, 0, 0.5) 25%, #000 100%),
-				radial-gradient(ellipse 13cqw 24cqh at 85% 24%, rgba(0, 0, 0, 0.3) 30%, #000 100%);
-			mask-composite: intersect;
-		}
-		/* Daytime with the light off: still dim, but the sun gets in. */
-		.sky-day .night,
-		.sky-dawn .night,
-		.sky-dusk .night {
-			background: rgba(6, 5, 10, 0.5);
-		}
-	}
-
-	/* Narrow laptops: the computer and the book take more of the desk. */
-	@media (min-width: 900px) and (max-width: 1199px) {
-		.monitor {
-			left: 3cqw;
-			width: min(34cqw, 60cqh);
-		}
-		.keyboard {
-			left: 5cqw;
-			width: 26cqw;
-		}
-		.mouse {
-			left: 33cqw;
-		}
-		.book {
-			left: 41cqw;
-			width: 36cqw;
-		}
-		.folder {
-			left: 40cqw;
-			width: 32cqw;
-		}
-		.whiteboard {
-			width: 36cqw;
-		}
-		.wb-desc {
-			display: none;
-		}
-		.wall-clock,
-		.magnifier,
-		.nameplate,
-		.mug {
-			display: none;
-		}
-		.window {
-			left: 80cqw;
-			width: 16cqw;
-		}
-		.switch {
-			left: 73.5cqw;
 		}
 	}
 
@@ -2057,8 +2352,13 @@
 		.scene,
 		.key,
 		.lever,
-		.book {
+		.rig,
+		.world,
+		.book3d {
 			transition: none;
+		}
+		.rig {
+			transform: none;
 		}
 		.steam,
 		.hint .bookmark,
