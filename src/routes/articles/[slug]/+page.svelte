@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { mermaidDiagrams } from '$lib/actions/mermaid';
-	import { reveal } from '$lib/actions/reveal';
+	import { inkReveal } from '$lib/actions/ink';
+	import CaseClosed from '$lib/components/CaseClosed.svelte';
 	import Seo from '$lib/components/Seo.svelte';
 	import CommentThread from '$lib/components/CommentThread.svelte';
 	import CaseHeader from '$lib/components/CaseHeader.svelte';
@@ -34,7 +35,7 @@
 <div class="mx-auto max-w-6xl px-6 pt-28 pb-16 lg:flex lg:justify-center lg:gap-12">
 	<div class="w-full max-w-3xl min-w-0">
 		<article class="min-w-0">
-			<div use:reveal>
+			<div>
 				<CaseHeader
 					kind="article"
 					title={data.post.title}
@@ -56,13 +57,15 @@
 			<section
 				bind:this={body}
 				use:proseEnhance={data.bodyHtml}
-				use:reveal={{ delay: 100 }}
+				use:inkReveal={data.bodyHtml}
 				class="prose prose-sm mt-8 max-w-none sm:prose-base dark:prose-invert"
 				use:mermaidDiagrams={data.bodyHtml}
 			>
 				<!-- eslint-disable-next-line svelte/no-at-html-tags -- bodyHtml is rendered via renderMarkdown() + rehype-sanitize, admin-authored content, never raw user input -->
 				{@html data.bodyHtml}
 			</section>
+
+			<CaseClosed />
 
 			<div class="mt-8 flex justify-center">
 				<LikeButton liked={data.liked} count={data.likeCount} signedIn={!!data.user} />

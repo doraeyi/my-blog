@@ -1,7 +1,8 @@
 <!--
-	A thin red thread across the top that fills as you read, and — if you left a
-	post half-way — a slip at the bottom offering to take you back to where you
-	stopped. Positions are kept per post in localStorage, on this device only.
+	If you left a post half-way, a slip at the bottom offers to take you back
+	to where you stopped (how far you've read shows on the red thread down the
+	sheet's margin, ReadingThread). Positions are kept per post in
+	localStorage, on this device only.
 -->
 <script lang="ts">
 	import { fly } from 'svelte/transition';
@@ -81,16 +82,6 @@
 		};
 	});
 </script>
-
-<div
-	class="pointer-events-none fixed inset-x-0 top-0 z-[60] h-[3px] origin-left bg-accent shadow-[0_0_8px_rgba(179,54,43,0.6)]"
-	style="transform: scaleX({progress})"
-	role="progressbar"
-	aria-label="閱讀進度"
-	aria-valuemin="0"
-	aria-valuemax="100"
-	aria-valuenow={Math.round(progress * 100)}
-></div>
 
 {#if resumeAt !== null}
 	<div
