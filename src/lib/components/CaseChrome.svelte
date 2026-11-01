@@ -54,138 +54,141 @@
 	</nav>
 {/if}
 
-<!-- ── Top right: things on the desk ── -->
-<div class="props absolute top-0 right-3 z-50 flex items-start gap-3 sm:right-5">
-	<!-- English profile: a luggage tag -->
-	{#if onEnglish}
-		<a
-			href={resolve('/about')}
-			hreflang="zh-Hant"
-			lang="zh-Hant"
-			title="中文"
-			class="tag-prop mt-4"
-		>
-			中<span class="sr-only">文版人物檔案</span>
-		</a>
-	{:else}
-		<a
-			href={resolve('/english')}
-			hreflang="en"
-			lang="en"
-			title="English profile"
-			class="tag-prop mt-4"
-		>
-			EN<span class="sr-only"> · English profile</span>
-		</a>
-	{/if}
-
-	<!-- On the homepage the study's own computer and lamp do these. -->
-	{#if !onBoard}
-		<!-- Search: the magnifying glass -->
-		<button
-			type="button"
-			class="glass-prop mt-3"
-			aria-label="搜尋（Ctrl/⌘ K）"
-			title="搜尋（Ctrl/⌘ K）"
-			onclick={() => (search.open = true)}
-		>
-			<svg viewBox="0 0 48 48" aria-hidden="true">
-				<circle
-					cx="20"
-					cy="20"
-					r="12.5"
-					fill="rgba(200,226,255,0.22)"
-					stroke="#b8904f"
-					stroke-width="4"
-				/>
-				<path
-					d="M13 15 Q16 10.5 21 10"
-					stroke="#fff"
-					stroke-width="2"
-					stroke-linecap="round"
-					fill="none"
-					opacity="0.8"
-				/>
-				<path d="M29 29 L40 40" stroke="#6b4f2a" stroke-width="6" stroke-linecap="round" />
-				<path d="M29.5 29.5 L32 32" stroke="#8a6a36" stroke-width="6" stroke-linecap="round" />
-			</svg>
-		</button>
-
-		<!-- Light / dark: the light switch on the wall -->
-		<button
-			type="button"
-			class="switch-prop mt-3"
-			aria-pressed={theme.current !== 'dark'}
-			aria-label={theme.current === 'dark' ? '電燈開關：開燈' : '電燈開關：關燈'}
-			title={theme.current === 'dark' ? '開燈' : '關燈'}
-			onclick={() => theme.toggle()}
-		>
-			<span class="screw" aria-hidden="true"></span>
-			<span class="slot" aria-hidden="true"
-				><span class="lever" class:off={theme.current === 'dark'}></span></span
+<!-- ── Top right: things on the desk (the case board on the homepage has its own bar) ── -->
+{#if !onBoard || page.url.searchParams.get('v') === 'office'}
+	<div class="props absolute top-0 right-3 z-50 flex items-start gap-3 sm:right-5">
+		<!-- English profile: a luggage tag -->
+		{#if onEnglish}
+			<a
+				href={resolve('/about')}
+				hreflang="zh-Hant"
+				lang="zh-Hant"
+				title="中文"
+				class="tag-prop mt-4"
 			>
-			<span class="screw" aria-hidden="true"></span>
-		</button>
+				中<span class="sr-only">文版人物檔案</span>
+			</a>
+		{:else}
+			<a
+				href={resolve('/english')}
+				hreflang="en"
+				lang="en"
+				title="English profile"
+				class="tag-prop mt-4"
+			>
+				EN<span class="sr-only"> · English profile</span>
+			</a>
+		{/if}
 
-		<!-- Account: a clip-on ID badge -->
-		<div bind:this={badgeEl} class="relative mt-2">
+		<!-- On the homepage the study's own computer and lamp do these. -->
+		{#if !onBoard}
+			<!-- Search: the magnifying glass -->
 			<button
 				type="button"
-				class="badge-prop"
-				aria-label={unread ? `識別證（${unread} 則新通知）` : '識別證：登入與通知'}
-				aria-expanded={badgeOpen}
-				onclick={() => (badgeOpen = !badgeOpen)}
+				class="glass-prop mt-3"
+				aria-label="搜尋（Ctrl/⌘ K）"
+				title="搜尋（Ctrl/⌘ K）"
+				onclick={() => (search.open = true)}
 			>
-				<span class="badge-clip" aria-hidden="true"></span>
-				<span class="badge-band" aria-hidden="true"></span>
-				<span class="badge-name font-mono-hack">{user ? user.name.slice(0, 6) : 'GUEST'}</span>
-				{#if unread}<span class="unread-dot" aria-hidden="true"></span>{/if}
+				<svg viewBox="0 0 48 48" aria-hidden="true">
+					<circle
+						cx="20"
+						cy="20"
+						r="12.5"
+						fill="rgba(200,226,255,0.22)"
+						stroke="#b8904f"
+						stroke-width="4"
+					/>
+					<path
+						d="M13 15 Q16 10.5 21 10"
+						stroke="#fff"
+						stroke-width="2"
+						stroke-linecap="round"
+						fill="none"
+						opacity="0.8"
+					/>
+					<path d="M29 29 L40 40" stroke="#6b4f2a" stroke-width="6" stroke-linecap="round" />
+					<path d="M29.5 29.5 L32 32" stroke="#8a6a36" stroke-width="6" stroke-linecap="round" />
+				</svg>
 			</button>
-			{#if badgeOpen}
-				<div
-					class="account-menu index-card top-full right-0 mt-2 w-44 rounded-sm px-2 pb-1"
-					in:fly={{ y: -6, duration: 160 }}
-					out:fly={{ y: -6, duration: 100 }}
+
+			<!-- Light / dark: the light switch on the wall -->
+			<button
+				type="button"
+				class="switch-prop mt-3"
+				aria-pressed={theme.current !== 'dark'}
+				aria-label={theme.current === 'dark' ? '電燈開關：開燈' : '電燈開關：關燈'}
+				title={theme.current === 'dark' ? '開燈' : '關燈'}
+				onclick={() => theme.toggle()}
+			>
+				<span class="screw" aria-hidden="true"></span>
+				<span class="slot" aria-hidden="true"
+					><span class="lever" class:off={theme.current === 'dark'}></span></span
 				>
-					{#if user}
-						<p class="menu-row truncate font-mono-hack text-xs text-case-600">{user.name}</p>
-						<a
-							href={resolve('/notifications')}
-							class="menu-row flex items-center justify-between rounded-sm text-sm text-case-900 hover:bg-case-200/60"
-						>
-							通知
-							{#if unread}<span class="font-mono-hack text-xs text-stamp-500">{unread} 則新</span
-								>{/if}
-						</a>
-						{#if user.role === 'Liam'}
+				<span class="screw" aria-hidden="true"></span>
+			</button>
+
+			<!-- Account: a clip-on ID badge -->
+			<div bind:this={badgeEl} class="relative mt-2">
+				<button
+					type="button"
+					class="badge-prop"
+					aria-label={unread ? `識別證（${unread} 則新通知）` : '識別證：登入與通知'}
+					aria-expanded={badgeOpen}
+					onclick={() => (badgeOpen = !badgeOpen)}
+				>
+					<span class="badge-clip" aria-hidden="true"></span>
+					<span class="badge-band" aria-hidden="true"></span>
+					<span class="badge-name font-mono-hack">{user ? user.name.slice(0, 6) : 'GUEST'}</span>
+					{#if unread}<span class="unread-dot" aria-hidden="true"></span>{/if}
+				</button>
+				{#if badgeOpen}
+					<div
+						class="account-menu index-card top-full right-0 mt-2 w-44 rounded-sm px-2 pb-1"
+						in:fly={{ y: -6, duration: 160 }}
+						out:fly={{ y: -6, duration: 100 }}
+					>
+						{#if user}
+							<p class="menu-row truncate font-mono-hack text-xs text-case-600">{user.name}</p>
 							<a
-								href={resolve('/admin/posts')}
-								class="menu-row block rounded-sm text-sm text-case-900 hover:bg-case-200/60">後台</a
+								href={resolve('/notifications')}
+								class="menu-row flex items-center justify-between rounded-sm text-sm text-case-900 hover:bg-case-200/60"
 							>
+								通知
+								{#if unread}<span class="font-mono-hack text-xs text-stamp-500">{unread} 則新</span
+									>{/if}
+							</a>
+							{#if user.role === 'Liam'}
+								<a
+									href={resolve('/admin/posts')}
+									class="menu-row block rounded-sm text-sm text-case-900 hover:bg-case-200/60"
+									>後台</a
+								>
+								<a
+									href={resolve('/admin/comments')}
+									class="menu-row block rounded-sm text-sm text-case-900 hover:bg-case-200/60"
+									>證詞審核</a
+								>
+							{/if}
+							<form method="post" action="{resolve('/login')}?/signOut" use:enhance>
+								<button
+									type="submit"
+									class="menu-row block w-full rounded-sm text-left text-sm text-case-900 hover:bg-case-200/60"
+									>登出</button
+								>
+							</form>
+						{:else}
 							<a
-								href={resolve('/admin/comments')}
-								class="menu-row block rounded-sm text-sm text-case-900 hover:bg-case-200/60"
-								>證詞審核</a
+								href={resolve('/login')}
+								class="menu-row block rounded-sm text-sm text-case-900 hover:bg-case-200/60">登入</a
 							>
 						{/if}
-						<form method="post" action="{resolve('/login')}?/signOut" use:enhance>
-							<button
-								type="submit"
-								class="menu-row block w-full rounded-sm text-left text-sm text-case-900 hover:bg-case-200/60"
-								>登出</button
-							>
-						</form>
-					{:else}
-						<a
-							href={resolve('/login')}
-							class="menu-row block rounded-sm text-sm text-case-900 hover:bg-case-200/60">登入</a
-						>
-					{/if}
-				</div>
-			{/if}
-		</div>
-	{/if}
-</div>
+					</div>
+				{/if}
+			</div>
+		{/if}
+	</div>
+{/if}
 
 <style>
 	/* ── Paper slips (top left) ── */
