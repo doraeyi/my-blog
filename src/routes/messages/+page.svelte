@@ -3,6 +3,8 @@
 	import Seo from '$lib/components/Seo.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import CommentThread from '$lib/components/CommentThread.svelte';
+	import PinString from '$lib/components/PinString.svelte';
+	import { pinned } from '$lib/actions/pinned';
 	import { reveal } from '$lib/actions/reveal';
 	import { contactEmail } from '$lib/social-links';
 	import type { ActionData, PageData } from './$types';
@@ -26,18 +28,21 @@
 		description="這裡是留言板。不一定要跟文章有關，路過留個記號也很好。"
 	/>
 
-	<section use:reveal={{ delay: 80 }}>
+	<section>
 		<h2 class="section-title">幾個小規則</h2>
-		<ol class="mt-4 grid gap-3 sm:grid-cols-2">
-			{#each rules as [title, body] (title)}
-				<li class="index-card rounded-sm px-5 pt-3 pb-5">
-					<p class="border-b-2 border-stamp-400/60 pb-1 font-display text-base text-case-900">
+		<PinString class="rules">
+			{#each rules as [title, body], i (title)}
+				<div
+					class="index-card rounded-sm px-5 pt-5 pb-5"
+					use:pinned={{ delay: (i % 2) * 100, tilt: [-0.7, 0.9, 0.5, -0.6][i] }}
+				>
+					<p class="border-b-2 border-stamp-400/60 pb-1 font-display text-lg text-case-900">
 						{title}
 					</p>
 					<p class="mt-2 text-sm leading-7 text-case-700">{body}</p>
-				</li>
+				</div>
 			{/each}
-		</ol>
+		</PinString>
 	</section>
 
 	<section class="mt-10" use:reveal={{ delay: 120 }}>
@@ -57,3 +62,16 @@
 
 	<CommentThread comments={data.comments} message={form?.message} placeholder="想說點什麼？" />
 </div>
+
+<style>
+	:global(.rules) {
+		display: grid;
+		gap: 2.2rem 1.5rem;
+		margin-top: 2rem;
+	}
+	@media (min-width: 640px) {
+		:global(.rules) {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+</style>

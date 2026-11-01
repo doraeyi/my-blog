@@ -9,6 +9,8 @@
 	import Eye from '@lucide/svelte/icons/eye';
 	import Check from '@lucide/svelte/icons/check';
 	import X from '@lucide/svelte/icons/x';
+	import PinString from '$lib/components/PinString.svelte';
+	import { pinned } from '$lib/actions/pinned';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -153,143 +155,109 @@
 		</div>
 	</PageHeader>
 
-	<!-- Category guide tabs standing up out of the drawer -->
-	<div class="flex items-end gap-1 overflow-x-auto px-2" role="tablist" aria-label="分類">
+	<!-- Categories: a red thread under the open one -->
+	<nav class="cats" aria-label="分類">
 		{#each data.categories as c (c.label)}
 			<!-- eslint-disable svelte/no-navigation-without-resolve -- withParams() builds on resolve('/blog') -->
 			<a
 				href={withParams({ cat: c.key })}
-				role="tab"
-				aria-selected={data.cat === c.key}
-				class="guide-tab shrink-0"
+				class="cat"
 				class:is-on={data.cat === c.key}
+				aria-current={data.cat === c.key ? 'page' : undefined}
+				data-sveltekit-noscroll
 			>
-				{c.label}
-				<span class="ml-1 font-mono-hack text-[0.65rem] opacity-70">{c.count}</span>
+				{c.label}<span class="cat-count">{c.count}</span>
 			</a>
 			<!-- eslint-enable svelte/no-navigation-without-resolve -->
 		{/each}
-	</div>
+	</nav>
 
-	<div class="drawer rounded-b-lg px-3 pt-5 pb-8 sm:px-6">
-		{#if data.tag}
-			<!-- eslint-disable svelte/no-navigation-without-resolve -- withParams() builds on resolve('/blog') -->
-			<a
-				href={withParams({ tag: null })}
-				class="mb-4 inline-flex items-center gap-1.5 font-mono-hack text-xs text-ink-muted hover:text-ink"
-			>
-				只看線索 #{data.tag}
-				<X class="size-3" />
-			</a>
-			<!-- eslint-enable svelte/no-navigation-without-resolve -->
-		{/if}
+	{#if data.tag}
+		<!-- eslint-disable svelte/no-navigation-without-resolve -- withParams() builds on resolve('/blog') -->
+		<a
+			href={withParams({ tag: null })}
+			class="mt-5 inline-flex items-center gap-1.5 font-mono-hack text-xs text-ink-muted hover:text-ink"
+		>
+			只看線索 #{data.tag}
+			<X class="size-3" />
+		</a>
+		<!-- eslint-enable svelte/no-navigation-without-resolve -->
+	{/if}
 
-		{#if filtered.length === 0}
-			<p class="py-16 text-center font-mono-hack text-sm text-ink-muted">
-				{query ? `查無「${query}」相關卷宗。` : '這個抽屜還是空的。'}
-			</p>
-		{/if}
+	{#if filtered.length === 0}
+		<p class="py-16 text-center font-mono-hack text-sm text-ink-muted">
+			{query ? `查無「${query}」相關卷宗。` : '這個抽屜還是空的。'}
+		</p>
+	{/if}
 
-		{#each groups as group (group.label)}
-			<div class="guide-card mt-6 first:mt-0">
-				<span class="guide-label">{group.label}</span>
-			</div>
-			<ol class="stack">
-				{#each group.items as entry (entry.path)}
+	{#each groups as group (group.label)}
+		{@const [year, month] = group.label.split(' · ')}
+		<section class="month">
+			<h2 class="month-head" aria-label={group.label}>
+				{#if month}
+					<span class="month-no font-display">{month}</span>
+					<span class="month-year font-mono-hack">{year}</span>
+				{:else}
+					<span class="month-year font-mono-hack">{group.label}</span>
+				{/if}
+				<span class="month-rule" aria-hidden="true"></span>
+				<span class="month-count font-mono-hack">{group.items.length} 件</span>
+			</h2>
+			<PinString class="files">
+				{#each group.items as entry, k (entry.path)}
 					{@const n = filtered.indexOf(entry)}
-					<li class="slot" style="--n: {Math.min(n, 8)}">
-						<article class="index-card catalog-card rounded-sm px-5 pt-4 pb-7 sm:px-7">
-							<div
-								class="flex items-start justify-between gap-4 border-b-2 border-stamp-400/60 pb-2"
+					<article
+						class="file kind-{entry.kind}"
+						use:pinned={{ delay: (k % 4) * 90, tilt: [-0.8, 0.6, 0.3, -0.5][n % 4] }}
+					>
+						<p class="file-meta font-mono-hack">
+							<span class="file-kind">{entry.kindLabel}</span>
+							<time datetime={entry.date.toISOString()}>{stampDate(entry.date)}</time>
+						</p>
+						<h3 class="file-title font-display">
+							<!-- eslint-disable svelte/no-navigation-without-resolve -- entry.path is a full app path -->
+							<a href={entry.path} class="after:absolute after:inset-0"
+								><span class="ink-line">{entry.title}</span></a
 							>
-								<h2 class="font-display text-lg leading-snug text-case-900 sm:text-xl">
-									<!-- eslint-disable svelte/no-navigation-without-resolve -- entry.path is a full app path -->
-									<a href={entry.path} class="after:absolute after:inset-0">{entry.title}</a>
-									<!-- eslint-enable svelte/no-navigation-without-resolve -->
-								</h2>
-								<span class="date-stamp shrink-0">{stampDate(entry.date)}</span>
-							</div>
-							<p class="mt-2 font-mono-hack text-[0.7rem] tracking-widest text-case-600">
-								{entry.kindLabel}
-								{#if entry.tags.length}
-									·
-									{#each entry.tags as t, i (t)}{i ? ' ' : ''}#{t}{/each}
-								{/if}
+							<!-- eslint-enable svelte/no-navigation-without-resolve -->
+						</h3>
+						{#if entry.excerpt}
+							<p class="file-excerpt">{entry.excerpt}</p>
+						{/if}
+						{#if entry.tags.length}
+							<p class="file-tags font-mono-hack">
+								{#each entry.tags as t (t)}<span>#{t}</span>{/each}
 							</p>
-							{#if entry.excerpt}
-								<p class="mt-2 line-clamp-2 text-sm leading-7 text-case-800">{entry.excerpt}</p>
-							{/if}
-							<div
-								class="relative z-10 mt-3 flex items-center gap-4 font-mono-hack text-xs text-case-600"
+						{/if}
+						<div class="file-foot font-mono-hack">
+							<span class="flex items-center gap-1" title="按讚"
+								><Heart class="size-3.5" />{entry.likes}</span
 							>
-								<span class="flex items-center gap-1" title="按讚"
-									><Heart class="size-3.5" />{entry.likes}</span
-								>
-								<!-- eslint-disable svelte/no-navigation-without-resolve -- entry.path is a full app path -->
-								<a
-									href="{entry.path}#comments"
-									class="flex items-center gap-1 hover:text-stamp-600"
-								>
-									<MessageCircle class="size-3.5" />{entry.comments ? entry.comments : '證詞'}
-								</a>
-								<!-- eslint-enable svelte/no-navigation-without-resolve -->
-								<button
-									type="button"
-									onclick={() => share(entry.path, entry.title)}
-									class="flex items-center gap-1 hover:text-stamp-600"
-								>
-									{#if copiedPath === entry.path}
-										<Check class="size-3.5" /> 已複製
-									{:else}
-										<Share2 class="size-3.5" /> 轉交
-									{/if}
-								</button>
-								<span class="ml-auto flex items-center gap-1" title="翻閱次數">
-									<Eye class="size-3.5" />{entry.views}
-								</span>
-							</div>
-							<span aria-hidden="true" class="punch"></span>
-						</article>
-					</li>
+							<!-- eslint-disable svelte/no-navigation-without-resolve -- entry.path is a full app path -->
+							<a href="{entry.path}#comments" class="foot-btn">
+								<MessageCircle class="size-3.5" />{entry.comments ? entry.comments : '證詞'}
+							</a>
+							<!-- eslint-enable svelte/no-navigation-without-resolve -->
+							<button type="button" onclick={() => share(entry.path, entry.title)} class="foot-btn">
+								{#if copiedPath === entry.path}
+									<Check class="size-3.5" /> 已複製
+								{:else}
+									<Share2 class="size-3.5" /> 轉交
+								{/if}
+							</button>
+							<span class="views ml-auto flex items-center gap-1" title="翻閱次數">
+								<Eye class="size-3.5" />{entry.views}
+							</span>
+							<span class="file-go" aria-hidden="true">翻開 →</span>
+						</div>
+					</article>
 				{/each}
-			</ol>
-		{/each}
-	</div>
+			</PinString>
+		</section>
+	{/each}
 </div>
 
 <style>
-	/* Drawer interior: cards sit down inside it. */
-	.drawer {
-		background: var(--color-surface-alt);
-		box-shadow:
-			inset 0 14px 18px -12px rgba(0, 0, 0, 0.35),
-			inset 0 -1px 0 rgba(255, 255, 255, 0.05);
-		border: 1px solid var(--color-border-case);
-		border-top: 0;
-	}
-
-	.guide-tab {
-		position: relative;
-		top: 1px;
-		padding: 0.45rem 0.9rem 0.35rem;
-		border: 1px solid var(--color-border-case);
-		border-bottom: 0;
-		border-radius: 6px 6px 0 0;
-		background: color-mix(in srgb, #d4ad6e 55%, var(--color-surface-alt));
-		color: #2c2118;
-		font-family: var(--font-display);
-		font-size: 0.9rem;
-		transform: translateY(6px);
-		transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-	}
-	.guide-tab:hover {
-		transform: translateY(2px);
-	}
-	.guide-tab.is-on {
-		background: #d4ad6e;
-		transform: translateY(0);
-	}
-
 	.clue {
 		transition: color 0.15s ease;
 	}
@@ -302,68 +270,209 @@
 		text-decoration-color: color-mix(in srgb, var(--color-accent) 60%, transparent);
 	}
 
-	/* Month divider: a taller guide card whose tab carries the month. */
-	.guide-card {
+	/* ── Categories ── */
+	.cats {
+		display: flex;
+		gap: 0.25rem;
+		margin-top: 0.5rem;
+		overflow-x: auto;
+		border-bottom: 1px solid var(--color-border-case);
+		scrollbar-width: none;
+	}
+	.cat {
 		position: relative;
-		height: 0.9rem;
-		margin-bottom: -0.2rem;
-		border-radius: 3px 3px 0 0;
-		background: #c9a465;
-		box-shadow: 0 -1px 0 rgba(255, 255, 255, 0.25) inset;
+		flex: none;
+		padding: 0.6rem 0.9rem;
+		color: var(--color-ink-muted);
+		font-size: 0.95rem;
+		transition: color 0.2s;
 	}
-	.guide-label {
-		position: absolute;
-		bottom: 100%;
-		left: 1.25rem;
-		padding: 0.2rem 0.75rem;
-		border-radius: 5px 5px 0 0;
-		background: #c9a465;
-		color: #2c2118;
+	.cat:hover,
+	.cat.is-on {
+		color: var(--color-ink);
+	}
+	.cat-count {
+		margin-left: 0.35rem;
 		font-family: var(--font-mono-hack);
-		font-size: 0.75rem;
-		letter-spacing: 0.15em;
+		font-size: 0.68rem;
+		opacity: 0.6;
 	}
-	.guide-card:nth-of-type(even) .guide-label {
-		left: auto;
-		right: 1.25rem;
+	.cat::after {
+		content: '';
+		position: absolute;
+		right: 0.6rem;
+		bottom: -1px;
+		left: 0.6rem;
+		height: 2px;
+		border-radius: 2px;
+		background: var(--color-accent);
+		transform: scaleX(0);
+		transform-origin: left;
+		transition: transform 0.45s cubic-bezier(0.34, 1.4, 0.64, 1);
+	}
+	.cat:hover::after {
+		transform: scaleX(0.35);
+	}
+	.cat.is-on::after {
+		transform: scaleX(1);
 	}
 
-	/* Cards stand in the drawer, overlapping; hover pulls one up and out. */
-	.stack {
-		padding-top: 0.25rem;
+	/* ── A month: its number, then its files ── */
+	.month {
+		margin-top: 3.5rem;
 	}
-	.slot + .slot {
-		margin-top: -0.6rem;
+	.month-head {
+		display: flex;
+		align-items: baseline;
+		gap: 0.8rem;
+		margin-bottom: 2.2rem;
 	}
-	.catalog-card {
-		transition:
-			transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-			box-shadow 0.35s ease;
-		animation: file-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-		animation-delay: calc(var(--n) * 70ms + 200ms);
+	.month-no {
+		color: var(--color-ink);
+		font-size: 3.4rem;
+		line-height: 0.8;
 	}
-	.catalog-card:hover {
-		z-index: 2;
-		transform: translateY(-14px) rotate(-0.4deg);
-		box-shadow:
-			0 1px 0 rgba(255, 255, 255, 0.6) inset,
-			0 30px 40px -22px rgba(20, 12, 6, 0.65);
+	.month-year,
+	.month-count {
+		color: var(--color-ink-muted);
+		font-size: 0.75rem;
+		letter-spacing: 0.16em;
 	}
-	@keyframes file-in {
-		from {
-			opacity: 0;
-			transform: translateY(28px);
+	.month-rule {
+		flex: 1;
+		height: 1px;
+		background: linear-gradient(90deg, var(--color-border-case), transparent);
+	}
+
+	/* ── Files: two up, pinned, strung together ── */
+	.month :global(.files) {
+		display: grid;
+		gap: 2.6rem 2rem;
+	}
+	@media (min-width: 720px) {
+		.month :global(.files) {
+			grid-template-columns: 1fr 1fr;
 		}
+	}
+	.file {
+		display: flex;
+		flex-direction: column;
+		padding: 1.4rem 1.4rem 1rem;
+		border: 1px solid rgb(60 40 20 / 0.1);
+		border-radius: 4px;
+		background: linear-gradient(180deg, rgb(255 255 255 / 0.6), transparent 40%), #fffcf5;
+		box-shadow:
+			0 1px 2px rgb(40 25 10 / 0.08),
+			0 12px 26px -14px rgb(40 25 10 / 0.35);
+		--k: var(--color-accent);
+	}
+	.file:hover {
+		box-shadow:
+			0 1px 2px rgb(40 25 10 / 0.08),
+			0 26px 44px -18px rgb(40 25 10 / 0.45),
+			0 0 0 1px color-mix(in srgb, var(--k) 30%, transparent);
+	}
+	.kind-blog {
+		--k: #2b4c9b;
+	}
+	.kind-mood {
+		--k: #5b3a8a;
+	}
+	.file-meta {
+		display: flex;
+		justify-content: space-between;
+		color: var(--color-ink-muted);
+		font-size: 0.7rem;
+		letter-spacing: 0.1em;
+	}
+	.file-kind {
+		color: var(--k);
+	}
+	.file-kind::before {
+		content: '';
+		display: inline-block;
+		width: 12px;
+		height: 3px;
+		margin-right: 0.45rem;
+		border-radius: 2px;
+		background: var(--k);
+		vertical-align: middle;
+	}
+	.file-title {
+		margin-top: 0.7rem;
+		color: var(--color-ink);
+		font-size: 1.45rem;
+		line-height: 1.3;
+	}
+	.file-excerpt {
+		display: -webkit-box;
+		margin-top: 0.6rem;
+		overflow: hidden;
+		color: var(--color-case-800);
+		font-size: 0.9rem;
+		line-height: 1.75;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 3;
+		line-clamp: 3;
+	}
+	.file-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.2rem 0.7rem;
+		margin-top: 0.7rem;
+		color: var(--color-ink-muted);
+		font-size: 0.7rem;
+	}
+	.file-foot {
+		position: relative;
+		z-index: 1;
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		margin-top: auto;
+		padding-top: 1rem;
+		border-top: 1px dashed var(--color-border-case);
+		color: var(--color-ink-muted);
+		font-size: 0.72rem;
+	}
+	.foot-btn {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+		transition: color 0.2s;
+	}
+	.foot-btn:hover {
+		color: var(--color-accent);
+	}
+	/* "翻開 →" slides in where the view count was. */
+	.file-go {
+		position: absolute;
+		right: 0;
+		bottom: 0;
+		color: var(--k);
+		letter-spacing: 0.1em;
+		opacity: 0;
+		transform: translateX(-8px);
+		transition:
+			opacity 0.25s,
+			transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+		pointer-events: none;
+	}
+	.views {
+		transition: opacity 0.2s;
+	}
+	.file:hover .file-go {
+		opacity: 1;
+		transform: none;
+	}
+	.file:hover .views {
+		opacity: 0;
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.catalog-card,
-		.guide-tab {
-			animation: none;
+		.cat::after,
+		.file-go {
 			transition: none;
-		}
-		.catalog-card:hover {
-			transform: none;
 		}
 	}
 </style>
