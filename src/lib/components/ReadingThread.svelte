@@ -1,7 +1,7 @@
 <!--
 	The red string down the sheet's left margin. It's pinned at the top of the
 	sheet and runs down to where you're reading, swinging out a little when
-	you scroll fast and settling when you stop. Each section of the page is a
+	you scroll fast and settling when you stop. Each section of an article is a
 	knot on it: the ones you've passed are tied red; hover one to see its
 	heading, click it to jump there.
 -->
