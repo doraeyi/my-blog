@@ -8,8 +8,8 @@
 @custom-variant dark (&:where(.never-dark, .never-dark *));
 
 @theme {
-	--font-display: 'Special Elite', 'LXGW WenKai TC', ui-monospace, Menlo, monospace;
-	--font-mono-hack: 'Share Tech Mono', ui-monospace, Menlo, monospace;
+	--font-display: 'Instrument Serif', 'LXGW WenKai TC', ui-serif, Georgia, serif;
+	--font-mono-hack: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
 
 	--color-case-50: #fdfaf3;
 	--color-case-100: #f7efd9;
@@ -608,18 +608,45 @@ html {
 	max-width: 1080px;
 	margin: 0 auto;
 }
-/* The sheet: paper, pinned through the top, hung there when the page opens */
+/* The sheet: paper, pinned through the top, hung there when the page opens.
+   Two more sheets peek out underneath it: the rest of the file. */
+.sheet-wrap::before,
+.sheet-wrap::after {
+	content: '';
+	position: absolute;
+	z-index: 0;
+	border-radius: 6px;
+	box-shadow: 0 10px 30px -12px rgb(40 25 10 / 0.35);
+	pointer-events: none;
+}
+.sheet-wrap::before {
+	inset: 12px -7px -9px 9px;
+	background: #efe6d3;
+	rotate: 0.25deg;
+}
+.sheet-wrap::after {
+	inset: 22px 7px -17px -6px;
+	background: #e6dbc4;
+	rotate: -0.3deg;
+}
 .case-paper {
 	position: relative;
 	z-index: 1;
 	padding: 8px 0 8px;
-	border: 1px solid rgb(60 40 20 / 0.08);
 	border-radius: 6px;
 	color: var(--color-ink);
 	background:
+		/* the pin's dimple and the light falling across the page */
+		radial-gradient(70px 26px at 50% 0, rgb(60 40 20 / 0.09), transparent),
+		radial-gradient(120% 60% at 30% 0%, rgb(255 255 255 / 0.55), transparent 60%),
 		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E"),
 		#fbf6e9;
-	box-shadow: var(--b-shadow);
+	box-shadow:
+		inset 0 1px 0 rgb(255 255 255 / 0.85),
+		inset 0 0 0 1px rgb(60 40 20 / 0.06),
+		0 1px 2px rgb(40 25 10 / 0.1),
+		0 18px 40px -16px rgb(40 25 10 / 0.38),
+		0 50px 90px -40px rgb(40 25 10 / 0.4);
 	transform-origin: 50% 0;
 	animation: sheet-hang 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
@@ -664,38 +691,6 @@ html {
 	border-radius: 2px;
 	background: var(--c);
 }
-/* The red thread down the left margin: it follows you down the page as you read. */
-.sheet-thread {
-	position: absolute;
-	z-index: 2;
-	top: 18px;
-	left: -18px;
-	width: 2px;
-	height: var(--read, 0px);
-	border-radius: 2px;
-	background: var(--b-red);
-	box-shadow: 0 0 8px var(--b-red-glow);
-	transition: height 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
-	pointer-events: none;
-}
-.sheet-thread::before,
-.sheet-thread::after {
-	content: '';
-	position: absolute;
-	left: 50%;
-	width: 12px;
-	height: 12px;
-	margin-left: -6px;
-	border-radius: 50%;
-	background: radial-gradient(circle at 35% 30%, #ff8b80, var(--b-red) 45%, #6d0b0b);
-	box-shadow: 0 2px 3px rgb(0 0 0 / 0.35);
-}
-.sheet-thread::before {
-	top: -6px;
-}
-.sheet-thread::after {
-	bottom: -6px;
-}
 @media (max-width: 1139px) {
 	.sheet-desk {
 		padding-left: 26px;
@@ -705,16 +700,10 @@ html {
 	.sheet-desk {
 		padding: 0.75rem 8px 40px 20px;
 	}
-	.sheet-thread {
-		left: -12px;
-	}
 }
 @media (prefers-reduced-motion: reduce) {
 	.case-paper {
 		animation: none;
-	}
-	.sheet-thread {
-		transition: none;
 	}
 }
 
@@ -738,6 +727,20 @@ html {
 }
 :root:not([data-traveling]) .pin-target {
 	view-transition-name: travel-pin;
+}
+/* On every page: pinned through the top of the sheet, like the cards on the board.
+   The lamp is up and to the left, so the pin throws its shadow down and right. */
+.page-pin::after {
+	content: '';
+	position: absolute;
+	top: 13px;
+	left: 10px;
+	width: 14px;
+	height: 5px;
+	border-radius: 50%;
+	background: rgb(40 20 5 / 0.3);
+	filter: blur(1.5px);
+	rotate: 30deg;
 }
 /* On every page: pinned through the top of the sheet, like the cards on the board */
 .page-pin {

@@ -9,6 +9,7 @@
 	import type { LayoutData } from './$types';
 	import SiteBar from '$lib/components/SiteBar.svelte';
 	import BoardBackdrop from '$lib/components/BoardBackdrop.svelte';
+	import ReadingThread from '$lib/components/ReadingThread.svelte';
 	import DetectiveDepth from '$lib/components/DetectiveDepth.svelte';
 	import SearchPalette from '$lib/components/SearchPalette.svelte';
 	import CaseEnd from '$lib/components/CaseEnd.svelte';
@@ -32,31 +33,8 @@
 			: `CH.${String(i + 1).padStart(2, '0')} · ${section.no} · ${section.label}`;
 	});
 
-	// The red thread down the sheet's margin runs as far as you've read.
+	// The sheet, for the red thread down its margin.
 	let sheetEl: HTMLElement | undefined = $state();
-	let read = $state(0);
-	$effect(() => {
-		const el = sheetEl;
-		if (!el) return;
-		let raf = 0;
-		const measure = () => {
-			raf = 0;
-			const r = el.getBoundingClientRect();
-			read = Math.max(0, Math.min(r.height - 36, innerHeight * 0.42 - r.top));
-		};
-		const queue = () => (raf ||= requestAnimationFrame(measure));
-		measure();
-		addEventListener('scroll', queue, { passive: true });
-		addEventListener('resize', queue);
-		const ro = new ResizeObserver(queue);
-		ro.observe(el);
-		return () => {
-			cancelAnimationFrame(raf);
-			removeEventListener('scroll', queue);
-			removeEventListener('resize', queue);
-			ro.disconnect();
-		};
-	});
 
 	// WebSite + Person JSON-LD so search engines pick up the site name and the
 	// seal as its logo.
@@ -198,7 +176,7 @@
 <main class:sheet-desk={onPaper}>
 	{#if onPaper}
 		<div class="sheet-wrap">
-			<span class="sheet-thread" style="--read: {read}px" aria-hidden="true"></span>
+			<ReadingThread sheet={sheetEl} />
 			<div bind:this={sheetEl} class="case-paper">
 				<span class="page-pin pin-target" aria-hidden="true"></span>
 				<div class="sheet-head">
