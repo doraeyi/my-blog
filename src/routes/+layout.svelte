@@ -7,38 +7,56 @@
 	import { locales, localizeHref } from '$lib/paraglide/runtime';
 	import type { Snippet } from 'svelte';
 	import type { LayoutData } from './$types';
-	import CaseChrome from '$lib/components/CaseChrome.svelte';
+	import SiteBar from '$lib/components/SiteBar.svelte';
+	import BoardBackdrop from '$lib/components/BoardBackdrop.svelte';
 	import DetectiveDepth from '$lib/components/DetectiveDepth.svelte';
 	import SearchPalette from '$lib/components/SearchPalette.svelte';
 	import CaseEnd from '$lib/components/CaseEnd.svelte';
 	import GlobalFx from '$lib/components/GlobalFx.svelte';
 	import { theme } from '$lib/theme.svelte';
-	import { bookmarks, drawerFor, isEntryActive } from '$lib/site-nav';
+	import { chapters, drawerFor, isEntryActive } from '$lib/site-nav';
 	import { SITE_DESCRIPTION, SITE_TITLE } from '$lib/site';
 
 	let { children, data }: { children: Snippet; data: LayoutData } = $props();
 
-	// The homepage is Liam's office; every other page is a page of the book on
-	// his desk, seen up close: the same red cover, the same bookmarks.
+	// The homepage is the case board; every other page is one sheet pinned to it.
 	const onPaper = $derived(page.url.pathname !== '/');
 	const section = $derived(drawerFor(page.url.pathname));
-	const openMark = $derived(bookmarks.find((b) => b.id === section?.id));
-	// The chapter, as the cover's gold foil says it: 參 · 作品收藏.
-	const chapterTitle = $derived(
-		page.url.pathname.startsWith('/admin')
-			? '後台'
-			: section?.no
-				? `${section.no} · ${section.label}`
-				: (section?.label ?? '卷宗')
-	);
-	// Dust drifting in the light from the blinds: fixed spots so server and client agree.
-	const motes = Array.from({ length: 18 }, (_, i) => ({
-		x: (i * 53 + 11) % 100,
-		y: (i * 37 + 5) % 100,
-		d: 16 + ((i * 7) % 14),
-		s: 2 + (i % 3),
-		delay: -((i * 1.7) % 20)
-	}));
+	// What the sheet is, typed across its top: CH.03 · 參 · 文章.
+	const sheetLabel = $derived.by(() => {
+		if (page.url.pathname.startsWith('/admin')) return '後台';
+		if (!section) return '卷宗';
+		const i = chapters.findIndex((c) => c.id === section.id);
+		return i < 0
+			? section.label
+			: `CH.${String(i + 1).padStart(2, '0')} · ${section.no} · ${section.label}`;
+	});
+
+	// The red thread down the sheet's margin runs as far as you've read.
+	let sheetEl: HTMLElement | undefined = $state();
+	let read = $state(0);
+	$effect(() => {
+		const el = sheetEl;
+		if (!el) return;
+		let raf = 0;
+		const measure = () => {
+			raf = 0;
+			const r = el.getBoundingClientRect();
+			read = Math.max(0, Math.min(r.height - 36, innerHeight * 0.42 - r.top));
+		};
+		const queue = () => (raf ||= requestAnimationFrame(measure));
+		measure();
+		addEventListener('scroll', queue, { passive: true });
+		addEventListener('resize', queue);
+		const ro = new ResizeObserver(queue);
+		ro.observe(el);
+		return () => {
+			cancelAnimationFrame(raf);
+			removeEventListener('scroll', queue);
+			removeEventListener('resize', queue);
+			ro.disconnect();
+		};
+	});
 
 	// WebSite + Person JSON-LD so search engines pick up the site name and the
 	// seal as its logo.
@@ -173,30 +191,22 @@
 <DetectiveDepth />
 <GlobalFx />
 
-<CaseChrome user={data.user} unread={data.unread} />
+<BoardBackdrop />
+<SiteBar user={data.user} unread={data.unread} />
 <SearchPalette />
 
-<main class:desk={onPaper}>
+<main class:sheet-desk={onPaper}>
 	{#if onPaper}
-		<!-- Light through the office blinds, the colour of the real time of day (GlobalFx). -->
-		<div class="blind-light" aria-hidden="true">
-			{#each motes as m, i (i)}
-				<i style="--x: {m.x}%; --y: {m.y}%; --d: {m.d}s; --s: {m.s}px; --delay: {m.delay}s"></i>
-			{/each}
-		</div>
-		<div class="file-desk">
-			<div class="case-book">
-				<p class="book-band" aria-hidden="true">
-					<span>LIAM · 調查檔案</span>
-					<span>{chapterTitle}</span>
-				</p>
-				<div class="case-paper">
-					<span class="page-pin pin-target" aria-hidden="true"></span>
-					{#if openMark}
-						<span class="page-ribbon" style="--c: {openMark.color}" aria-hidden="true"></span>
-					{/if}
+		<div class="sheet-wrap">
+			<span class="sheet-thread" style="--read: {read}px" aria-hidden="true"></span>
+			<div bind:this={sheetEl} class="case-paper">
+				<span class="page-pin pin-target" aria-hidden="true"></span>
+				<div class="sheet-head">
+					<p class="sheet-label">
+						<span class="ch-tab" style="--c: {section?.color ?? '#8e1d12'}"></span>{sheetLabel}
+					</p>
 					{#if section?.cards.length}
-						<!-- What else is in this chapter, typed along the top of the page -->
+						<!-- What else is in this chapter -->
 						<nav class="chapter-entries" aria-label="{section.label}這一章">
 							<!-- eslint-disable svelte/no-navigation-without-resolve -- static app paths (some with a query) from site-nav -->
 							{#each section.cards as c (c.href)}
@@ -208,25 +218,9 @@
 							<!-- eslint-enable svelte/no-navigation-without-resolve -->
 						</nav>
 					{/if}
-					{@render children()}
-					{#if !page.url.pathname.startsWith('/admin')}<CaseEnd />{/if}
 				</div>
-				<!-- The book's bookmarks, still in it: the sections, the open one pulled out. -->
-				<nav class="paper-marks" aria-label="書籤：網站的各個部分">
-					<div class="paper-marks-inner">
-						<!-- eslint-disable svelte/no-navigation-without-resolve -- static app paths from site-nav -->
-						{#each bookmarks as b (b.id)}
-							<a
-								href={b.href}
-								class="paper-mark"
-								class:is-open={section?.id === b.id}
-								aria-current={section?.id === b.id ? 'true' : undefined}
-								style="--c: {b.color}">{b.label}</a
-							>
-						{/each}
-						<!-- eslint-enable svelte/no-navigation-without-resolve -->
-					</div>
-				</nav>
+				{@render children()}
+				{#if !page.url.pathname.startsWith('/admin')}<CaseEnd />{/if}
 			</div>
 		</div>
 	{:else}

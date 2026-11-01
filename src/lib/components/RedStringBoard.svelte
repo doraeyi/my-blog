@@ -11,12 +11,10 @@
 	Wide screens spread the board across the window; phones get a tall board.
 -->
 <script lang="ts">
-	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import { fly } from 'svelte/transition';
 	import mark from '$lib/assets/logo-mark.jpg';
-	import { theme } from '$lib/theme.svelte';
 	import { loadIndex, runSearch, search, type SearchHit } from '$lib/search.svelte';
 	import { chapters } from '$lib/site-nav';
 	import type { SuspectBoardData } from '$lib/suspect-board';
@@ -32,9 +30,6 @@
 
 	let { board, friends = [] }: { board: SuspectBoardData; friends?: FriendPin[] } = $props();
 	const ev = $derived(board.evidence);
-	const user = $derived(page.data.user as { name: string; role?: string | null } | undefined);
-	const unread = $derived((page.data.unread as number | undefined) ?? 0);
-	const dark = $derived(theme.current === 'dark');
 
 	// ── What's on the board ──
 	// Each node is pinned at (x, y) % of the board — wide layout, then the tall
@@ -129,7 +124,6 @@
 	const pins: Record<string, { x: number; y: number; on: boolean }> = {};
 	const pointer = { x: 0, y: 0, in: false, px: 0, py: 0 };
 	const drift = { x: 0, y: 0 };
-	const light = { x: 0.5, y: 0.35 };
 	let still = false;
 
 	function measure() {
@@ -149,10 +143,6 @@
 			const ty = pointer.in ? pointer.py - 0.5 : 0;
 			drift.x += (tx - drift.x) * 0.06;
 			drift.y += (ty - drift.y) * 0.06;
-			light.x += ((pointer.in ? pointer.px : 0.5) - light.x) * 0.12;
-			light.y += ((pointer.in ? pointer.py : 0.35) - light.y) * 0.12;
-			boardEl?.style.setProperty('--lx', `${(light.x * 100).toFixed(2)}%`);
-			boardEl?.style.setProperty('--ly', `${(light.y * 100).toFixed(2)}%`);
 			boardEl?.style.setProperty('--bgx', `${(-drift.x * 30).toFixed(2)}px`);
 			boardEl?.style.setProperty('--bgy', `${(-drift.y * 20).toFixed(2)}px`);
 		}
@@ -401,48 +391,8 @@
 	role="presentation"
 >
 	<div class="backdrop" aria-hidden="true">
-		<span class="grid"></span>
 		<span class="ghost">LIAM</span>
-		<span class="spot"></span>
-		<span class="grain"></span>
 	</div>
-
-	<!-- ── Top: the file's label, and the few things you'd reach for ── -->
-	<header class="bar">
-		<a href={resolve('/')} class="brand" aria-label="Liam 偵探手記">
-			<img src={mark} alt="" width="28" height="28" />
-			<span class="brand-name">LIAM</span>
-			<span class="brand-sub">CASE FILE · 偵探手記</span>
-		</a>
-		<nav class="tools" aria-label="工具">
-			<a href={resolve('/contents')} class="tool">目錄</a>
-			<a href={resolve('/english')} class="tool" hreflang="en" lang="en">EN</a>
-			<button type="button" class="tool" onclick={() => (search.open = true)}>
-				搜尋 <kbd>Ctrl K</kbd>
-			</button>
-			<button
-				type="button"
-				class="tool lamp"
-				aria-pressed={!dark}
-				aria-label={dark ? '開燈（淺色）' : '關燈（深色）'}
-				title={dark ? '開燈' : '關燈'}
-				onclick={() => theme.toggle()}
-			>
-				<span class="bulb" class:off={dark} aria-hidden="true"></span>
-			</button>
-			{#if user}
-				<a
-					href={resolve(user.role === 'Liam' ? '/admin/posts' : '/notifications')}
-					class="tool who"
-				>
-					{user.name.slice(0, 8)}
-					{#if unread}<span class="dot" aria-label="{unread} 則新通知"></span>{/if}
-				</a>
-			{:else}
-				<a href={resolve('/login')} class="tool">登入</a>
-			{/if}
-		</nav>
-	</header>
 
 	<!-- eslint-disable svelte/no-navigation-without-resolve -- static app paths from site-nav, content and search-index paths, friends' own sites -->
 	<div class="stage">
@@ -607,47 +557,24 @@
 </div>
 
 <style>
-	/* ── The board's palette: a lit room, or one lamp in the dark ── */
+	/* ── The board: its colours are the site's board tokens (layout.css) ── */
 	.board {
-		--bg: #ebe4d6;
-		--bg-2: #e2d9c7;
-		--grid: rgb(70 45 20 / 0.07);
-		--ghost: rgb(70 45 20 / 0.08);
-		--card: #fbf8f1;
-		--card-2: #f4eee2;
-		--ink: #1b1510;
-		--muted: #7b6a56;
-		--hair: rgb(60 40 20 / 0.12);
-		--red: #c3191f;
-		--red-glow: rgb(195 25 31 / 0.35);
-		--shadow:
-			0 1px 1px rgb(40 25 10 / 0.08), 0 10px 24px -8px rgb(40 25 10 / 0.28),
-			0 30px 60px -30px rgb(40 25 10 / 0.35);
-		--spot: rgb(255 252 240 / 0.55);
+		--bg: var(--b-bg);
+		--ghost: var(--b-ghost);
+		--card: var(--b-card);
+		--card-2: var(--b-card-2);
+		--ink: var(--b-ink);
+		--muted: var(--b-muted);
+		--hair: var(--b-hair);
+		--red: var(--b-red);
+		--red-glow: var(--b-red-glow);
+		--shadow: var(--b-shadow);
 		position: relative;
 		min-height: max(100svh, 720px);
 		overflow: hidden;
-		background: radial-gradient(120% 90% at 50% 20%, var(--bg), var(--bg-2));
 		color: var(--ink);
 		font-family: 'LXGW WenKai TC', ui-sans-serif, system-ui, sans-serif;
 		isolation: isolate;
-	}
-	:global(:root[data-theme='dark']) .board {
-		--bg: #15110e;
-		--bg-2: #080706;
-		--grid: rgb(255 235 205 / 0.035);
-		--ghost: rgb(255 235 205 / 0.04);
-		--card: #1c1713;
-		--card-2: #231d18;
-		--ink: #f2eadd;
-		--muted: #9d8c77;
-		--hair: rgb(255 235 210 / 0.09);
-		--red: #e3342b;
-		--red-glow: rgb(227 52 43 / 0.55);
-		--shadow:
-			0 1px 1px rgb(0 0 0 / 0.4), 0 14px 30px -10px rgb(0 0 0 / 0.7),
-			0 40px 80px -30px rgb(0 0 0 / 0.8);
-		--spot: rgb(255 214 150 / 0.11);
 	}
 
 	/* ── Behind the cards ── */
@@ -656,14 +583,6 @@
 		position: absolute;
 		inset: 0;
 		pointer-events: none;
-	}
-	.grid {
-		background-image:
-			linear-gradient(var(--grid) 1px, transparent 1px),
-			linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-		background-size: 48px 48px;
-		background-position: var(--bgx, 0) var(--bgy, 0);
-		mask-image: radial-gradient(90% 80% at 50% 40%, #000 30%, transparent 85%);
 	}
 	.ghost {
 		display: grid;
@@ -677,79 +596,6 @@
 		translate: calc(var(--bgx, 0px) * -0.6) calc(var(--bgy, 0px) * -0.6);
 		user-select: none;
 	}
-	/* The light follows the pointer: a desk lamp in the dark, a soft sheen by day. */
-	.spot {
-		background: radial-gradient(
-			38rem circle at var(--lx, 50%) var(--ly, 35%),
-			var(--spot),
-			transparent 70%
-		);
-	}
-	.grain {
-		opacity: 0.35;
-		mix-blend-mode: multiply;
-		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .22 0 0 0 0 .14 0 0 0 .35 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-	}
-	:global(:root[data-theme='dark']) .grain {
-		opacity: 0.5;
-		mix-blend-mode: screen;
-	}
-
-	/* ── The bar along the top ── */
-	.bar {
-		position: absolute;
-		inset: 0 0 auto;
-		z-index: 20;
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem;
-		padding: 1.1rem clamp(1rem, 3vw, 2.2rem);
-	}
-	.brand {
-		display: flex;
-		align-items: center;
-		gap: 0.6rem;
-	}
-	.brand img {
-		width: 28px;
-		height: 28px;
-		border-radius: 6px;
-	}
-	.brand-name {
-		font-family: var(--font-display);
-		font-size: 1.05rem;
-		letter-spacing: 0.18em;
-	}
-	.brand-sub {
-		color: var(--muted);
-		font-family: var(--font-mono-hack);
-		font-size: 0.72rem;
-		letter-spacing: 0.12em;
-	}
-	.tools {
-		display: flex;
-		align-items: center;
-		gap: 0.25rem;
-	}
-	.tool {
-		position: relative;
-		display: inline-flex;
-		align-items: center;
-		gap: 0.45rem;
-		height: 2.1rem;
-		padding: 0 0.75rem;
-		border-radius: 999px;
-		color: var(--ink);
-		font-size: 0.86rem;
-		transition:
-			background-color 0.2s,
-			color 0.2s;
-	}
-	.tool:hover {
-		background: var(--hair);
-	}
-	.tool:focus-visible,
 	.card:focus-visible,
 	.friend-card:focus-visible {
 		outline: 2px solid var(--red);
@@ -762,33 +608,6 @@
 		color: var(--muted);
 		font-family: var(--font-mono-hack);
 		font-size: 0.68rem;
-	}
-	.lamp {
-		width: 2.1rem;
-		padding: 0;
-		justify-content: center;
-	}
-	.bulb {
-		width: 12px;
-		height: 12px;
-		border-radius: 50%;
-		background: #f2b632;
-		box-shadow:
-			0 0 0 3px rgb(242 182 50 / 0.18),
-			0 0 14px 2px rgb(242 182 50 / 0.6);
-		transition:
-			background-color 0.3s,
-			box-shadow 0.3s;
-	}
-	.bulb.off {
-		background: transparent;
-		box-shadow: inset 0 0 0 1.5px var(--muted);
-	}
-	.who .dot {
-		width: 7px;
-		height: 7px;
-		border-radius: 50%;
-		background: var(--red);
 	}
 
 	/* ── The board itself ── */
@@ -1291,11 +1110,6 @@
 		}
 		.ch-sub {
 			font-size: 0.74rem;
-		}
-		.brand-sub,
-		.tools .tool:nth-child(2),
-		.tools .tool:nth-child(3) {
-			display: none;
 		}
 		.hint {
 			display: none;

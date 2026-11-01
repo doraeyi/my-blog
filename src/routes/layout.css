@@ -55,12 +55,44 @@
 
 :root {
 	color-scheme: light;
-	/* The room around the desk. */
-	--room: #17110c;
+	/* The case board every page is pinned to (BoardBackdrop, SiteBar, the homepage). */
+	--b-bg: #ebe4d6;
+	--b-bg-2: #e2d9c7;
+	--b-grid: rgb(70 45 20 / 0.07);
+	--b-ghost: rgb(70 45 20 / 0.08);
+	--b-card: #fbf8f1;
+	--b-card-2: #f4eee2;
+	--b-ink: #1b1510;
+	--b-muted: #7b6a56;
+	--b-hair: rgb(60 40 20 / 0.12);
+	--b-red: #c3191f;
+	--b-red-glow: rgb(195 25 31 / 0.35);
+	--b-shadow:
+		0 1px 1px rgb(40 25 10 / 0.08), 0 10px 24px -8px rgb(40 25 10 / 0.28),
+		0 30px 60px -30px rgb(40 25 10 / 0.35);
+	--b-spot: rgb(255 252 240 / 0.55);
+}
+/* Lights off: the board goes dark and the one lamp follows the pointer. */
+:root[data-theme='dark'] {
+	--b-bg: #15110e;
+	--b-bg-2: #080706;
+	--b-grid: rgb(255 235 205 / 0.035);
+	--b-ghost: rgb(255 235 205 / 0.04);
+	--b-card: #1c1713;
+	--b-card-2: #231d18;
+	--b-ink: #f2eadd;
+	--b-muted: #9d8c77;
+	--b-hair: rgb(255 235 210 / 0.09);
+	--b-red: #e3342b;
+	--b-red-glow: rgb(227 52 43 / 0.55);
+	--b-shadow:
+		0 1px 1px rgb(0 0 0 / 0.4), 0 14px 30px -10px rgb(0 0 0 / 0.7),
+		0 40px 80px -30px rgb(0 0 0 / 0.8);
+	--b-spot: rgb(255 214 150 / 0.11);
 }
 
 html {
-	background-color: var(--room);
+	background-color: var(--b-bg-2);
 	color: var(--color-ink);
 	scroll-behavior: smooth;
 }
@@ -101,64 +133,43 @@ html {
 		}
 	}
 
-	/* Into the book: the desk rushes toward you, the page comes up to meet you. */
+	/* Into a chapter: the board has already zoomed into the card; the sheet hangs in. */
 	:root[data-nav='into']::view-transition-old(root) {
-		transform-origin: 58% 78%;
-		animation: vt-dive-old 0.42s cubic-bezier(0.55, 0, 0.85, 0.35) forwards;
+		animation: case-fade-out 0.2s ease-out forwards;
 	}
 	:root[data-nav='into']::view-transition-new(root) {
-		animation: vt-dive-new 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+		animation: vt-hang 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 	}
-	@keyframes vt-dive-old {
-		to {
-			opacity: 0;
-			transform: scale(1.8);
-		}
-	}
-	@keyframes vt-dive-new {
-		from {
-			opacity: 0;
-			transform: scale(0.94);
-		}
-	}
-	/* Out of the book: the page sinks back onto the desk, the office comes into view. */
+	/* Back to the board: the sheet lifts off, the board comes back into view. */
 	:root[data-nav='out']::view-transition-old(root) {
-		transform-origin: 58% 85%;
-		animation: vt-close-old 0.45s cubic-bezier(0.55, 0, 0.85, 0.35) forwards;
+		animation: vt-lift 0.35s cubic-bezier(0.55, 0, 0.85, 0.35) forwards;
 	}
 	:root[data-nav='out']::view-transition-new(root) {
-		animation: vt-close-new 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+		animation: vt-board 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 	}
-	@keyframes vt-close-old {
-		to {
-			opacity: 0;
-			transform: scale(0.35);
-		}
-	}
-	@keyframes vt-close-new {
-		from {
-			opacity: 0;
-			transform: scale(1.25);
-		}
-	}
-	/* Within the book: a page turns. */
+	/* Between chapters: one sheet is taken down, the next is pinned up. */
 	:root[data-nav='turn']::view-transition-old(root) {
-		transform-origin: left center;
-		animation: vt-turn-old 0.32s ease-in forwards;
+		animation: vt-lift 0.3s cubic-bezier(0.55, 0, 0.85, 0.35) forwards;
 	}
 	:root[data-nav='turn']::view-transition-new(root) {
-		animation: vt-turn-new 0.36s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+		animation: vt-hang 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) 0.05s both;
 	}
-	@keyframes vt-turn-old {
-		to {
-			opacity: 0;
-			transform: perspective(1800px) rotateY(-14deg) translateX(-3%);
-		}
-	}
-	@keyframes vt-turn-new {
+	@keyframes vt-hang {
 		from {
 			opacity: 0;
-			transform: translateX(3%);
+			transform: translateY(28px) scale(0.985);
+		}
+	}
+	@keyframes vt-lift {
+		to {
+			opacity: 0;
+			transform: translateY(-22px) scale(0.98);
+		}
+	}
+	@keyframes vt-board {
+		from {
+			opacity: 0;
+			transform: scale(1.06);
 		}
 	}
 }
@@ -588,161 +599,122 @@ html {
 	color: rgba(244, 234, 210, 0.85);
 }
 
-/* ───────── Every page but the homepage: the book on Liam's desk, up close ───────── */
-.desk {
-	padding: 84px 12px 48px;
-	background:
-		radial-gradient(ellipse 70% 40% at 50% 0%, rgba(255, 214, 160, 0.1), transparent 70%),
-		repeating-linear-gradient(177deg, rgba(30, 15, 5, 0.12) 0 2px, transparent 2px 21px),
-		linear-gradient(180deg, #6e3d24, #55301b 60%, #4a2a17);
+/* ───────── Every page but the homepage: one case sheet pinned to the board ───────── */
+.sheet-desk {
+	padding: 1.25rem 12px 48px;
 }
-.file-desk {
-	position: relative;
-	max-width: 1180px;
-	margin: 0 auto;
-}
-/* The same red cover as the book on the office desk, its pages stacked underneath */
-.case-book {
+.sheet-wrap {
 	position: relative;
 	max-width: 1080px;
 	margin: 0 auto;
-	padding: 34px 10px 12px;
-	border-radius: 6px;
-	background:
-		linear-gradient(90deg, rgba(0, 0, 0, 0.3), transparent 1.5%),
-		linear-gradient(160deg, #6a1f14, #4a140d);
-	box-shadow:
-		inset 0 1px 0 rgba(255, 200, 170, 0.15),
-		0 3px 0 #e9dcbb,
-		0 5px 0 #d9c9a3,
-		0 7px 0 #3a0f09,
-		0 36px 50px -20px rgba(0, 0, 0, 0.75);
-	animation: book-open 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-/* Gold foil along the top of the cover: whose book, and which part of it */
-.book-band {
-	position: absolute;
-	top: 9px;
-	right: 22px;
-	left: 22px;
-	display: flex;
-	justify-content: space-between;
-	color: #e8c779;
-	font-family: var(--font-display);
-	font-size: 0.8rem;
-	letter-spacing: 0.35em;
-	text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
-}
-/* The page itself: the spine's shadow on its left edge */
+/* The sheet: paper, pinned through the top, hung there when the page opens */
 .case-paper {
 	position: relative;
 	z-index: 1;
-	padding: 4px 0 8px;
-	border-radius: 2px;
+	padding: 8px 0 8px;
+	border: 1px solid rgb(60 40 20 / 0.08);
+	border-radius: 6px;
 	color: var(--color-ink);
 	background:
 		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E"),
 		#fbf6e9;
-	box-shadow:
-		inset 28px 0 30px -26px rgba(60, 35, 10, 0.45),
-		inset -1px 0 0 #e6d9b9;
+	box-shadow: var(--b-shadow);
+	transform-origin: 50% 0;
+	animation: sheet-hang 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
-/* The open section's ribbon, its tail hanging out of the bottom of the book */
-.page-ribbon {
-	position: absolute;
-	z-index: 0;
-	right: 16%;
-	bottom: -70px;
-	width: 16px;
-	height: 76px;
-	background: var(--c);
-	clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 84%, 0 100%);
-	filter: drop-shadow(1px 2px 1px rgba(0, 0, 0, 0.3));
-}
-@keyframes book-open {
-	from {
+@keyframes sheet-hang {
+	0% {
 		opacity: 0;
-		transform: perspective(1600px) rotateX(10deg) translateY(18px);
+		transform: translateY(-28px) rotate(-1.4deg);
+	}
+	45% {
+		opacity: 1;
+		transform: translateY(2px) rotate(0.6deg);
+	}
+	72% {
+		transform: rotate(-0.25deg);
+	}
+	100% {
+		transform: none;
+	}
+}
+/* What the sheet is: chapter number and name, typed across the top */
+.sheet-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.6rem 1.6rem;
+	margin: 0 clamp(16px, 4vw, 48px);
+	padding: 20px 0 12px;
+	border-bottom: 1px dashed #d4c39f;
+}
+.sheet-label {
+	display: flex;
+	align-items: center;
+	gap: 0.55rem;
+	color: #8a7458;
+	font-family: var(--font-mono-hack);
+	font-size: 0.74rem;
+	letter-spacing: 0.14em;
+}
+.sheet-label .ch-tab {
+	width: 14px;
+	height: 4px;
+	border-radius: 2px;
+	background: var(--c);
+}
+/* The red thread down the left margin: it follows you down the page as you read. */
+.sheet-thread {
+	position: absolute;
+	z-index: 2;
+	top: 18px;
+	left: -18px;
+	width: 2px;
+	height: var(--read, 0px);
+	border-radius: 2px;
+	background: var(--b-red);
+	box-shadow: 0 0 8px var(--b-red-glow);
+	transition: height 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+	pointer-events: none;
+}
+.sheet-thread::before,
+.sheet-thread::after {
+	content: '';
+	position: absolute;
+	left: 50%;
+	width: 12px;
+	height: 12px;
+	margin-left: -6px;
+	border-radius: 50%;
+	background: radial-gradient(circle at 35% 30%, #ff8b80, var(--b-red) 45%, #6d0b0b);
+	box-shadow: 0 2px 3px rgb(0 0 0 / 0.35);
+}
+.sheet-thread::before {
+	top: -6px;
+}
+.sheet-thread::after {
+	bottom: -6px;
+}
+@media (max-width: 1139px) {
+	.sheet-desk {
+		padding-left: 26px;
 	}
 }
 @media (max-width: 639px) {
-	.case-book {
-		padding: 28px 6px 8px;
+	.sheet-desk {
+		padding: 0.75rem 8px 40px 20px;
 	}
-	.book-band {
-		top: 7px;
-		right: 14px;
-		left: 14px;
-		font-size: 0.68rem;
-		letter-spacing: 0.25em;
-	}
-	.page-ribbon {
-		right: 12%;
-		bottom: -52px;
-		height: 56px;
-	}
-}
-/* Light through the office blinds, coloured by the real time of day (data-sky, GlobalFx) */
-.blind-light {
-	position: fixed;
-	inset: 0;
-	z-index: 46;
-	pointer-events: none;
-	background: repeating-linear-gradient(
-		158deg,
-		transparent 0 40px,
-		var(--slat, rgba(255, 226, 160, 0.07)) 40px 62px
-	);
-	mask-image: linear-gradient(205deg, #000, transparent 62%);
-	mix-blend-mode: screen;
-	opacity: 0.7;
-	transition: opacity 0.6s;
-}
-:root[data-sky='dawn'],
-:root[data-sky='dusk'] {
-	--slat: rgba(255, 170, 110, 0.09);
-}
-:root[data-sky='night'] {
-	--slat: rgba(150, 180, 255, 0.07);
-}
-:root[data-theme='dark'] .blind-light {
-	opacity: 1;
-}
-:root[data-sky='night']:not([data-theme='dark']) .blind-light {
-	opacity: 0.3;
-}
-:root[data-lite='1'] .blind-light {
-	display: none;
-}
-/* Dust motes drifting through that light */
-.blind-light i {
-	position: absolute;
-	top: var(--y);
-	left: var(--x);
-	width: var(--s);
-	height: var(--s);
-	border-radius: 50%;
-	background: rgba(255, 244, 220, 0.75);
-	box-shadow: 0 0 6px rgba(255, 236, 200, 0.6);
-	animation: mote var(--d) ease-in-out var(--delay) infinite;
-}
-@keyframes mote {
-	0%,
-	100% {
-		opacity: 0;
-		transform: translate(0, 0);
-	}
-	20%,
-	80% {
-		opacity: 0.9;
-	}
-	50% {
-		transform: translate(34px, -46px);
+	.sheet-thread {
+		left: -12px;
 	}
 }
 @media (prefers-reduced-motion: reduce) {
-	.blind-light i {
-		display: none;
+	.case-paper {
+		animation: none;
+	}
+	.sheet-thread {
+		transition: none;
 	}
 }
 
@@ -767,12 +739,13 @@ html {
 :root:not([data-traveling]) .pin-target {
 	view-transition-name: travel-pin;
 }
-/* On every page: pinned through the top-left corner of the sheet */
+/* On every page: pinned through the top of the sheet, like the cards on the board */
 .page-pin {
 	position: absolute;
 	z-index: 6;
-	top: 14px;
-	left: 18px;
+	top: -6px;
+	left: 50%;
+	margin-left: -9px;
 	animation: pin-press 0.35s cubic-bezier(0.3, 1.6, 0.5, 1) 0.15s both;
 }
 @keyframes pin-press {
@@ -806,86 +779,11 @@ html {
 	}
 }
 
-/* The book's bookmarks, sticking out of its right edge: the way around the site.
-   Narrow screens get thin upright tabs (the desk leaves room for them). */
-.paper-marks {
-	position: absolute;
-	top: 90px;
-	right: -27px;
-	bottom: 0;
-	z-index: 0;
-}
-.paper-marks-inner {
-	position: sticky;
-	top: 80px;
-	display: grid;
-	gap: 6px;
-}
-.paper-mark {
-	display: block;
-	width: 26px;
-	padding: 10px 0 8px;
-	border-radius: 0 5px 5px 0;
-	background: var(--c);
-	color: #fff;
-	font-size: 0.72rem;
-	letter-spacing: 0.15em;
-	text-align: center;
-	writing-mode: vertical-rl;
-	box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.35);
-	translate: -4px 0;
-	transition: translate 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-.paper-mark:hover,
-.paper-mark:focus-visible {
-	translate: 0 0;
-}
-.paper-mark.is-open {
-	translate: 4px 0;
-	box-shadow:
-		2px 3px 5px rgba(0, 0, 0, 0.35),
-		inset 3px 0 0 rgba(255, 255, 255, 0.5);
-}
-@media (max-width: 1159px) {
-	.desk {
-		padding-right: 36px;
-	}
-}
-@media (min-width: 1160px) {
-	.paper-marks {
-		top: 110px;
-		right: -60px;
-	}
-	.paper-marks-inner {
-		top: 96px;
-		gap: 8px;
-	}
-	.paper-mark {
-		width: 74px;
-		padding: 7px 10px 7px 20px;
-		font-size: 0.78rem;
-		letter-spacing: 0.06em;
-		text-align: left;
-		white-space: nowrap;
-		writing-mode: horizontal-tb;
-		translate: -10px 0;
-	}
-	.paper-mark:hover,
-	.paper-mark:focus-visible {
-		translate: 0 0;
-	}
-	.paper-mark.is-open {
-		translate: 8px 0;
-	}
-}
 /* The chapter's other pages, typed along the top of the sheet */
 .chapter-entries {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 4px 18px;
-	margin: 0 clamp(16px, 4vw, 48px);
-	padding: 16px 0 10px 28px;
-	border-bottom: 1px dashed #d4c39f;
 	font-family: var(--font-mono-hack);
 	font-size: 0.78rem;
 	letter-spacing: 0.08em;
@@ -910,11 +808,6 @@ html {
 	height: 2px;
 	background: #b3261e;
 	border-radius: 2px;
-}
-@media (prefers-reduced-motion: reduce) {
-	.case-book {
-		animation: none;
-	}
 }
 
 /* ───────── Lights off: the room goes dark except the detective's torch, which follows the cursor ───────── */
@@ -948,8 +841,8 @@ html {
 		opacity: 1;
 	}
 }
-/* The study (homepage) has its own lamp and screen light. */
-:root:has(.study) .room-dark {
+/* The homepage board (and the old study) has its own light. */
+:root:has(.study, .board) .room-dark {
 	display: none;
 }
 
