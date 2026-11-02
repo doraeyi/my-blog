@@ -6,8 +6,6 @@ excerpt: 這個部落格是怎麼架起來的：SvelteKit + drizzle + better-aut
 published: true
 ---
 
-# 哈囉，世界
-
 歡迎來到這個部落格。這裡的文章都是純 Markdown 檔案，透過 [mdsvex](https://mdsvex.com) 編譯成 Svelte 元件渲染；留言和按讚才會存進 SQLite 資料庫。
 
 ## 為什麼文章不存資料庫？

@@ -6,8 +6,6 @@ excerpt: 前端、後端都用 SvelteKit 一個 process 搞定，之後有需要
 published: true
 ---
 
-# 用 SvelteKit 打造個人部落格
-
 這篇文章記錄一些架構決定：
 
 - 認證交給 `better-auth`
