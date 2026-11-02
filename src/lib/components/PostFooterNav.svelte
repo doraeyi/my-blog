@@ -19,7 +19,7 @@
 		<PinString class="sides">
 			{#if nav.prev}
 				<a href={nav.prev.path} class="side" use:pinned={{ tilt: -0.8 }}>
-					<span class="side-kicker font-mono-hack">← 上一宗</span>
+					<span class="side-kicker font-mono-hack">← 上一篇 · 上一宗</span>
 					<span class="side-title font-display"><span class="ink-line">{nav.prev.title}</span></span
 					>
 				</a>
@@ -28,7 +28,7 @@
 			{/if}
 			{#if nav.next}
 				<a href={nav.next.path} class="side next" use:pinned={{ delay: 120, tilt: 0.8 }}>
-					<span class="side-kicker font-mono-hack">下一宗 →</span>
+					<span class="side-kicker font-mono-hack">下一宗 · 下一篇 →</span>
 					<span class="side-title font-display"><span class="ink-line">{nav.next.title}</span></span
 					>
 				</a>
@@ -39,7 +39,7 @@
 
 {#if nav.related.length > 0}
 	<section class="mt-16">
-		<h2 class="related-head font-mono-hack">相關案件</h2>
+		<h2 class="related-head font-mono-hack">相關案件 · 你可能也會想看</h2>
 		<PinString class="related">
 			{#each nav.related as item, i (item.path)}
 				<a

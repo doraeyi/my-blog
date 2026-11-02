@@ -33,6 +33,24 @@
 			: `CH.${String(i + 1).padStart(2, '0')} · ${section.no} · ${section.label}`;
 	});
 
+	// On a page inside a list (a post, a show, a tag), the way back to that list,
+	// spelled out at the top of the sheet.
+	const LIST_OF: Record<string, string> = {
+		articles: '/blog?cat=article',
+		moods: '/blog?cat=mood',
+		blog: '/blog?cat=blog'
+	};
+	const backTo = $derived.by(() => {
+		const segs = page.url.pathname.split('/').filter(Boolean);
+		if (segs.length < 2 || !section || segs[0] === 'admin') return null;
+		if (section.cards.some((c) => c.href === page.url.pathname)) return null;
+		const href = LIST_OF[segs[0]] ?? `/${segs[0]}`;
+		const card =
+			section.cards.find((c) => c.href === href) ??
+			section.cards.find((c) => c.href.split('?')[0] === `/${segs[0]}`);
+		return card ?? { href: section.href, label: section.label };
+	});
+
 	// The sheet, for the red thread down its margin.
 	let sheetEl: HTMLElement | undefined = $state();
 
@@ -241,6 +259,10 @@
 			<div bind:this={sheetEl} class="case-paper">
 				<span class="page-pin pin-target" aria-hidden="true"></span>
 				<div class="sheet-head">
+					{#if backTo}
+						<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- static app paths from site-nav -->
+						<a href={backTo.href} class="sheet-back">← 回到{backTo.label}</a>
+					{/if}
 					<p class="sheet-label">
 						<span class="ch-tab" style="--c: {section?.color ?? '#8e1d12'}"></span>{sheetLabel}
 					</p>

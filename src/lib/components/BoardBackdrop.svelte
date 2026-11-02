@@ -138,8 +138,10 @@
 		width: 220px;
 		height: calc(100vh - 4.5rem);
 		overflow: visible;
-		opacity: 0.5;
-		filter: blur(1.4px);
+		/* Faint and soft enough to read as background, not as cards you could click. */
+		opacity: 0.3;
+		filter: blur(2px);
+		pointer-events: none;
 		translate: 0 var(--sy, 0);
 		display: none;
 	}
@@ -160,7 +162,7 @@
 		display: none;
 	}
 	:global(:root[data-theme='dark']) .ghost {
-		opacity: 0.32;
+		opacity: 0.22;
 	}
 	.g-card {
 		fill: var(--b-card);
