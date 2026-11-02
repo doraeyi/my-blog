@@ -58,7 +58,9 @@
 
 	{#each years as year (year.year)}
 		<section class="mt-12">
-			<h2 use:reveal class="font-display text-4xl text-ink-muted dark:text-case-800">{year.year}</h2>
+			<h2 use:reveal class="font-display text-4xl text-ink-muted dark:text-case-800">
+				{year.year}
+			</h2>
 			{#each year.months as month (month.month)}
 				<div class="mt-6 grid grid-cols-[3.5rem_1fr] gap-4">
 					<p class="pt-0.5 font-mono-hack text-sm text-accent">
