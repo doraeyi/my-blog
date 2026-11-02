@@ -271,7 +271,11 @@
 	}
 
 	// ── The opening: once the site's intro has gone, the pins go in ──
-	let open = $state(false);
+	// Coming back from a page the board is already up, so the sheet can go
+	// straight back to its card.
+	let open = $state(
+		typeof document !== 'undefined' && document.documentElement.dataset.nav === 'out'
+	);
 	$effect(() => {
 		const root = document.documentElement;
 		const mo = new MutationObserver(() => go());

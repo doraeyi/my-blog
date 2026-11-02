@@ -143,13 +143,15 @@
 		translate: 0 var(--sy, 0);
 		display: none;
 	}
+	/* Tucked a little under the sheet's edges, so on narrower screens the
+	   cards still peek out from behind it. */
 	.ghost-l {
-		right: calc(50% + 556px);
+		right: calc(50% + 516px);
 	}
 	.ghost-r {
-		left: calc(50% + 556px);
+		left: calc(50% + 516px);
 	}
-	@media (min-width: 1280px) {
+	@media (min-width: 1180px) {
 		.ghost {
 			display: block;
 		}

@@ -106,13 +106,29 @@
 		}
 		lastClick = null;
 
-		const card = to !== '/' && lastCard?.isConnected ? lastCard : null;
+		// Into a page: the clicked card becomes the sheet. Back to the board: the
+		// sheet goes back to its card (the one for this file, or this chapter's).
+		const back = to === '/' && from !== '/';
+		const fromEl = back
+			? document.querySelector<HTMLElement>('.case-paper')
+			: lastCard?.isConnected
+				? lastCard
+				: null;
 		lastCard = null;
-		let sheet: HTMLElement | null = null;
-		if (card) {
-			card.style.viewTransitionName = 'case-file';
-			root.dataset.morph = '';
+		let toEl: HTMLElement | null = null;
+		if (fromEl) {
+			fromEl.style.viewTransitionName = 'case-file';
+			root.dataset.morph = back ? 'back' : '';
 		}
+		const boardCard = (path: string) => {
+			const cards = [...document.querySelectorAll<HTMLElement>('.board a.card')];
+			const top = `/${path.split('/')[1]}`;
+			return (
+				cards.find((c) => c.getAttribute('href') === path) ??
+				cards.find((c) => c.getAttribute('href')?.split(/[?#]/)[0] === top) ??
+				null
+			);
+		};
 
 		return new Promise((resolve) => {
 			const t = document.startViewTransition(async () => {
@@ -120,17 +136,17 @@
 				await navigation.complete;
 				pin?.remove();
 				delete root.dataset.traveling;
-				if (card) {
-					card.style.viewTransitionName = '';
-					sheet = document.querySelector<HTMLElement>('.case-paper');
-					if (sheet) sheet.style.viewTransitionName = 'case-file';
+				if (fromEl) {
+					fromEl.style.viewTransitionName = '';
+					toEl = back ? boardCard(from ?? '') : document.querySelector('.case-paper');
+					if (toEl) toEl.style.viewTransitionName = 'case-file';
 				}
 			});
 			t.finished.finally(() => {
 				delete root.dataset.nav;
 				delete root.dataset.morph;
-				if (card) card.style.viewTransitionName = '';
-				if (sheet) sheet.style.viewTransitionName = '';
+				if (fromEl) fromEl.style.viewTransitionName = '';
+				if (toEl) toEl.style.viewTransitionName = '';
 				pin?.remove();
 				delete root.dataset.traveling;
 			});
