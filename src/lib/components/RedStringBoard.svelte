@@ -66,7 +66,7 @@
 	const pinned = $derived(friends.slice(0, friendAt.length));
 
 	const nodes = $derived<Node[]>([
-		{ id: 'liam', kind: 'liam', parent: null, at: [50, 26, 50, 3], depth: 0.35, delay: 0 },
+		{ id: 'liam', kind: 'liam', parent: null, at: [50, 22, 50, 3], depth: 0.35, delay: 0 },
 		...chapters.map((c, i) => ({
 			id: c.id,
 			kind: 'chapter' as const,
@@ -595,7 +595,7 @@
 		--red-glow: var(--b-red-glow);
 		--shadow: var(--b-shadow);
 		position: relative;
-		min-height: max(100svh, 720px);
+		min-height: max(100svh, 760px);
 		overflow: hidden;
 		color: var(--ink);
 		font-family: 'LXGW WenKai TC', ui-sans-serif, system-ui, sans-serif;
@@ -1121,8 +1121,16 @@
 		opacity: 0;
 	}
 
-	/* ── Phones and narrow windows: a tall board ── */
-	@media (max-width: 719px) {
+	/* Between a portrait tablet and a laptop the cards are full size but the
+	   board isn't: give it the height they need so none land on another. */
+	@media (min-width: 900px) and (max-width: 1279px) {
+		.board {
+			min-height: max(100svh, 940px);
+		}
+	}
+
+	/* ── Phones, portrait tablets and narrow windows: a tall board ── */
+	@media (max-width: 899px) {
 		.board {
 			min-height: 1340px;
 		}
@@ -1164,7 +1172,7 @@
 			font-size: 14rem;
 		}
 	}
-	@media (max-width: 719px) and (max-width: 360px) {
+	@media (max-width: 360px) {
 		.liam-card {
 			width: 19rem;
 		}
