@@ -238,6 +238,16 @@
 		font-size: 0.62rem;
 		letter-spacing: 0.24em;
 	}
+	/* The browser's clear button, redrawn in ink instead of its system blue. */
+	.search-file input::-webkit-search-cancel-button {
+		width: 14px;
+		height: 14px;
+		background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M3 3l8 8M11 3l-8 8' stroke='%237a6a58' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E")
+			center / contain no-repeat;
+		cursor: pointer;
+		-webkit-appearance: none;
+		appearance: none;
+	}
 	/* The file under the cursor gets the red thread down its edge. */
 	.hit {
 		position: relative;

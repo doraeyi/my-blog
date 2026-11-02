@@ -42,7 +42,7 @@
 <header class="case-head" style="--landed: {landed}s; --k: {color[kind]}">
 	<p class="kicker font-mono-hack">
 		<span class="kind">{kindLabel[kind]}</span>
-		<span>CASE FILE № {fileNo}</span>
+		<span class="file-no"><span class="file-word">CASE FILE </span>№ {fileNo}</span>
 	</p>
 
 	<div class="title-row">
@@ -106,6 +106,15 @@
 	.kind {
 		color: var(--k);
 		white-space: nowrap;
+	}
+	.file-no {
+		white-space: nowrap;
+	}
+	/* A phone keeps just the number, so the line doesn't break under the stamp. */
+	@media (max-width: 479px) {
+		.file-word {
+			display: none;
+		}
 	}
 	.kind::before {
 		content: '';
