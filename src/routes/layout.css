@@ -186,7 +186,13 @@ html {
 		animation: vt-board 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 	}
 	:root[data-morph='back']::view-transition-old(case-file) {
-		animation: case-fade-out 0.45s ease-in both;
+		animation: case-fade-out 0.3s ease-in both;
+	}
+	/* The card it lands in is shown at its own size too, not blown up to the sheet's width. */
+	:root[data-morph='back']::view-transition-new(case-file) {
+		height: 100%;
+		object-fit: none;
+		object-position: 50% 0;
 	}
 	@keyframes vt-paper-in {
 		from {
