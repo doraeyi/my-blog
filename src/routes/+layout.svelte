@@ -238,7 +238,7 @@
 					{/if}
 				</div>
 				{@render children()}
-				{#if !page.url.pathname.startsWith('/admin')}<CaseEnd />{/if}
+				{#if !page.error && !page.url.pathname.startsWith('/admin')}<CaseEnd />{/if}
 			</div>
 		</div>
 	{:else}

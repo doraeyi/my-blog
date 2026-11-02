@@ -1,4 +1,5 @@
 <script lang="ts">
+	import EmptyEvidence from '$lib/components/EmptyEvidence.svelte';
 	import { resolve } from '$app/paths';
 	import Seo from '$lib/components/Seo.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
@@ -108,11 +109,7 @@
 	{/if}
 
 	{#if posts.length === 0}
-		<p
-			class="mt-8 rounded-2xl border border-dashed border-border-case py-10 text-center text-sm text-ink-muted"
-		>
-			── 朋友們還沒有新文章，或還在抓。 ──
-		</p>
+		<EmptyEvidence title="朋友們還沒有新文章" note="或是還在抓，晚點再來看看。" tag="線報" />
 	{/if}
 
 	{#each months as month (month.label)}

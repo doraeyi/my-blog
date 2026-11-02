@@ -1,10 +1,10 @@
 <script lang="ts">
+	import EmptyEvidence from '$lib/components/EmptyEvidence.svelte';
 	import Seo from '$lib/components/Seo.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { reveal } from '$lib/actions/reveal';
 	import { books, bookStatusLabel, type BookStatus } from '$lib/collections';
 	import Search from '@lucide/svelte/icons/search';
-	import Library from '@lucide/svelte/icons/library';
 	import Star from '@lucide/svelte/icons/star';
 
 	const rated = books.filter((b) => b.rating);
@@ -58,18 +58,7 @@
 	</PageHeader>
 
 	{#if books.length === 0}
-		<div
-			class="mx-auto flex max-w-md flex-col items-center rounded-3xl border border-dashed border-border-case px-6 py-16 text-center"
-			use:reveal
-		>
-			<span
-				class="flex size-12 items-center justify-center rounded-2xl bg-surface-alt text-ink-muted"
-			>
-				<Library class="size-6" />
-			</span>
-			<p class="mt-4 font-medium text-ink">書櫃還空著</p>
-			<p class="mt-1 text-sm text-ink-muted">書還在搬，下次來就會有了。</p>
-		</div>
+		<EmptyEvidence title="書櫃還空著" note="書還在搬，下次來就會有了。" />
 	{:else}
 		<div class="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center" use:reveal>
 			<label

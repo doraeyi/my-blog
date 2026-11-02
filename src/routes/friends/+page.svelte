@@ -1,4 +1,5 @@
 <script lang="ts">
+	import EmptyEvidence from '$lib/components/EmptyEvidence.svelte';
 	import { enhance } from '$app/forms';
 	import { resolve } from '$app/paths';
 	import { pinned } from '$lib/actions/pinned';
@@ -249,11 +250,7 @@
 	<section class="mt-6" use:reveal={{ delay: 80 }}>
 		<h2 class="sr-only">目前的朋友</h2>
 		{#if shown.length === 0}
-			<p
-				class="rounded-2xl border border-dashed border-border-case py-10 text-center text-sm text-ink-muted"
-			>
-				── 還沒有人，這裡空著。歡迎成為第一個。 ──
-			</p>
+			<EmptyEvidence title="還沒有人，這裡空著" note="歡迎成為第一個。" tag="線人" />
 		{:else}
 			<PinString>
 				<ul class="grid gap-x-5 gap-y-9 pt-2 sm:grid-cols-2 lg:grid-cols-3">

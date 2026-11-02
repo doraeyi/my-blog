@@ -1,4 +1,5 @@
 <script lang="ts">
+	import EmptyEvidence from '$lib/components/EmptyEvidence.svelte';
 	import { fade } from 'svelte/transition';
 	import { tilt } from '$lib/actions/tilt';
 	import Seo from '$lib/components/Seo.svelte';
@@ -8,7 +9,6 @@
 	import { photoUrl } from '$lib/gear-photos';
 	import PhotoTilt from '$lib/components/PhotoTilt.svelte';
 	import GearModelView from '$lib/components/GearModelView.svelte';
-	import Monitor from '@lucide/svelte/icons/monitor';
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 
@@ -47,18 +47,7 @@
 	<PageHeader title="裝備清單" stamp="清點" description="每天在用的硬體與工具，一覽。" />
 
 	{#if gear.length === 0}
-		<div
-			class="mx-auto flex max-w-md flex-col items-center rounded-3xl border border-dashed border-border-case px-6 py-16 text-center"
-			use:reveal
-		>
-			<span
-				class="flex size-12 items-center justify-center rounded-2xl bg-surface-alt text-ink-muted"
-			>
-				<Monitor class="size-6" />
-			</span>
-			<p class="mt-4 font-medium text-ink">配備清單整理中</p>
-			<p class="mt-1 text-sm text-ink-muted">桌上的東西太多，還在一樣一樣登記。</p>
-		</div>
+		<EmptyEvidence title="配備清單整理中" note="桌上的東西太多，還在一樣一樣登記。" tag="登記中" />
 	{:else}
 		{#if onStand}
 			{@const wide = onStand.model?.kind === 'gpro-x-tkl'}
