@@ -56,7 +56,7 @@
 				>{/each}
 		</h1>
 	</div>
-	<span class="stamp" aria-hidden="true">{stamp[kind]}</span>
+	<span class="stamp" aria-hidden="true" data-word={stamp[kind]}></span>
 
 	<dl class="fields">
 		<div>
@@ -154,6 +154,9 @@
 		}
 	}
 
+	.stamp::before {
+		content: attr(data-word);
+	}
 	.stamp {
 		position: absolute;
 		top: 1.6rem;

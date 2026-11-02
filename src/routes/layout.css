@@ -949,13 +949,12 @@ html {
 	transform-origin: 50% 0;
 	animation: sheet-hang 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
+/* Motion only: the sheet is readable from the first paint and swings into place. */
 @keyframes sheet-hang {
 	0% {
-		opacity: 0;
 		transform: translateY(-28px) rotate(-1.4deg);
 	}
 	45% {
-		opacity: 1;
 		transform: translateY(2px) rotate(0.6deg);
 	}
 	72% {

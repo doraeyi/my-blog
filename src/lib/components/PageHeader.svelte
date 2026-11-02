@@ -45,7 +45,8 @@
 						>{/each}</span
 				>{/each}
 		</h1>
-		<span class="stamp" aria-hidden="true">{stamp}</span>
+		<!-- Drawn from data-word (::before), so the stamp is decoration, not the page's main text. -->
+		<span class="stamp" aria-hidden="true" data-word={stamp}></span>
 	</div>
 
 	{#if description}
@@ -97,6 +98,9 @@
 	}
 
 	/* Rubber stamp: comes down hard once the title has landed, ink a little uneven. */
+	.stamp::before {
+		content: attr(data-word);
+	}
 	.stamp {
 		padding: 0.2rem 0.7rem;
 		border: 2px solid var(--color-accent);
@@ -136,7 +140,7 @@
 		color: var(--color-ink-muted);
 		font-size: clamp(0.9rem, 1.6vw, 1.02rem);
 		line-height: 1.75;
-		animation: rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) calc(var(--landed) - 0.25s) both;
+		animation: rise 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s both;
 	}
 	.extra {
 		animation: rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) calc(var(--landed) - 0.1s) both;

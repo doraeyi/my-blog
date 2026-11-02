@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { whenIdle } from '$lib/idle';
 
 	let {
 		photoSrc,
@@ -13,7 +14,6 @@
 	let canvasEl: HTMLCanvasElement | undefined = $state();
 
 	const MAX_PARTICLES = 16000;
-	const SAMPLE_STEP = 1;
 	const INITIAL_HOLD_MS = 2600;
 	const COLLAPSE_MS = 900;
 	const HOLD_MS = 180;
@@ -93,6 +93,9 @@
 
 		const { data } = octx.getImageData(0, 0, w, h);
 		const points: SamplePoint[] = [];
+		// Only a few candidates per particle: walking every pixel of a retina canvas
+		// built hundreds of thousands of points and held the main thread for ~1s.
+		const step = Math.max(1, Math.floor(Math.sqrt((w * h) / (MAX_PARTICLES * 3))));
 
 		let bgR = 255;
 		let bgG = 255;
@@ -112,8 +115,11 @@
 			bgB = b / corners.length;
 		}
 
-		for (let y = 0; y < h; y += SAMPLE_STEP) {
-			for (let x = 0; x < w; x += SAMPLE_STEP) {
+		for (let gy = 0; gy < h; gy += step) {
+			for (let gx = 0; gx < w; gx += step) {
+				// Anywhere in the cell, so the dots don't line up on a grid.
+				const x = Math.min(w - 1, gx + Math.floor(Math.random() * step));
+				const y = Math.min(h - 1, gy + Math.floor(Math.random() * step));
 				const i = (y * w + x) * 4;
 				const a = data[i + 3];
 				if (a < 30) continue;
@@ -166,7 +172,8 @@
 
 		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-		(async () => {
+		// Decoration: it waits for the page to load and the main thread to be free.
+		const cancelIdle = whenIdle(async () => {
 			if (!containerEl || !canvasEl) return;
 
 			const rect = containerEl.getBoundingClientRect();
@@ -275,9 +282,10 @@
 				{ threshold: 0.4 }
 			);
 			io.observe(containerEl);
-		})();
+		});
 
 		return () => {
+			cancelIdle();
 			destroyed = true;
 			io?.disconnect();
 			window.clearTimeout(holdTimeoutId);
