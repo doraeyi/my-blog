@@ -289,6 +289,27 @@
 				{@render children()}
 				{#if !page.error && !page.url.pathname.startsWith('/admin')}<CaseEnd quiet={isPost} />{/if}
 			</div>
+			{#if section?.cards.length && !isPost}
+				<!-- Wide screens: the chapter's pages are index tabs sticking out of the
+				     file's right edge (the row in the sheet's head stands in below that). -->
+				<nav class="folder-tabs" aria-label="{section.label}這一章的頁面">
+					<div class="ft-stick">
+						<!-- eslint-disable svelte/no-navigation-without-resolve -- static app paths (some with a query) from site-nav -->
+						{#each section.cards as c, i (c.href)}
+							{@const here = isEntryActive(page.url, c.href)}
+							<a
+								href={c.href}
+								title={c.note}
+								class="ft"
+								class:is-here={here}
+								aria-current={here ? 'page' : undefined}
+								style="--c: {section.color ?? '#8e1d12'}; --i: {i}">{c.label}</a
+							>
+						{/each}
+						<!-- eslint-enable svelte/no-navigation-without-resolve -->
+					</div>
+				</nav>
+			{/if}
 		</div>
 	{:else}
 		{@render children()}

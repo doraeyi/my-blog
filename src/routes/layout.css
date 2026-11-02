@@ -1291,3 +1291,92 @@ main:focus {
 		break-after: avoid;
 	}
 }
+
+/* ───────── Index tabs: the chapter's pages, sticking out of the file's right edge ─────────
+   Tucked behind the sheet so only the tabs show; the open page's tab is the
+   paper's own colour, as if it were the sheet you're looking at. They follow
+   you down the page. Wide screens only; narrower ones use the row in the head. */
+.folder-tabs {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 100%;
+	z-index: 0;
+	display: none;
+	width: 3rem;
+	margin-left: -8px;
+}
+.ft-stick {
+	position: sticky;
+	top: 6.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	padding-top: 4.5rem;
+}
+.ft {
+	display: block;
+	width: fit-content;
+	padding: 0.85rem 0.45rem 0.85rem 0.85rem;
+	border: 1px solid #d4c39f;
+	border-left: none;
+	border-right: 3px solid color-mix(in srgb, var(--c) 55%, #d4c39f);
+	border-radius: 0 7px 7px 0;
+	background: linear-gradient(90deg, #e6d9bb, #f1e7cf 40%);
+	box-shadow: 3px 5px 10px -7px rgb(40 25 10 / 0.5);
+	color: #5e4a30;
+	font-size: 0.82rem;
+	letter-spacing: 0.14em;
+	writing-mode: vertical-rl;
+	translate: -5px 0;
+	transition:
+		translate 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+		color 0.2s,
+		background 0.2s;
+	/* Hung one after another when the page opens. */
+	animation: ft-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) calc(0.35s + var(--i) * 0.06s) backwards;
+}
+.ft:hover,
+.ft:focus-visible {
+	translate: 3px 0;
+	color: #2c2118;
+}
+.ft.is-here {
+	background: #fbf6e9;
+	border-right-color: #b3261e;
+	color: #8e1d12;
+	font-weight: 600;
+	translate: 0 0;
+}
+@keyframes ft-in {
+	from {
+		translate: -2.5rem 0;
+		opacity: 0;
+	}
+}
+/* Short laptop screens: the longest chapter (eight pages) still fits top to bottom. */
+@media (max-height: 860px) {
+	.ft-stick {
+		top: 5rem;
+		gap: 4px;
+		padding-top: 1.5rem;
+	}
+	.ft {
+		padding: 0.6rem 0.4rem 0.6rem 0.75rem;
+		font-size: 0.78rem;
+	}
+}
+@media (min-width: 1180px) {
+	.folder-tabs {
+		display: block;
+	}
+	.chapter-entries {
+		display: none;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.ft {
+		animation: none;
+		transition: none;
+	}
+}
