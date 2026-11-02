@@ -158,7 +158,9 @@
 			display: block;
 		}
 	}
-	:global(:root:has(.board)) .ghost {
+	/* Not on the homepage (it is the board), and not beside a post: there the
+	   text is the only thing to look at. */
+	:global(:root:has(.board, .case-head)) .ghost {
 		display: none;
 	}
 	:global(:root[data-theme='dark']) .ghost {

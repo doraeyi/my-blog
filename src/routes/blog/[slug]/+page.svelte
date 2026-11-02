@@ -7,12 +7,10 @@
 	import SeriesBox from '$lib/components/SeriesBox.svelte';
 	import PostFooterNav from '$lib/components/PostFooterNav.svelte';
 	import LikeButton from '$lib/components/LikeButton.svelte';
-	import SubscribeBox from '$lib/components/SubscribeBox.svelte';
 	import PostMentions from '$lib/components/PostMentions.svelte';
 	import ReadingProgress from '$lib/components/ReadingProgress.svelte';
 	import { page } from '$app/state';
 	import PostToc from '$lib/components/PostToc.svelte';
-	import CaseMap from '$lib/components/CaseMap.svelte';
 	import { proseEnhance } from '$lib/actions/prose';
 	import type { PageData, ActionData } from './$types';
 
@@ -67,7 +65,7 @@
 			<CaseClosed />
 		</article>
 
-		<div class="mt-8 flex justify-center">
+		<div class="mt-2 flex justify-center">
 			<LikeButton liked={data.liked} count={data.likeCount} signedIn={!!data.user} />
 		</div>
 
@@ -77,8 +75,6 @@
 
 		<PostMentions mentions={data.mentions} />
 
-		<div class="mt-10"><SubscribeBox /></div>
-
 		<CommentThread
 			comments={data.comments}
 			message={form && 'message' in form ? (form.message as string) : undefined}
@@ -87,9 +83,6 @@
 	</div>
 
 	<aside class="hidden w-56 shrink-0 lg:block">
-		{#if data.nav}
-			<CaseMap title={data.metadata.title} kind="blog" nav={data.nav} />
-		{/if}
 		<div class="sticky top-28">
 			<PostToc container={body} variant="side" />
 		</div>

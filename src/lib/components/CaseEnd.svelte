@@ -1,19 +1,27 @@
 <!--
 	Where a page ends: no website footer, just the close of the file — a 本卷完
 	stamp, the way back to the board, and the few things worth keeping at hand
-	(subscribe, RSS, contact).
+	(subscribe, RSS, contact). Quiet under a post, which has closed with its
+	own 結案 stamp: just the rule and the links.
 -->
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { contactEmail } from '$lib/social-links';
+
+	let { quiet = false }: { quiet?: boolean } = $props();
 </script>
 
-<footer class="case-end mx-auto mt-24 mb-16 max-w-3xl px-6 text-center" aria-label="本卷完">
+<footer
+	class="case-end mx-auto mb-16 max-w-3xl px-6 text-center {quiet ? 'mt-12' : 'mt-24'}"
+	aria-label="本卷完"
+>
 	<div class="rule" aria-hidden="true"></div>
-	<p class="stamp font-display">本卷完</p>
-	<p class="mt-2 font-mono-hack text-[11px] tracking-[0.3em] text-ink-muted">
-		END OF FILE · © {new Date().getFullYear()} LIAM
-	</p>
+	{#if !quiet}
+		<p class="stamp font-display">本卷完</p>
+		<p class="mt-2 font-mono-hack text-[11px] tracking-[0.3em] text-ink-muted">
+			END OF FILE · © {new Date().getFullYear()} LIAM
+		</p>
+	{/if}
 	<nav
 		class="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm"
 		aria-label="收尾"

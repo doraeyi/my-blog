@@ -23,6 +23,9 @@
 	// The homepage is the case board; every other page is one sheet pinned to it.
 	const onPaper = $derived(page.url.pathname !== '/');
 	const section = $derived(drawerFor(page.url.pathname));
+	// A post is for reading: its sheet leaves out the chapter's other entries and
+	// the closing stamp (the post has its own 結案), so the text is the one thing on it.
+	const isPost = $derived(/^\/(blog|articles|moods)\/[^/]+/.test(page.url.pathname));
 	// What the sheet is, typed across its top: CH.03 · 參 · 文章.
 	const sheetLabel = $derived.by(() => {
 		if (page.url.pathname.startsWith('/admin')) return '後台';
@@ -99,7 +102,7 @@
 	// Opening a card (on the board, or one pinned up on a page) takes that card
 	// down and it becomes the next sheet: the card and the new .case-paper share
 	// a view-transition name, so the card grows into the page.
-	const CARD = '.card, .pin-card, .case-card, .case-map .node';
+	const CARD = '.card, .pin-card, .case-card';
 	let lastClick: { x: number; y: number } | null = null;
 	let lastCard: HTMLElement | null = null;
 	function onClickCapture(e: MouseEvent) {
@@ -266,7 +269,7 @@
 					<p class="sheet-label">
 						<span class="ch-tab" style="--c: {section?.color ?? '#8e1d12'}"></span>{sheetLabel}
 					</p>
-					{#if section?.cards.length}
+					{#if section?.cards.length && !isPost}
 						<!-- What else is in this chapter -->
 						<nav class="chapter-entries" aria-label="{section.label}這一章">
 							<!-- eslint-disable svelte/no-navigation-without-resolve -- static app paths (some with a query) from site-nav -->
@@ -284,7 +287,7 @@
 					{/if}
 				</div>
 				{@render children()}
-				{#if !page.error && !page.url.pathname.startsWith('/admin')}<CaseEnd />{/if}
+				{#if !page.error && !page.url.pathname.startsWith('/admin')}<CaseEnd quiet={isPost} />{/if}
 			</div>
 		</div>
 	{:else}
