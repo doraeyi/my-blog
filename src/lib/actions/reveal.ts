@@ -31,9 +31,11 @@ export const reveal: Action<HTMLElement, RevealOptions | undefined> = (node, opt
 			if (!entry.isIntersecting) return;
 			io.disconnect();
 			node.classList.remove('rv-wait');
+			// Coming into focus is the costly part; light-effects mode just rises.
+			const blur = document.documentElement.dataset.lite ? 'none' : 'blur(4px)';
 			node.animate(
 				[
-					{ opacity: 0, transform: `translateY(${y}px) rotate(-0.4deg)`, filter: 'blur(4px)' },
+					{ opacity: 0, transform: `translateY(${y}px) rotate(-0.4deg)`, filter: blur },
 					{ opacity: 1, transform: 'none', filter: 'none' }
 				],
 				{ duration: 800, delay, easing: EASE, fill: 'backwards' }
