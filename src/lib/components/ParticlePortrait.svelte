@@ -80,7 +80,8 @@
 		const off = document.createElement('canvas');
 		off.width = w;
 		off.height = h;
-		const octx = off.getContext('2d');
+		// Read back once, on the CPU: a GPU canvas makes getImageData a slow round trip.
+		const octx = off.getContext('2d', { willReadFrequently: true });
 		if (!octx) return [];
 
 		const scale =
@@ -189,8 +190,14 @@
 			const [photoImg, logoImg] = await Promise.all([loadImage(photoSrc), loadImage(logoSrc)]);
 			if (destroyed) return;
 
+			// One image per task, so setting up never holds the main thread for long.
+			const breathe = () => new Promise((r) => setTimeout(r));
 			const photoPts = sampleImage(photoImg, w, h, 'cover', 'edge-distance');
+			await breathe();
+			if (destroyed) return;
 			const logoPts = sampleImage(logoImg, w, h, 'contain', 'luminance');
+			await breathe();
+			if (destroyed) return;
 			if (photoPts.length === 0 || logoPts.length === 0) return;
 
 			const count = Math.min(MAX_PARTICLES, Math.max(photoPts.length, logoPts.length));
