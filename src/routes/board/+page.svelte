@@ -2,6 +2,7 @@
 	import Seo from '$lib/components/Seo.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import EvidenceBoard from '$lib/components/EvidenceBoard.svelte';
+	import EmptyEvidence from '$lib/components/EmptyEvidence.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -22,11 +23,14 @@
 	</PageHeader>
 
 	{#if data.posts.length === 0}
-		<p class="text-sm text-ink-muted">牆上還沒有證物。</p>
+		<EmptyEvidence title="牆上還沒有證物" note="第一篇文章釘上來之後，紅線就會開始串。" />
 	{:else}
 		<p class="mb-2 font-mono-hack text-xs tracking-widest text-ink-muted md:hidden">
 			← 左右滑動看整面牆 →
 		</p>
-		<EvidenceBoard posts={data.posts} />
+		<!-- On a phone the wall reaches out toward the edges of the sheet. -->
+		<div class="-mx-4 sm:mx-0">
+			<EvidenceBoard posts={data.posts} />
+		</div>
 	{/if}
 </div>

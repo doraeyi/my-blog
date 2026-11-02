@@ -332,6 +332,16 @@
 		overflow-x: auto;
 		-webkit-overflow-scrolling: touch;
 	}
+	/* A thinner frame on a phone, so more of the cork fits across. */
+	@media (max-width: 639px) {
+		.board-wrap {
+			margin: 10px 8px;
+			box-shadow:
+				0 0 0 6px #5b3b22,
+				0 0 0 8px #3b2615,
+				0 24px 40px -24px rgba(0, 0, 0, 0.7);
+		}
+	}
 	.board-sizer {
 		position: relative;
 	}
