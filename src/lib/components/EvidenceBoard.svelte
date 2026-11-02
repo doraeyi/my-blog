@@ -218,7 +218,20 @@
 			scale = Math.max(0.62, Math.min(1, e.contentRect.width / BOARD_W));
 		});
 		ro.observe(wrap);
-		requestAnimationFrame(() => (drawn = true));
+		requestAnimationFrame(() => {
+			drawn = true;
+			// On a phone the wall pans: open it on where the cards are, not on its left edge.
+			requestAnimationFrame(() => {
+				if (!wrap || wrap.scrollWidth <= wrap.clientWidth) return;
+				const box = wrap.getBoundingClientRect();
+				const xs = [...wrap.querySelectorAll<HTMLElement>('.card')].map((c) => {
+					const r = c.getBoundingClientRect();
+					return r.left + r.width / 2 - box.left + wrap!.scrollLeft;
+				});
+				if (xs.length)
+					wrap.scrollLeft = xs.reduce((a, b) => a + b, 0) / xs.length - wrap.clientWidth / 2;
+			});
+		});
 		return () => ro.disconnect();
 	});
 </script>
