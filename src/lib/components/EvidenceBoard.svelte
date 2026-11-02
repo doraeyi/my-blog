@@ -457,7 +457,7 @@
 	}
 	.post-meta {
 		font-family: var(--font-mono-hack);
-		font-size: 0.68rem;
+		font-size: 0.75rem;
 		letter-spacing: 0.08em;
 		color: #6b5336;
 	}
@@ -472,7 +472,7 @@
 		overflow: hidden;
 	}
 	.post-excerpt {
-		font-size: 0.74rem;
+		font-size: 0.75rem;
 		line-height: 1.45;
 		color: #4a3925;
 		display: -webkit-box;
@@ -510,7 +510,7 @@
 		margin-left: auto;
 		padding-left: 0.4rem;
 		color: #4a3820;
-		font-size: 0.7rem;
+		font-size: 0.75rem;
 	}
 
 	@media (prefers-reduced-motion: reduce) {
