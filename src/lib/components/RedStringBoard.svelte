@@ -598,7 +598,7 @@
 		--red-glow: var(--b-red-glow);
 		--shadow: var(--b-shadow);
 		position: relative;
-		min-height: max(100svh, 760px);
+		min-height: max(100svh, 840px);
 		overflow: hidden;
 		color: var(--ink);
 		font-family: 'LXGW WenKai TC', ui-sans-serif, system-ui, sans-serif;
