@@ -176,10 +176,16 @@
 		rotate: 7deg;
 		animation: stamp-down 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) var(--landed) both;
 	}
+	/* Unseen on the way down, inked only as it lands (a stamp-sized first frame,
+	   not a huge one, so it isn't mistaken for the page's main content). */
 	@keyframes stamp-down {
 		0% {
 			opacity: 0;
 			transform: scale(2.2) rotate(8deg);
+		}
+		45% {
+			opacity: 0;
+			transform: scale(1.12);
 		}
 		60% {
 			opacity: 1;

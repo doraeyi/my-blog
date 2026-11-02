@@ -13,7 +13,7 @@
 	let containerEl: HTMLDivElement | undefined = $state();
 	let canvasEl: HTMLCanvasElement | undefined = $state();
 
-	const MAX_PARTICLES = 16000;
+	const MAX_PARTICLES = 7000;
 	const INITIAL_HOLD_MS = 2600;
 	const COLLAPSE_MS = 900;
 	const HOLD_MS = 180;
@@ -177,7 +177,7 @@
 			if (!containerEl || !canvasEl) return;
 
 			const rect = containerEl.getBoundingClientRect();
-			const dpr = Math.min(window.devicePixelRatio || 1, 2);
+			const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
 			const w = Math.max(1, Math.round(rect.width * dpr));
 			const h = Math.max(1, Math.round(rect.height * dpr));
 
