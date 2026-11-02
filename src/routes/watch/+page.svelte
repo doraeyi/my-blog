@@ -4,6 +4,8 @@
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { resolve } from '$app/paths';
 	import { reveal } from '$lib/actions/reveal';
+	import { pinned } from '$lib/actions/pinned';
+	import PinString from '$lib/components/PinString.svelte';
 	import Star from '@lucide/svelte/icons/star';
 	import Clapperboard from '@lucide/svelte/icons/clapperboard';
 	import type { PageData } from './$types';
@@ -16,7 +18,7 @@
 <div class="mx-auto max-w-5xl px-6 pb-16">
 	<PageHeader title="追劇紀錄" stamp="監視" description="我看過的電影與影集。" />
 
-	<h2 class="mt-10 section-title">正在觀看</h2>
+	<h2 class="section-title mt-10" use:reveal>正在觀看</h2>
 	{#if data.current}
 		{@const current = data.current}
 		<a
@@ -87,39 +89,65 @@
 		<p class="mt-4 text-sm text-ink-muted">目前沒有正在觀看的作品。</p>
 	{/if}
 
-	<h2 class="mt-12 section-title">看過的</h2>
+	<h2 class="section-title mt-12" use:reveal>看過的</h2>
 	{#if data.watched.length === 0}
 		<p class="mt-4 text-sm text-ink-muted">還沒有紀錄。</p>
 	{/if}
 
-	<ul class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-		{#each data.watched as item, i (item.id)}
-			<li use:reveal={{ delay: i * 40 }}>
-				<a
-					href={resolve('/watch/[id]', { id: item.id })}
-					use:tilt
-					class="case-card group flex flex-col overflow-hidden rounded-xl border border-border-case bg-surface shadow-sm"
-				>
-					{#if item.posterUrl}
-						<img src={item.posterUrl} alt={item.title} class="aspect-[2/3] w-full object-cover" />
-					{:else}
-						<div class="flex aspect-[2/3] w-full items-center justify-center bg-surface-alt">
-							<Clapperboard class="size-8 text-ink-muted" />
-						</div>
-					{/if}
-					<div class="flex flex-1 flex-col gap-1 p-3">
-						<h3 class="line-clamp-2 text-sm font-medium text-ink group-hover:underline">
-							{item.title}
-						</h3>
-						{#if item.voteAverage}
-							<p class="mt-auto flex items-center gap-1 text-xs text-ink-muted">
-								<Star class="size-3 fill-brass text-brass" />
-								{item.voteAverage.toFixed(1)}
-							</p>
+	<PinString class="mt-6">
+		<ul class="grid grid-cols-2 gap-x-5 gap-y-9 pt-2 sm:grid-cols-3 md:grid-cols-4">
+			{#each data.watched as item, i (item.id)}
+				<li>
+					<a
+						href={resolve('/watch/[id]', { id: item.id })}
+						use:pinned={{ delay: Math.min(i, 8) * 80, tilt: [-1.6, 1.1, -0.6, 1.4][i % 4] }}
+						class="photo group flex flex-col"
+					>
+						{#if item.posterUrl}
+							<img src={item.posterUrl} alt={item.title} class="aspect-[2/3] w-full object-cover" />
+						{:else}
+							<div class="flex aspect-[2/3] w-full items-center justify-center bg-surface-alt">
+								<Clapperboard class="size-8 text-ink-muted" />
+							</div>
 						{/if}
-					</div>
-				</a>
-			</li>
-		{/each}
-	</ul>
+						<div class="flex flex-1 flex-col gap-1 px-1 pt-2.5">
+							<h3 class="line-clamp-2 font-display text-[0.95rem] leading-snug text-ink">
+								<span class="ink-line">{item.title}</span>
+							</h3>
+							{#if item.voteAverage}
+								<p class="mt-auto flex items-center gap-1 font-mono-hack text-xs text-ink-muted">
+									<Star class="size-3 fill-brass text-brass" />
+									{item.voteAverage.toFixed(1)}
+								</p>
+							{/if}
+						</div>
+					</a>
+				</li>
+			{/each}
+		</ul>
+	</PinString>
 </div>
+
+<style>
+	/* Surveillance photos: a print with a white border, pinned up by its top edge.
+	   The print warms up and comes into focus on hover. */
+	.photo {
+		padding: 0.55rem 0.55rem 0.75rem;
+		background: #fffdf8;
+		box-shadow:
+			0 1px 2px rgb(40 25 10 / 0.1),
+			0 14px 26px -14px rgb(40 25 10 / 0.42);
+	}
+	.photo img {
+		filter: grayscale(0.55) contrast(1.05) sepia(0.15);
+		transition: filter 0.6s ease;
+	}
+	.photo:hover img {
+		filter: none;
+	}
+	.photo:hover {
+		box-shadow:
+			0 1px 2px rgb(40 25 10 / 0.1),
+			0 28px 44px -20px rgb(40 25 10 / 0.5);
+	}
+</style>

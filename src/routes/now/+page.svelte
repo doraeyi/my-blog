@@ -43,7 +43,7 @@
 					<list.icon class="size-4 text-accent" />
 					{list.title}
 				</h2>
-				<ul class="mt-3 space-y-2 border-l-2 border-border-case pl-5">
+				<ul class="tap mt-3 space-y-2 pl-5">
 					{#each list.items as item (item)}
 						<li class="text-ink-muted">{item}</li>
 					{/each}
@@ -120,7 +120,9 @@
 					<li>
 						<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- path comes from the server-built content index -->
 						<a href={post.path} class="group block">
-							<span class="text-sm text-ink transition group-hover:text-accent">{post.title}</span>
+							<span class="text-sm text-ink transition group-hover:text-accent"
+								><span class="ink-line">{post.title}</span></span
+							>
 							<span class="block font-mono-hack text-[0.7rem] text-ink-muted">
 								{post.type} · {post.date.toLocaleDateString('zh-TW')}
 							</span>
@@ -166,3 +168,40 @@
 		>，靈感來自 Derek Sivers。
 	</p>
 </div>
+
+<style>
+	/* The wire the entries hang from: a red thread drawn down as the list comes in,
+	   each entry knotted onto it. */
+	.tap {
+		position: relative;
+	}
+	.tap::before {
+		content: '';
+		position: absolute;
+		top: 0.2rem;
+		bottom: 0.2rem;
+		left: 0;
+		width: 2px;
+		border-radius: 2px;
+		background: linear-gradient(var(--b-red), color-mix(in srgb, var(--b-red) 25%, transparent));
+		transform-origin: top;
+		transition: scale 1.1s cubic-bezier(0.65, 0, 0.35, 1) 0.1s;
+	}
+	:global(.rv-wait) .tap::before {
+		scale: 1 0;
+	}
+	.tap li {
+		position: relative;
+	}
+	.tap li::before {
+		content: '';
+		position: absolute;
+		top: 0.62em;
+		left: calc(-1.25rem - 3px);
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background: var(--b-red);
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--b-red) 18%, transparent);
+	}
+</style>

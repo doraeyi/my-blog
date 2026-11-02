@@ -18,6 +18,7 @@
 {#if page.data.mailEnabled}
 	<div class="dispatch-slip {compact ? 'p-4' : 'p-6'}">
 		{#if phase === 'done'}
+			<span class="postmark" aria-hidden="true">已寄出</span>
 			<p class="flex items-center gap-2 font-display text-lg text-ink">
 				<MailCheck class="size-5 text-accent" /> 確認信寄出了
 			</p>
@@ -81,3 +82,42 @@
 		{/if}
 	</div>
 {/if}
+
+<style>
+	/* Posted: a red postmark comes down on the slip. */
+	.postmark {
+		position: absolute;
+		top: 0.9rem;
+		right: 1.1rem;
+		padding: 0.15rem 0.6rem;
+		border: 2px solid var(--b-red);
+		border-radius: 999px;
+		color: var(--b-red);
+		font-family: 'LXGW WenKai TC', var(--font-display);
+		font-size: 0.85rem;
+		font-weight: 700;
+		letter-spacing: 0.25em;
+		mix-blend-mode: multiply;
+		rotate: -9deg;
+		animation: postmark 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) 0.1s both;
+	}
+	@keyframes postmark {
+		from {
+			opacity: 0;
+			transform: scale(2.2);
+		}
+		60% {
+			opacity: 1;
+			transform: scale(0.94);
+		}
+		to {
+			opacity: 0.9;
+			transform: none;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.postmark {
+			animation: none;
+		}
+	}
+</style>

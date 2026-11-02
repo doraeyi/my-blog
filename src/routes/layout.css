@@ -270,17 +270,24 @@ a:focus-visible .ink-line {
 }
 
 /* Shared "envelope stamp" hover treatment for card links (articles, moods, portfolio, watch). */
+/* A sheet on the desk: picked up on hover, it lifts on a spring and its shadow
+   falls longer, with a thin red edge where the lamp catches it. */
 .case-card {
+	box-shadow:
+		0 1px 2px rgb(40 25 10 / 0.06),
+		0 10px 22px -16px rgb(40 25 10 / 0.3);
 	transition:
-		transform 0.2s ease,
-		box-shadow 0.2s ease,
-		border-color 0.2s ease;
+		transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+		box-shadow 0.4s ease,
+		border-color 0.3s ease;
 }
 
 .case-card:hover {
-	transform: translateY(-2px);
-	border-color: var(--color-accent);
-	box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--color-accent) 35%, transparent);
+	transform: translateY(-4px);
+	border-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-border-case));
+	box-shadow:
+		0 1px 2px rgb(40 25 10 / 0.08),
+		0 26px 40px -22px rgb(40 25 10 / 0.5);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -719,6 +726,14 @@ html {
 	color: #2c2118;
 	filter: drop-shadow(0 10px 12px rgba(60, 35, 10, 0.22));
 	rotate: -0.4deg;
+	transition:
+		rotate 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+		filter 0.4s;
+}
+.dispatch-slip:focus-within,
+.dispatch-slip:hover {
+	rotate: 0deg;
+	filter: drop-shadow(0 16px 18px rgba(60, 35, 10, 0.28));
 }
 
 /* Red ink date stamp. */
@@ -742,6 +757,28 @@ html {
 	line-height: 1.4;
 	font-weight: 400;
 	color: var(--color-ink);
+
+	/* A short red rule under it, from a pin; it draws across as the section comes in. */
+	&::after {
+		content: '';
+		display: block;
+		width: 2.75rem;
+		height: 2px;
+		margin-top: 0.4rem;
+		border-radius: 2px;
+		background: linear-gradient(90deg, var(--b-red) 0 5px, transparent 5px 8px, var(--b-red) 8px);
+		transform-origin: left;
+		transition: scale 0.9s cubic-bezier(0.65, 0, 0.35, 1) 0.25s;
+	}
+}
+
+/* Sections waiting to come in (the `reveal` action). */
+.rv-wait {
+	opacity: 0;
+}
+.rv-wait .section-title::after,
+.section-title.rv-wait::after {
+	scale: 0 1;
 }
 
 /* ───────── Image zoom (proseEnhance) ───────── */

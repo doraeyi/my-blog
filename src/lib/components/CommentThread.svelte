@@ -140,10 +140,12 @@
 {/snippet}
 
 <section id="comments" class="mt-16">
-	<h2 class="flex items-center gap-2 section-title">
-		<MessagesSquare class="size-5 text-accent" />
-		{title}
-		<span class="font-mono-hack text-sm font-normal text-ink-muted">{comments.length}</span>
+	<h2 class="section-title" use:reveal>
+		<span class="inline-flex items-center gap-2">
+			<MessagesSquare class="size-5 text-accent" />
+			{title}
+			<span class="font-mono-hack text-sm font-normal text-ink-muted">{comments.length}</span>
+		</span>
 	</h2>
 
 	{#if user}
@@ -211,7 +213,7 @@
 					</div>
 
 					{#if replies.length}
-						<ul class="mt-3 ml-6 space-y-3 border-l-2 border-dashed border-border-case pl-5">
+						<ul class="replies mt-3 ml-6 space-y-3 pl-5">
 							{#each replies as r (r.id)}
 								<li id="comment-{r.id}" class="comment-anchor flex gap-3">
 									{@render avatar(r.author, 'size-7')}
@@ -232,6 +234,50 @@
 </section>
 
 <style>
+	/* Each testimony is an index card; it straightens up and lifts when you look at it. */
+	:global(.bubble) {
+		rotate: -0.25deg;
+		transition:
+			rotate 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+			translate 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+			box-shadow 0.35s;
+	}
+	:global(.bubble):hover {
+		rotate: 0deg;
+		translate: 0 -2px;
+		box-shadow: 0 18px 30px -20px rgb(40 25 10 / 0.45);
+	}
+	/* Replies hang off the comment on a red thread. */
+	.replies {
+		position: relative;
+	}
+	.replies::before {
+		content: '';
+		position: absolute;
+		top: -0.4rem;
+		bottom: 1rem;
+		left: 0;
+		width: 1.5px;
+		background: repeating-linear-gradient(
+			var(--b-red) 0 6px,
+			color-mix(in srgb, var(--b-red) 35%, transparent) 6px 9px
+		);
+		transform-origin: top;
+		animation: thread 0.9s cubic-bezier(0.65, 0, 0.35, 1) 0.3s both;
+	}
+	@keyframes thread {
+		from {
+			scale: 1 0;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.replies::before {
+			animation: none;
+		}
+		:global(.bubble) {
+			transition: none;
+		}
+	}
 	/* Landing on a comment from a notification: room for the fixed tools, and a brief red ring. */
 	.comment-anchor {
 		scroll-margin-top: 6rem;

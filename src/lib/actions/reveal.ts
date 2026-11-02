@@ -1,54 +1,67 @@
 import type { Action } from 'svelte/action';
 
 interface RevealOptions {
-	/** ms to wait before starting, used to stagger lists */
+	/** ms to wait before starting, used to stagger sections */
 	delay?: number;
 	/** px to rise from */
 	y?: number;
 }
 
+const EASE = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
+// The items of a list inside the section follow it in one after another.
+const ITEMS = ':scope > ul > li, :scope > ol > li, :scope > .grid > *, :scope > dl > *';
+
 /**
- * Fades + rises an element into place the first time it enters the viewport.
- * No-ops (element stays fully visible) when the user prefers reduced motion.
+ * A section comes up out of the paper the first time it enters the viewport:
+ * it rises, leans back to straight and comes into focus, and the items of a
+ * list inside it follow one after another. A `.section-title` rule draws
+ * across once it's in (`.rv-wait` in layout.css). Runs on the Web Animations
+ * API with `fill: backwards`, so nothing is left behind to fight later
+ * transforms (hover lifts, tilt). Nothing moves for reduced motion.
  */
 export const reveal: Action<HTMLElement, RevealOptions | undefined> = (node, options = {}) => {
-	const { delay = 0, y = 16 } = options;
+	const { delay = 0, y = 18 } = options;
+	if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return {};
 
-	if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-		return {};
-	}
+	node.classList.add('rv-wait');
+	node.dataset.rv = '';
 
-	node.style.opacity = '0';
-	node.style.transform = `translateY(${y}px)`;
-	node.style.transition = `opacity 0.5s ease ${delay}ms, transform 0.5s ease ${delay}ms`;
-
-	// Once the reveal finishes, drop the inline styles entirely so they stop
-	// overriding later CSS (e.g. the .case-card hover lift) — inline styles
-	// beat stylesheet rules regardless of specificity.
-	function clearInlineStyles() {
-		node.style.removeProperty('opacity');
-		node.style.removeProperty('transform');
-		node.style.removeProperty('transition');
-	}
-
-	const observer = new IntersectionObserver(
+	const io = new IntersectionObserver(
 		([entry]) => {
 			if (!entry.isIntersecting) return;
-			node.style.opacity = '1';
-			node.style.transform = 'translateY(0)';
-			node.addEventListener('transitionend', clearInlineStyles, { once: true });
-			observer.unobserve(node);
+			io.disconnect();
+			node.classList.remove('rv-wait');
+			node.animate(
+				[
+					{ opacity: 0, transform: `translateY(${y}px) rotate(-0.4deg)`, filter: 'blur(4px)' },
+					{ opacity: 1, transform: 'none', filter: 'none' }
+				],
+				{ duration: 800, delay, easing: EASE, fill: 'backwards' }
+			);
+			// Items with their own reveal, and cards pinned to the board (`pinned`), come in by themselves.
+			const items = [...node.querySelectorAll<HTMLElement>(ITEMS)].filter(
+				(el) => !el.matches('[data-rv], .pin-card') && !el.querySelector('.pin-card')
+			);
+			items.forEach((item, i) => {
+				item.animate(
+					[
+						{ opacity: 0, transform: 'translateY(14px) scale(0.98)' },
+						{ opacity: 1, transform: 'none' }
+					],
+					{
+						duration: 650,
+						delay: delay + 120 + Math.min(i, 12) * 55,
+						easing: EASE,
+						fill: 'backwards'
+					}
+				);
+			});
 		},
 		// Any visible pixel counts: a ratio threshold can never be met by an element
 		// taller than the viewport (a long article body would stay invisible forever).
 		{ threshold: 0, rootMargin: '0px 0px -40px 0px' }
 	);
+	io.observe(node);
 
-	observer.observe(node);
-
-	return {
-		destroy() {
-			observer.disconnect();
-		}
-	};
+	return { destroy: () => io.disconnect() };
 };

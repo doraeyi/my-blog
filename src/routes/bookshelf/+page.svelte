@@ -104,9 +104,7 @@
 			<ul class="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">
 				{#each shown as book, i (book.title)}
 					<li use:reveal={{ delay: Math.min(i, 10) * 40, y: 10 }} class="group">
-						<div
-							class="relative aspect-[2/3] overflow-hidden rounded-lg shadow-[0_10px_30px_-12px_rgba(0,0,0,0.45)] transition duration-300 group-hover:-translate-y-1.5 group-hover:rotate-[-1deg] group-hover:shadow-[0_18px_40px_-14px_rgba(0,0,0,0.5)]"
-						>
+						<div class="book relative aspect-[2/3] overflow-hidden rounded-l-sm rounded-r-lg">
 							{#if book.cover}
 								<img
 									src={book.cover}
@@ -155,3 +153,46 @@
 		{/if}
 	{/if}
 </div>
+
+<style>
+	/* Pulled half out of the shelf on hover: the cover swings open toward you
+	   on its spine, and the light runs across it. */
+	.book {
+		box-shadow:
+			inset 3px 0 6px -3px rgb(0 0 0 / 0.4),
+			0 10px 30px -12px rgb(0 0 0 / 0.45);
+		transform-origin: 0 50%;
+		transition:
+			transform 0.6s cubic-bezier(0.34, 1.4, 0.64, 1),
+			box-shadow 0.5s ease;
+	}
+	.book::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(
+			105deg,
+			transparent 35%,
+			rgb(255 255 255 / 0.28) 50%,
+			transparent 65%
+		);
+		translate: -120% 0;
+		transition: translate 0.9s cubic-bezier(0.65, 0, 0.35, 1);
+		pointer-events: none;
+	}
+	:global(.group):hover .book {
+		transform: perspective(900px) translateY(-8px) rotateY(-16deg);
+		box-shadow:
+			inset 3px 0 6px -3px rgb(0 0 0 / 0.4),
+			18px 24px 40px -18px rgb(0 0 0 / 0.55);
+	}
+	:global(.group):hover .book::after {
+		translate: 120% 0;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.book,
+		.book::after {
+			transition: none;
+		}
+	}
+</style>

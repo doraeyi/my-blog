@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { resolve } from '$app/paths';
-	import { tilt } from '$lib/actions/tilt';
+	import { pinned } from '$lib/actions/pinned';
+	import PinString from '$lib/components/PinString.svelte';
 	import { page } from '$app/state';
 	import Seo from '$lib/components/Seo.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
@@ -122,11 +123,11 @@
 	</span>
 {/snippet}
 
-{#snippet friendCard(f: Friend)}
+{#snippet friendCard(f: Friend, i: number)}
 	{@const s = signal(f)}
 	<article
-		use:tilt={{ max: 4 }}
-		class="case-card group relative flex h-full flex-col rounded-2xl border border-border-case bg-surface-alt/70 p-4"
+		use:pinned={{ delay: Math.min(i, 8) * 90, tilt: [-1.1, 0.7, -0.4, 1][i % 4] }}
+		class="informant group flex h-full flex-col rounded-[3px] p-4 pt-5"
 	>
 		<div class="flex items-start gap-3">
 			<span class="relative">
@@ -254,11 +255,13 @@
 				── 還沒有人，這裡空著。歡迎成為第一個。 ──
 			</p>
 		{:else}
-			<ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-				{#each shown as f (f.id)}
-					<li class="min-w-0">{@render friendCard(f)}</li>
-				{/each}
-			</ul>
+			<PinString>
+				<ul class="grid gap-x-5 gap-y-9 pt-2 sm:grid-cols-2 lg:grid-cols-3">
+					{#each shown as f, i (f.id)}
+						<li class="min-w-0">{@render friendCard(f, i)}</li>
+					{/each}
+				</ul>
+			</PinString>
 		{/if}
 	</section>
 
@@ -494,3 +497,27 @@
 		/>
 	</div>
 </div>
+
+<style>
+	/* An informant's card, pinned up: an index card with a faint ruled head. */
+	.informant {
+		border: 1px solid rgb(60 40 20 / 0.1);
+		background:
+			linear-gradient(
+				180deg,
+				transparent 2.6rem,
+				rgb(179 38 30 / 0.18) 2.6rem 2.66rem,
+				transparent 0
+			),
+			linear-gradient(180deg, rgb(255 255 255 / 0.6), transparent 45%), #fffcf5;
+		box-shadow:
+			0 1px 2px rgb(40 25 10 / 0.08),
+			0 12px 26px -14px rgb(40 25 10 / 0.36);
+	}
+	.informant:hover {
+		box-shadow:
+			0 1px 2px rgb(40 25 10 / 0.08),
+			0 26px 44px -18px rgb(40 25 10 / 0.46),
+			0 0 0 1px color-mix(in srgb, var(--color-accent) 30%, transparent);
+	}
+</style>
