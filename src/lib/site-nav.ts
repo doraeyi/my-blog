@@ -1,8 +1,8 @@
 /**
- * The site as Liam's book: each section is a chapter (a bookmark on the book,
- * a line on its contents page), and its items are the entries under it. The
- * office desk, the bookmarks, the contents page and the page chrome all read
- * from here, so a page is registered once.
+ * The site as Liam's case board: each section is a chapter (a card on the
+ * board, a line on its contents page), and its items are the entries under it.
+ * The board, the contents page and the page chrome all read from here, so a
+ * page is registered once.
  * Hrefs are plain app paths (some carry a query string).
  */
 

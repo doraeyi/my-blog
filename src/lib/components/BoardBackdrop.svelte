@@ -156,7 +156,7 @@
 			display: block;
 		}
 	}
-	:global(:root:has(.board, .study)) .ghost {
+	:global(:root:has(.board)) .ghost {
 		display: none;
 	}
 	:global(:root[data-theme='dark']) .ghost {

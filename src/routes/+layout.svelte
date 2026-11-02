@@ -66,9 +66,9 @@
 		theme.sync();
 	});
 
-	// Page changes via the View Transitions API, moving the camera in the
-	// office: from the desk into the book ("into"), out of the book back to the
-	// desk ("out"), or turning a page inside it ("turn"). Falls back to an
+	// Page changes via the View Transitions API: from the board into a sheet
+	// ("into"), from a sheet back to the board ("out"), or swapping one sheet
+	// for the next ("turn"). Falls back to an
 	// instant swap on browsers without support; reduced motion skips the
 	// animation (layout.css).
 	//

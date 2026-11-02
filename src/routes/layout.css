@@ -1101,8 +1101,8 @@ html {
 		opacity: 1;
 	}
 }
-/* The homepage board (and the old study) has its own light. */
-:root:has(.study, .board) .room-dark {
+/* The homepage board has its own light. */
+:root:has(.board) .room-dark {
 	display: none;
 }
 
