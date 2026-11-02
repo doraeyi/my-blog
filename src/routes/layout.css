@@ -1190,3 +1190,73 @@ html {
 main:focus {
 	outline: none;
 }
+
+/* ───────── Print: just the file on plain paper ─────────
+   The board, the bar, the strings and everything you'd click are left behind;
+   the sheet prints flat in black ink, and links in the text show where they go. */
+@media print {
+	.site-bar,
+	.skip-link,
+	.backdrop,
+	.depth-layer,
+	.room-dark,
+	.travel-pin,
+	.reading-thread,
+	.page-pin,
+	.chapter-entries,
+	aside,
+	#comments,
+	.dispatch-slip,
+	.stamp-btn,
+	.case-end,
+	.code-copy,
+	.heading-anchor,
+	nav[aria-label='上一篇與下一篇'] {
+		display: none !important;
+	}
+	html,
+	body,
+	.sheet-desk,
+	.case-paper {
+		background: #fff !important;
+		color: #000 !important;
+	}
+	.sheet-desk {
+		padding: 0 !important;
+	}
+	.sheet-wrap::before,
+	.sheet-wrap::after {
+		display: none !important;
+	}
+	.case-paper {
+		box-shadow: none !important;
+		animation: none !important;
+		rotate: none !important;
+	}
+	*,
+	*::before,
+	*::after {
+		animation: none !important;
+		transition: none !important;
+	}
+	[data-rv],
+	.rv-wait {
+		opacity: 1 !important;
+	}
+	.prose a[href^='http']::after {
+		content: ' (' attr(href) ')';
+		font-size: 0.8em;
+		color: #555;
+		word-break: break-all;
+	}
+	.prose pre,
+	.prose img,
+	.prose blockquote,
+	.prose table {
+		break-inside: avoid;
+	}
+	.prose h2,
+	.prose h3 {
+		break-after: avoid;
+	}
+}
