@@ -120,9 +120,11 @@
 			role="dialog"
 			aria-modal="true"
 			aria-label="全站搜尋"
-			class="w-full max-w-xl overflow-hidden rounded-xl border border-border-case bg-surface shadow-2xl"
-			transition:scale={{ duration: 140, start: 0.97 }}
+			class="search-file w-full max-w-xl"
+			transition:scale={{ duration: 160, start: 0.96 }}
 		>
+			<span class="file-pin" aria-hidden="true"></span>
+			<p class="file-kicker font-mono-hack">調閱 · CASE INDEX</p>
 			<div class="flex items-center gap-3 border-b border-border-case px-4">
 				<Search class="size-4 shrink-0 text-ink-muted" />
 				<!-- svelte-ignore a11y_autofocus -->
@@ -153,7 +155,7 @@
 				{:else if query.trim() === ''}
 					<li class="px-3 py-8 text-center text-sm text-ink-muted">
 						輸入關鍵字開始搜查
-						<span class="mt-2 block font-mono-hack text-xs text-ink-muted/70">
+						<span class="mt-2 hidden font-mono-hack text-xs text-ink-muted/70 sm:block">
 							↑↓ 選擇 · Enter 開啟 · Ctrl/⌘ K 或 / 隨時呼叫
 						</span>
 					</li>
@@ -168,13 +170,10 @@
 								type="button"
 								onclick={() => go(hit.doc.path)}
 								onmousemove={() => (active = i)}
-								class="flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition {i ===
-								active
-									? 'bg-surface-alt'
-									: ''}"
+								class="hit flex w-full items-start gap-3 rounded-sm px-3 py-2.5 text-left"
+								class:is-active={i === active}
 							>
-								<span
-									class="mt-0.5 shrink-0 rounded border border-border-case px-1.5 py-0.5 font-mono-hack text-[0.65rem] text-ink-muted"
+								<span class="kind mt-0.5 shrink-0 px-1.5 py-0.5 font-mono-hack text-[0.65rem]"
 									>{hit.doc.type}</span
 								>
 								<span class="min-w-0 flex-1">
@@ -204,3 +203,78 @@
 		</div>
 	</div>
 {/if}
+
+<style>
+	/* The palette is the card index: a drawer card pulled up over the board,
+	   pinned at the top, the matching files filed on it. */
+	.search-file {
+		position: relative;
+		border: 1px solid rgb(60 40 20 / 0.14);
+		border-top: 3px solid var(--color-accent);
+		border-radius: 3px;
+		background: linear-gradient(180deg, rgb(255 255 255 / 0.55), transparent 30%), #fffcf5;
+		box-shadow:
+			0 2px 4px rgb(40 25 10 / 0.12),
+			0 40px 70px -24px rgb(0 0 0 / 0.6);
+		color-scheme: light;
+		--color-ink: #2a1f16;
+		--color-ink-muted: #7a6a58;
+		--color-border-case: rgb(60 40 20 / 0.14);
+	}
+	.file-pin {
+		position: absolute;
+		top: -9px;
+		left: 50%;
+		width: 15px;
+		height: 15px;
+		margin-left: -7.5px;
+		border-radius: 50%;
+		background: radial-gradient(circle at 35% 30%, #ff8b80, var(--b-red, #b3261e) 45%, #6d0b0b);
+		box-shadow: 0 3px 4px rgb(0 0 0 / 0.35);
+	}
+	.file-kicker {
+		padding: 0.85rem 1rem 0;
+		color: var(--color-accent);
+		font-size: 0.62rem;
+		letter-spacing: 0.24em;
+	}
+	/* The file under the cursor gets the red thread down its edge. */
+	.hit {
+		position: relative;
+		transition:
+			background 0.2s,
+			translate 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+	}
+	.hit::before {
+		content: '';
+		position: absolute;
+		top: 0.5rem;
+		bottom: 0.5rem;
+		left: 0;
+		width: 2px;
+		border-radius: 2px;
+		background: var(--color-accent);
+		scale: 1 0;
+		transition: scale 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+	}
+	.hit.is-active {
+		background: rgb(60 40 20 / 0.06);
+		translate: 3px 0;
+	}
+	.hit.is-active::before {
+		scale: 1 1;
+	}
+	/* What kind of file: a slip of paper clipped to it. */
+	.kind {
+		background: #f3e6c2;
+		color: #6b5336;
+		letter-spacing: 0.06em;
+		rotate: -2deg;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.hit,
+		.hit::before {
+			transition: none;
+		}
+	}
+</style>
