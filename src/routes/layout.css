@@ -1147,6 +1147,21 @@ html {
 :root:has(.board) .room-dark {
 	display: none;
 }
+/* With no cursor to carry the lamp, it can't follow what you read: on touch
+   screens the pool is wide and the dark around it soft, so text further down
+   the screen isn't left in the shadow. */
+@media (hover: none) {
+	.room-dark {
+		transform: translate3d(50vw, 40vh, 0);
+		background: radial-gradient(
+			circle at center,
+			rgba(255, 196, 120, 0.04) 0,
+			transparent 420px,
+			rgba(10, 6, 3, 0.28) 820px,
+			rgba(10, 6, 3, 0.42) 1200px
+		);
+	}
+}
 
 /* Pages were laid out under a fixed top bar; on paper they start closer to the edge. */
 .case-paper .cover,
