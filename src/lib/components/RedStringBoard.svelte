@@ -73,7 +73,7 @@
 			parent: 'liam',
 			at: chapterAt[c.id] ?? [50, 50, 50, 50],
 			depth: 0.8,
-			delay: 0.35 + i * 0.13
+			delay: 0.2 + i * 0.08
 		})),
 		...latest.map((_, i) => ({
 			id: `file-${i}`,
@@ -81,7 +81,7 @@
 			parent: 'cases',
 			at: fileAt[i],
 			depth: 1.15,
-			delay: 1.15 + i * 0.12
+			delay: 0.65 + i * 0.07
 		})),
 		...friendAt.map((p, i) => ({
 			id: `friend-${i}`,
@@ -89,7 +89,7 @@
 			parent: 'testimony',
 			at: p,
 			depth: 1.35,
-			delay: 1.3 + i * 0.1
+			delay: 0.75 + i * 0.06
 		}))
 	]);
 	const strings = $derived(nodes.filter((n) => n.parent));
@@ -284,9 +284,10 @@
 	// ── The opening: once the site's intro has gone, the pins go in ──
 	// Coming back from a page the board is already up, so the sheet can go
 	// straight back to its card.
-	let open = $state(
-		typeof document !== 'undefined' && document.documentElement.dataset.nav === 'out'
-	);
+	// The entrance is CSS (it starts with the first paint, no waiting on JS) and
+	// is skipped when coming back.
+	const instant = typeof document !== 'undefined' && document.documentElement.dataset.nav === 'out';
+	let open = $state(instant);
 	$effect(() => {
 		const root = document.documentElement;
 		const mo = new MutationObserver(() => go());
@@ -408,6 +409,7 @@
 	bind:this={boardEl}
 	class="board"
 	class:open
+	class:instant
 	class:diving={!!diving}
 	class:touched
 	style={diving ? `--zx: ${diving.x}px; --zy: ${diving.y}px` : undefined}
@@ -416,7 +418,7 @@
 	role="presentation"
 >
 	<div class="backdrop" aria-hidden="true">
-		<span class="ghost">LIAM</span>
+		<span class="ghost"></span>
 	</div>
 
 	<!-- eslint-disable svelte/no-navigation-without-resolve -- static app paths from site-nav, content and search-index paths, friends' own sites -->
@@ -610,11 +612,16 @@
 		inset: 0;
 		pointer-events: none;
 	}
+	.ghost::before {
+		content: 'LIAM';
+	}
 	.ghost {
 		display: grid;
 		place-items: center;
 		color: transparent;
-		font-family: var(--font-display);
+		/* A system serif, not the web font: the outline is the page's largest paint,
+		   and a late font swap would redraw it (and push the LCP back). */
+		font-family: Georgia, 'Times New Roman', serif;
 		font-size: clamp(10rem, 34vw, 34rem);
 		line-height: 1;
 		letter-spacing: -0.02em;
@@ -679,21 +686,19 @@
 		stroke-width: 2;
 		stroke-linecap: round;
 		stroke-dasharray: 1;
-		stroke-dashoffset: 1;
 		transition:
 			stroke-width 0.25s,
 			opacity 0.3s;
+		animation: draw 0.55s cubic-bezier(0.65, 0, 0.35, 1) var(--d) backwards;
+	}
+	@keyframes draw {
+		from {
+			stroke-dashoffset: 1;
+		}
 	}
 	.string.file,
 	.string.friend {
 		stroke-width: 1.5;
-	}
-	.open .string {
-		stroke-dashoffset: 0;
-		transition:
-			stroke-dashoffset 0.7s cubic-bezier(0.65, 0, 0.35, 1) var(--d),
-			stroke-width 0.25s,
-			opacity 0.3s;
 	}
 	.string.hot {
 		stroke-width: 3;
@@ -732,21 +737,24 @@
 		top: -5px;
 		left: 0;
 		translate: -50% 0;
-		opacity: 0;
-		transform: translateY(-18px) scale(0.96);
+		animation: card-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) calc(var(--d) + 0.3s) backwards;
 	}
-	.open .node > :not(.pin) {
-		opacity: 1;
-		transform: none;
-		transition:
-			opacity 0.5s ease-out calc(var(--d) + 0.45s),
-			transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) calc(var(--d) + 0.45s);
+	@keyframes card-in {
+		from {
+			opacity: 0;
+			transform: translateY(-18px) scale(0.96);
+		}
 	}
 	.node.liam > :not(.pin) {
-		transform: translateY(24px) scale(0.94);
+		animation-name: liam-in;
+		animation-delay: 0.05s;
 	}
-	.open .node.liam > :not(.pin) {
-		transition-delay: 0.05s, 0.05s;
+	/* Liam's card is there from the first paint (it's what the page is about);
+	   it only settles into place. */
+	@keyframes liam-in {
+		from {
+			transform: translateY(24px) scale(0.94);
+		}
 	}
 
 	/* The pin: pushed in from above when its card arrives. */
@@ -763,15 +771,21 @@
 		box-shadow:
 			0 3px 4px rgb(0 0 0 / 0.35),
 			inset 0 -1px 2px rgb(0 0 0 / 0.3);
-		opacity: 0;
-		transform: translateY(-26px) scale(1.6);
+		animation: pin-in 0.4s cubic-bezier(0.34, 1.7, 0.64, 1) calc(var(--d) + 0.22s) backwards;
 	}
-	.open .pin {
-		opacity: 1;
-		transform: none;
-		transition:
-			opacity 0.2s calc(var(--d) + 0.35s),
-			transform 0.45s cubic-bezier(0.34, 1.7, 0.64, 1) calc(var(--d) + 0.35s);
+	@keyframes pin-in {
+		from {
+			opacity: 0;
+			transform: translateY(-26px) scale(1.6);
+		}
+	}
+	/* Held at the start while the site's intro plays over the board, and not
+	   played again when you come back to it. */
+	:global(:root[data-intro='on']) .board :is(.string, .pin, .node > :not(.pin)) {
+		animation-play-state: paused;
+	}
+	.instant :is(.string, .pin, .node > :not(.pin)) {
+		animation: none;
 	}
 	.node.liam .pin {
 		width: 18px;
@@ -790,22 +804,6 @@
 	a.card,
 	.friend-card {
 		transition:
-			transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
-			box-shadow 0.35s,
-			border-color 0.3s;
-	}
-	.open .node > a.card,
-	.open .node > .friend-card {
-		transition:
-			opacity 0.5s ease-out calc(var(--d) + 0.45s),
-			transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) calc(var(--d) + 0.45s),
-			box-shadow 0.35s,
-			border-color 0.3s;
-	}
-	.board.open.touched .node > a.card,
-	.board.open.touched .node > .friend-card {
-		transition:
-			opacity 0.3s,
 			transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
 			box-shadow 0.35s,
 			border-color 0.3s;
@@ -1237,18 +1235,13 @@
 
 	@media (prefers-reduced-motion: reduce) {
 		.string,
-		.open .string {
-			stroke-dashoffset: 0;
-			transition: none;
+		.pin,
+		.node > :not(.pin) {
+			animation: none;
 		}
-		.node > :not(.pin),
-		.pin {
-			opacity: 1;
-			transform: none;
-		}
-		.open .node > *,
-		.open .node > a.card,
-		.open .node > .friend-card {
+		.string,
+		.node > a.card,
+		.node > .friend-card {
 			transition: none;
 		}
 		.live i {

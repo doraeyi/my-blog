@@ -1,13 +1,14 @@
 /*
- * 開案 — the intro played on every full page load. Same props as ever (lamp,
- * fingerprint, scanner, readout, seal); the choreography is a noir opening:
+ * 開案 — the intro played on the first full page load of a visit. Same props (lamp,
+ * fingerprint, scanner, readout, seal); the choreography is a noir opening,
+ * kept short (about 1.7s) and played once per visit:
  *
- *   0.05s  the desk lamp swings into place and settles
- *   0.30s  fingerprint powder puffs out; the print develops from the core outward
- *   0.95s  one scanner pass — the ridges it crosses light up
- *   1.75s  match: the frame brackets snap tight, the readout switches
- *   1.85s  the seal hovers, its shadow closing in… then slams down (≈2.15s)
- *   2.75s  iris out from the seal onto the page
+ *   0.03s  the desk lamp swings into place and settles
+ *   0.18s  fingerprint powder puffs out; the print develops from the core outward
+ *   0.57s  one scanner pass — the ridges it crosses light up
+ *   1.05s  match: the frame brackets snap tight, the readout switches
+ *   1.11s  the seal hovers, its shadow closing in… then slams down (≈1.29s)
+ *   1.65s  iris out from the seal onto the page
  *
  * Markup and the small setup script live in app.html so it starts before the
  * app hydrates. All timing is CSS, so a busy main thread can't stall it.
@@ -37,7 +38,7 @@ html[data-intro] #intro {
 	display: block;
 	cursor: pointer;
 	/* Clicks go through to the page once the iris starts opening. */
-	animation: intro-passthrough 0.01s 2.85s forwards;
+	animation: intro-passthrough 0.01s 1.71s forwards;
 }
 html[data-intro] {
 	overflow: hidden;
@@ -95,7 +96,7 @@ html[data-intro='out'] #intro {
 		radial-gradient(circle at 50% 46%, rgba(255, 230, 190, 0.08), transparent 30%);
 	opacity: 0;
 	transform-origin: 20% 0;
-	animation: intro-lamp 1.05s 0.05s cubic-bezier(0.3, 0.7, 0.3, 1) forwards;
+	animation: intro-lamp 0.63s 0.03s cubic-bezier(0.3, 0.7, 0.3, 1) forwards;
 }
 @keyframes intro-lamp {
 	0% {
@@ -130,7 +131,7 @@ html[data-intro='out'] #intro {
 	background: rgba(255, 232, 190, 0.85);
 	box-shadow: 0 0 4px rgba(255, 220, 160, 0.6);
 	opacity: 0;
-	animation: intro-dust 1.6s cubic-bezier(0.1, 0.7, 0.3, 1) forwards;
+	animation: intro-dust 0.96s cubic-bezier(0.1, 0.7, 0.3, 1) forwards;
 }
 @keyframes intro-dust {
 	0% {
@@ -151,7 +152,7 @@ html[data-intro='out'] #intro {
 	display: grid;
 	justify-items: center;
 	gap: 1.4rem;
-	animation: intro-thud 0.32s 2.15s;
+	animation: intro-thud 0.192s 1.29s;
 }
 @keyframes intro-thud {
 	20% {
@@ -183,7 +184,7 @@ html[data-intro='out'] #intro {
 	overflow: visible;
 }
 .intro-print {
-	animation: intro-dim 0.6s 1.8s forwards;
+	animation: intro-dim 0.36s 1.08s forwards;
 }
 @keyframes intro-dim {
 	to {
@@ -201,7 +202,7 @@ html[data-intro='out'] #intro {
 	stroke: #f4ead2;
 	opacity: 0;
 	filter: blur(3px);
-	animation: intro-develop 0.6s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+	animation: intro-develop 0.36s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
 }
 @keyframes intro-develop {
 	40% {
@@ -225,7 +226,7 @@ html[data-intro='out'] #intro {
 		#000 var(--scan),
 		transparent calc(var(--scan) + 6%)
 	);
-	animation: intro-hot 0.75s 0.95s cubic-bezier(0.45, 0, 0.55, 1) forwards;
+	animation: intro-hot 0.45s 0.57s cubic-bezier(0.45, 0, 0.55, 1) forwards;
 }
 @keyframes intro-hot {
 	from {
@@ -242,8 +243,8 @@ html[data-intro='out'] #intro {
 	inset: -18px;
 	opacity: 0;
 	animation:
-		intro-fade 0.4s 0.3s forwards,
-		intro-lock 0.45s 1.75s cubic-bezier(0.2, 0.9, 0.3, 1.4) forwards;
+		intro-fade 0.24s 0.18s forwards,
+		intro-lock 0.27s 1.05s cubic-bezier(0.2, 0.9, 0.3, 1.4) forwards;
 	background:
 		linear-gradient(#d4ad6e, #d4ad6e) top left / 18px 1.5px,
 		linear-gradient(#d4ad6e, #d4ad6e) top left / 1.5px 18px,
@@ -286,7 +287,7 @@ html[data-intro='out'] #intro {
 		0 0 12px 2px rgba(226, 74, 59, 0.75),
 		0 -40px 40px -10px rgba(226, 74, 59, 0.18);
 	opacity: 0;
-	animation: intro-scan 0.75s 0.95s cubic-bezier(0.45, 0, 0.55, 1) forwards;
+	animation: intro-scan 0.45s 0.57s cubic-bezier(0.45, 0, 0.55, 1) forwards;
 }
 /* transform, not top: moving `top` counts as a layout shift. */
 @keyframes intro-scan {
@@ -315,7 +316,7 @@ html[data-intro='out'] #intro {
 	overflow: visible;
 	opacity: 0;
 	transform: scale(2.4) rotate(-22deg);
-	animation: intro-stamp 0.62s 1.85s forwards;
+	animation: intro-stamp 0.372s 1.11s forwards;
 }
 @keyframes intro-stamp {
 	0% {
@@ -352,7 +353,7 @@ html[data-intro='out'] #intro {
 		radial-gradient(circle at 20% 88%, #b3362b 0 2px, transparent 3px),
 		radial-gradient(circle at 60% 4%, #b3362b 0 1.5px, transparent 2.5px),
 		radial-gradient(circle at 3% 62%, #b3362b 0 1.5px, transparent 2.5px);
-	animation: intro-ink 0.5s 2.15s ease-out forwards;
+	animation: intro-ink 0.3s 1.29s ease-out forwards;
 }
 @keyframes intro-ink {
 	from {
@@ -392,7 +393,7 @@ html[data-intro='out'] #intro {
 	animation: intro-fade 0.01s forwards;
 }
 .intro-line1 {
-	animation: intro-hide 0.01s 1.75s forwards;
+	animation: intro-hide 0.01s 1.05s forwards;
 }
 @keyframes intro-hide {
 	to {
@@ -409,16 +410,16 @@ html[data-intro='out'] #intro {
 	letter-spacing: 0.2em;
 	color: rgba(244, 234, 210, 0.35);
 	opacity: 0;
-	animation: intro-fade 0.4s 0.8s forwards;
+	animation: intro-fade 0.24s 0.48s forwards;
 }
 
 /* ── Exit: iris out from the seal; the page settles in behind it ── */
 html[data-intro] .intro-sheet {
-	animation: intro-iris 1s 2.75s cubic-bezier(0.55, 0, 0.25, 1) forwards;
+	animation: intro-iris 0.6s 1.65s cubic-bezier(0.55, 0, 0.25, 1) forwards;
 }
 html[data-intro='out'] .intro-sheet {
 	animation-delay: 0s;
-	animation-duration: 0.6s;
+	animation-duration: 0.36s;
 }
 @keyframes intro-iris {
 	from {
@@ -429,7 +430,7 @@ html[data-intro='out'] .intro-sheet {
 	}
 }
 html[data-intro] main {
-	animation: intro-reveal 0.9s 2.75s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+	animation: intro-reveal 0.54s 1.65s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 html[data-intro='out'] main {
 	animation-delay: 0s;

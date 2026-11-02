@@ -10,18 +10,26 @@
 
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<!-- Fonts load without blocking first paint: the page shows in system fonts, then swaps. -->
-		<link
-			rel="preload"
-			as="style"
-			href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=LXGW+WenKai+TC:wght@400;700&display=swap"
-		/>
-		<link
-			rel="stylesheet"
-			href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=LXGW+WenKai+TC:wght@400;700&display=swap"
-			media="print"
-			onload="this.media = 'all'"
-		/>
+		<!-- Fonts come after the page has loaded, so they're never on the way to the
+		     first paint (the CJK face alone is ~800KB of slices). The page shows in
+		     system fonts and swaps; on a full load the intro covers the swap anyway. -->
+		<script>
+			(function () {
+				function add() {
+					var l = document.createElement('link');
+					l.rel = 'stylesheet';
+					l.href =
+						'https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=LXGW+WenKai+TC:wght@400;700&display=swap';
+					document.head.appendChild(l);
+				}
+				// A beat after load, so they don't compete with the page's own first paint.
+				function later() {
+					setTimeout(add, 600);
+				}
+				if (document.readyState === 'complete') later();
+				else addEventListener('load', later);
+			})();
+		</script>
 		<noscript>
 			<link
 				rel="stylesheet"
@@ -43,16 +51,18 @@
 					// Devices that measured slow before start straight in light-effects mode.
 					if (localStorage.getItem('fx-lite') === '1') document.documentElement.dataset.lite = '1';
 				} catch (e) {}
-				// 開案 intro: plays on every full page load (reloads included; moving
-				// between pages inside the site isn't one). Not for crawlers or Lighthouse,
-				// never in the admin, and not for anyone who asked for less motion.
+				// 開案 intro: once per visit (the first full page load in this tab's
+				// session; moving between pages inside the site never plays it). Not for
+				// crawlers, never in the admin, and not for anyone who asked for less motion.
 				try {
 					if (
+						!sessionStorage.getItem('intro-seen') &&
 						!location.pathname.startsWith('/admin') &&
 						!/bot|crawl|spider|lighthouse|headless|preview/i.test(navigator.userAgent) &&
 						!window.matchMedia('(prefers-reduced-motion: reduce)').matches
 					) {
 						document.documentElement.dataset.intro = 'on';
+						sessionStorage.setItem('intro-seen', '1');
 					}
 				} catch (e) {}
 			})();
@@ -184,14 +194,14 @@
 								continue;
 							}
 							h += '<i style="animation-delay:' + t.toFixed(3) + 's">' + ch + '</i>';
-							t += strong ? 0.07 : 0.024;
+							t += strong ? 0.042 : 0.014;
 						}
 					});
 					return h + '</span>';
 				}
 				out.innerHTML =
-					typed('intro-line1', ['EXHIBIT A · LATENT PRINT № ' + no, '比對指紋中…'], 0.4) +
-					typed('intro-line2', ['MATCH FOUND · 99.8%', '身分確認：[LIAM]'], 1.78);
+					typed('intro-line1', ['EXHIBIT A · LATENT PRINT № ' + no, '比對指紋中…'], 0.24) +
+					typed('intro-line2', ['MATCH FOUND · 99.8%', '身分確認：[LIAM]'], 1.07);
 
 				// The whole timeline runs in CSS; this only tidies up after the iris has
 				// opened, or skips straight to opening on a click, key or scroll.
@@ -205,7 +215,7 @@
 				sheet.addEventListener('animationend', function (e) {
 					if (e.animationName === 'intro-iris') cleanup();
 				});
-				setTimeout(cleanup, 4500);
+				setTimeout(cleanup, 3000);
 				function skip() {
 					if (root.dataset.intro === 'on') root.dataset.intro = 'out';
 				}
