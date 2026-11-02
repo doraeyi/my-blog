@@ -359,10 +359,14 @@ html {
 	background-color: var(--color-accent);
 }
 
-:focus-visible {
-	outline: 2px solid var(--color-accent);
-	outline-offset: 3px;
-	border-radius: 6px;
+/* In the base layer, so a field that draws its own focus (focus:outline-none)
+   can turn this off; unlayered, it beat every utility. */
+@layer base {
+	:focus-visible {
+		outline: 2px solid var(--color-accent);
+		outline-offset: 3px;
+		border-radius: 6px;
+	}
 }
 
 /* ───────── Icon buttons: lift on a spring, lamp-lit halo, press-in ───────── */
