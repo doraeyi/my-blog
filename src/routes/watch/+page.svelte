@@ -28,9 +28,11 @@
 			class="case-card group relative mt-4 flex overflow-hidden rounded-2xl border border-border-case bg-surface shadow-sm"
 		>
 			{#if current.backdropUrl}
+				<!-- Only a faint wash behind the card: a mid-size still is plenty, fetched early (it's the biggest paint). -->
 				<img
 					src={current.backdropUrl}
 					alt=""
+					fetchpriority="high"
 					class="absolute inset-0 h-full w-full object-cover opacity-15"
 				/>
 			{/if}

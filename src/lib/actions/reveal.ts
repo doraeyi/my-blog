@@ -22,6 +22,9 @@ const ITEMS = ':scope > ul > li, :scope > ol > li, :scope > .grid > *, :scope > 
 export const reveal: Action<HTMLElement, RevealOptions | undefined> = (node, options = {}) => {
 	const { delay = 0, y = 18 } = options;
 	if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return {};
+	// Already on screen when the page comes up: leave it be. Hiding what's been
+	// painted to fade it back in only makes it flicker (and arrive later).
+	if (node.getBoundingClientRect().top < innerHeight) return {};
 
 	node.classList.add('rv-wait');
 	node.dataset.rv = '';
