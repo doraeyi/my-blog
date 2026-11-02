@@ -108,6 +108,7 @@
 				onpointerenter={() => (pointed = b.id)}
 				onfocus={() => (pointed = b.id)}
 				onblur={() => (pointed = null)}
+				title={b.plain ?? b.blurb}
 			>
 				<span class="tab" style="--c: {b.color}"></span>{b.label}
 			</a>
@@ -221,7 +222,9 @@
 					{#if b.cards.length}
 						<div class="menu-subs">
 							{#each b.cards as c (c.href)}
-								<a href={c.href} class="menu-sub">{c.label}</a>
+								<a href={c.href} class="menu-sub"
+									>{c.label}<span class="menu-note">{c.note}</span></a
+								>
 							{/each}
 						</div>
 					{/if}
@@ -591,16 +594,24 @@
 		border-bottom: 1px solid var(--b-hair);
 		animation: menu-item 0.5s cubic-bezier(0.34, 1.4, 0.64, 1) calc(0.08s + var(--i) * 0.06s) both;
 	}
+	/* Each page under the chapter, with what it is in plain words beside its name. */
 	.menu-subs {
 		display: flex;
-		flex-wrap: wrap;
-		gap: 0.15rem 1rem;
+		flex-direction: column;
+		gap: 0.1rem;
 		margin: -0.35rem 0 0.8rem 2.5rem;
 	}
 	.menu-sub {
-		padding: 0.25rem 0;
+		display: flex;
+		align-items: baseline;
+		gap: 0.6rem;
+		padding: 0.3rem 0;
+		color: var(--b-ink);
+		font-size: 0.9rem;
+	}
+	.menu-note {
 		color: var(--b-muted);
-		font-size: 0.85rem;
+		font-size: 0.75rem;
 	}
 	.menu-sub:active,
 	.menu-sub:hover {

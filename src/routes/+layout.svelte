@@ -250,8 +250,11 @@
 							<!-- eslint-disable svelte/no-navigation-without-resolve -- static app paths (some with a query) from site-nav -->
 							{#each section.cards as c (c.href)}
 								{@const here = isEntryActive(page.url, c.href)}
-								<a href={c.href} class:is-here={here} aria-current={here ? 'page' : undefined}
-									>{c.label}</a
+								<a
+									href={c.href}
+									title={c.note}
+									class:is-here={here}
+									aria-current={here ? 'page' : undefined}>{c.label}</a
 								>
 							{/each}
 							<!-- eslint-enable svelte/no-navigation-without-resolve -->

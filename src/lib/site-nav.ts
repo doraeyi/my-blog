@@ -23,6 +23,8 @@ export interface Drawer {
 	color?: string;
 	/** One line for the contents page when the chapter has no sub-entries. */
 	blurb?: string;
+	/** What's in the chapter, in plain words (the board's cards say this under the name). */
+	plain?: string;
 	href: string;
 	/** Routes that count as "inside" this drawer (whole-segment match). */
 	match: string[];
@@ -42,6 +44,7 @@ export const drawers: Drawer[] = [
 	{
 		id: 'files',
 		label: '關於',
+		plain: '我是誰、最近在忙什麼、這個網站的故事',
 		no: '壹',
 		color: '#2f6b4a',
 		href: '/about',
@@ -56,6 +59,7 @@ export const drawers: Drawer[] = [
 	{
 		id: 'evidence',
 		label: '作品收藏',
+		plain: '做過的專案、在看的劇、讀的書、每天用的裝備',
 		no: '貳',
 		color: '#b8860b',
 		href: '/portfolio',
@@ -70,6 +74,7 @@ export const drawers: Drawer[] = [
 	{
 		id: 'cases',
 		label: '文章',
+		plain: '技術文章、長文和心情，可依時間或標籤找',
 		no: '參',
 		color: '#8e1d12',
 		href: '/blog',
@@ -98,6 +103,7 @@ export const drawers: Drawer[] = [
 	{
 		id: 'testimony',
 		label: '留言',
+		plain: '留言板、友站連結、朋友們的新文章',
 		no: '伍',
 		color: '#5b3a8a',
 		href: '/messages',

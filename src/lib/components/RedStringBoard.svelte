@@ -513,9 +513,7 @@
 					>
 						<span class="ch-meta"><span class="ch-tab"></span>CH.{roman[i]} · {c.no}</span>
 						<strong class="ch-title">{c.label}</strong>
-						<span class="ch-sub"
-							>{c.cards.length ? c.cards.map((x) => x.label).join(' · ') : c.blurb}</span
-						>
+						<span class="ch-sub">{c.plain ?? c.blurb}</span>
 						<span class="ch-go" aria-hidden="true">打開 →</span>
 					</a>
 				{:else if n.kind === 'file'}
@@ -566,6 +564,7 @@
 						>
 							<span class="face">?</span>
 							<span class="friend-name">待查</span>
+							<span class="friend-plain">交換友站</span>
 						</a>
 					{/if}
 				{/if}
@@ -577,8 +576,10 @@
 
 	<footer class="foot" aria-hidden="true">
 		<span>{clock} · 最後更新 {updated}</span>
-		<span class="hint">用滑鼠劃過紅線 · 點卡片翻開</span>
+		<span class="hint">點任何一張卡片就會打開 · 上方選單也能直接切換章節</span>
 	</footer>
+	<!-- On a phone the footer is far below: say how it works up top instead. -->
+	<p class="guide" aria-hidden="true">點卡片打開 · 右上 ☰ 有完整選單</p>
 </div>
 
 <style>
@@ -1006,8 +1007,8 @@
 		font-family: var(--font-mono-hack);
 		font-size: 0.72rem;
 		letter-spacing: 0.1em;
-		opacity: 0;
-		transform: translateX(-6px);
+		/* Always there, so a card reads as something to open; it leans in on hover. */
+		opacity: 0.75;
 		transition:
 			opacity 0.25s,
 			transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -1015,7 +1016,7 @@
 	.chapter-card:hover .ch-go,
 	.chapter-card:focus-visible .ch-go {
 		opacity: 1;
-		transform: none;
+		transform: translateX(4px);
 	}
 
 	/* Newest files: index cards */
@@ -1114,11 +1115,23 @@
 		letter-spacing: 0.08em;
 		pointer-events: none;
 	}
+	/* The one line that says how the board works: readable, and it stays. */
 	.hint {
-		transition: opacity 0.6s;
+		padding: 0.3rem 0.75rem;
+		border: 1px solid var(--hair);
+		border-radius: 999px;
+		background: color-mix(in srgb, var(--card) 85%, transparent);
+		color: var(--ink);
+		font-size: 0.78rem;
+		letter-spacing: 0.04em;
 	}
-	.touched .hint {
-		opacity: 0;
+	.guide {
+		display: none;
+	}
+	.friend-plain {
+		color: var(--muted);
+		font-size: 0.66rem;
+		white-space: nowrap;
 	}
 
 	/* Between a portrait tablet and a laptop the cards are full size but the
@@ -1127,21 +1140,26 @@
 		.board {
 			min-height: max(100svh, 940px);
 		}
+		.chapter-card {
+			width: 12.5rem;
+		}
 	}
 
 	/* ── Phones, portrait tablets and narrow windows: a tall board ── */
 	@media (max-width: 899px) {
+		/* Everything sits 2rem lower than the % layout says, to leave the
+		   how-to line (.guide) a row of its own under the bar. */
 		.board {
-			min-height: 1340px;
+			min-height: calc(1340px + 2rem);
 		}
 		.node {
 			left: clamp(var(--half) + 0.75rem, var(--tx), 100% - var(--half) - 0.75rem);
-			top: var(--ty);
+			top: calc(var(--ty) + 2rem);
 			--half: 5rem;
 		}
 		.node.liam {
 			--half: 10.5rem;
-			top: calc(var(--ty) + 3.5rem);
+			top: calc(var(--ty) + 5.5rem);
 		}
 		.node.file {
 			display: none;
@@ -1165,6 +1183,21 @@
 		.hint {
 			display: none;
 		}
+		.guide {
+			position: absolute;
+			top: calc(64px + 0.5rem);
+			left: 50%;
+			z-index: 6;
+			display: block;
+			padding: 0.3rem 0.8rem;
+			translate: -50% 0;
+			border: 1px solid var(--hair);
+			border-radius: 999px;
+			background: color-mix(in srgb, var(--card) 88%, transparent);
+			color: var(--ink);
+			font-size: 0.75rem;
+			white-space: nowrap;
+		}
 		.ghost {
 			align-items: start;
 			padding-top: 16rem;
@@ -1175,6 +1208,30 @@
 	@media (max-width: 360px) {
 		.liam-card {
 			width: 19rem;
+		}
+	}
+	/* The narrowest phones (320px): two chapters and the case card still fit across. */
+	@media (max-width: 339px) {
+		.liam-card {
+			width: 17.5rem;
+		}
+		.chapter-card {
+			width: 8.6rem;
+			padding: 0.7rem;
+		}
+		.ch-title {
+			font-size: 1.15rem;
+		}
+		.face {
+			width: 46px;
+			height: 46px;
+		}
+		.friend-name {
+			max-width: 4rem;
+			font-size: 0.68rem;
+		}
+		.friend-plain {
+			display: none;
 		}
 	}
 
