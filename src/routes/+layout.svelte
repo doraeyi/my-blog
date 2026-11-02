@@ -85,8 +85,12 @@
 	let lastClick: { x: number; y: number } | null = null;
 	let lastCard: HTMLElement | null = null;
 	function onClickCapture(e: MouseEvent) {
-		lastClick = { x: e.clientX, y: e.clientY };
 		const link = (e.target as Element | null)?.closest('a');
+		// A link opened from the keyboard reports (0, 0): the pin leaves from the link instead.
+		const r = e.detail === 0 ? link?.getBoundingClientRect() : null;
+		lastClick = r
+			? { x: r.left + r.width / 2, y: r.top + r.height / 2 }
+			: { x: e.clientX, y: e.clientY };
 		lastCard = link?.closest<HTMLElement>(CARD) ?? null;
 	}
 	onNavigate((navigation) => {
