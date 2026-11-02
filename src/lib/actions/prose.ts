@@ -149,7 +149,9 @@ function addCopyButtons(root: HTMLElement) {
 
 // ── Image zoom ─────────────────────────────────────────────────────────────
 // Click an image and it lifts off the page to fill the screen (FLIP from where
-// it sat), with its alt text as a caption; click, Esc or scroll puts it back.
+// it sat) as a print of the evidence: a photo border, settled a little crooked,
+// pinned through the top, with its alt text typed on a slip below it. Click,
+// Esc or scroll puts it back.
 
 let openZoom: (() => void) | null = null;
 
@@ -168,8 +170,13 @@ function zoomImage(img: HTMLImageElement) {
 	big.alt = img.alt;
 	big.className = 'lightbox-img';
 	overlay.append(big);
+	const pin = document.createElement('span');
+	pin.className = 'lightbox-pin';
+	pin.setAttribute('aria-hidden', 'true');
+	overlay.append(pin);
+	let cap: HTMLParagraphElement | null = null;
 	if (img.alt) {
-		const cap = document.createElement('p');
+		cap = document.createElement('p');
 		cap.className = 'lightbox-caption';
 		cap.textContent = img.alt;
 		overlay.append(cap);
@@ -177,22 +184,22 @@ function zoomImage(img: HTMLImageElement) {
 	document.body.append(overlay);
 
 	// Fit inside the viewport with a margin, never upscaling past 2x the natural size.
-	const pad = window.innerWidth < 640 ? 12 : 48;
+	const pad = window.innerWidth < 640 ? 24 : 64;
 	const naturalW = img.naturalWidth || from.width;
 	const naturalH = img.naturalHeight || from.height;
 	const scale = Math.min(
 		(window.innerWidth - pad * 2) / naturalW,
-		(window.innerHeight - pad * 2 - (img.alt ? 40 : 0)) / naturalH,
+		(window.innerHeight - pad * 2 - (img.alt ? 56 : 0)) / naturalH,
 		2
 	);
 	const w = naturalW * scale;
 	const h = naturalH * scale;
-	Object.assign(big.style, {
-		width: `${w}px`,
-		height: `${h}px`,
-		left: `${(window.innerWidth - w) / 2}px`,
-		top: `${(window.innerHeight - h - (img.alt ? 40 : 0)) / 2}px`
-	});
+	const left = (window.innerWidth - w) / 2;
+	const top = (window.innerHeight - h - (img.alt ? 56 : 0)) / 2;
+	Object.assign(big.style, { width: `${w}px`, height: `${h}px`, left: `${left}px`, top: `${top}px` });
+	pin.style.left = `${left + w / 2}px`;
+	pin.style.top = `${top - 14}px`;
+	if (cap) cap.style.top = `${top + h + 22}px`;
 
 	const to = big.getBoundingClientRect();
 	const flip = `translate(${from.left - to.left}px, ${from.top - to.top}px) scale(${from.width / to.width}, ${from.height / to.height})`;
@@ -200,6 +207,29 @@ function zoomImage(img: HTMLImageElement) {
 	img.style.visibility = 'hidden';
 	big.animate([{ transform: flip }, { transform: 'none' }], timing);
 	overlay.animate([{ opacity: 0 }, { opacity: 1 }], timing);
+	if (!reduce) {
+		// Once it's up, it settles crooked on the pin and the pin goes in.
+		big.animate([{ rotate: '0deg' }, { rotate: '-0.8deg' }], {
+			duration: 500,
+			delay: 300,
+			easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+			fill: 'forwards'
+		});
+		pin.animate(
+			[
+				{ opacity: 0, transform: 'translate(-50%, -26px) scale(1.4)' },
+				{ opacity: 1, transform: 'translate(-50%, 0) scale(1)' }
+			],
+			{ duration: 320, delay: 340, easing: 'cubic-bezier(0.5, 0, 0.75, 0)', fill: 'backwards' }
+		);
+		cap?.animate(
+			[
+				{ opacity: 0, transform: 'translateY(8px) rotate(1.5deg)' },
+				{ opacity: 1, transform: 'rotate(0.6deg)' }
+			],
+			{ duration: 450, delay: 420, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)', fill: 'both' }
+		);
+	}
 
 	const startY = window.scrollY;
 	function close() {
@@ -212,6 +242,7 @@ function zoomImage(img: HTMLImageElement) {
 		const home = `translate(${back.left - now.left}px, ${back.top - now.top}px) scale(${back.width / now.width}, ${back.height / now.height})`;
 		const out = { ...timing, duration: reduce ? 0 : 300, fill: 'forwards' as const };
 		overlay.animate([{ opacity: 1 }, { opacity: 0 }], out);
+		big.getAnimations().forEach((a) => a.cancel());
 		big.animate([{ transform: 'none' }, { transform: home }], out).finished.then(() => {
 			img.style.visibility = '';
 			overlay.remove();

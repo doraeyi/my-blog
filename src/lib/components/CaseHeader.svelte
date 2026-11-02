@@ -5,6 +5,7 @@
 	A rule draws itself under it all. Same motion as every page's PageHeader.
 -->
 <script lang="ts">
+	import { titleWords } from '$lib/title-words';
 	import { resolve } from '$app/paths';
 
 	let {
@@ -28,6 +29,7 @@
 	const stamp = { blog: '手記', article: '技術', mood: '心情' } as const;
 	const color = { blog: '#2b4c9b', article: '#b3261e', mood: '#5b3a8a' } as const;
 	const letters = $derived([...title]);
+	const words = $derived(titleWords(title));
 	// The letters come up 35ms apart (capped for long titles); the stamp lands after the last.
 	const landed = $derived(0.25 + Math.min(letters.length * 0.035, 1.2) + 0.35);
 	// A file number from the date: 2026/7/1 → 2026-0701.
@@ -45,11 +47,12 @@
 
 	<div class="title-row">
 		<h1 class="title font-display" aria-label={title}>
-			{#each letters as ch, i (i)}<span
-					class="ch"
-					class:sp={ch === ' '}
-					style="--i: {Math.min(i, 34)}"
-					aria-hidden="true">{ch}</span
+			{#each words as word, w (w)}<span class="word" aria-hidden="true"
+					>{#each word as { ch, i } (i)}<span
+							class="ch"
+							class:sp={ch === ' '}
+							style="--i: {Math.min(i, 34)}">{ch}</span
+						>{/each}</span
 				>{/each}
 		</h1>
 	</div>
@@ -102,6 +105,7 @@
 	}
 	.kind {
 		color: var(--k);
+		white-space: nowrap;
 	}
 	.kind::before {
 		content: '';
@@ -130,6 +134,9 @@
 	}
 	.sp {
 		width: 0.28em;
+	}
+	.word {
+		white-space: nowrap;
 	}
 	@keyframes letter {
 		from {

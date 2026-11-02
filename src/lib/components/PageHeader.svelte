@@ -4,6 +4,7 @@
 	landed a rubber stamp comes down beside it. A rule draws itself under it all.
 -->
 <script lang="ts">
+	import { titleWords } from '$lib/title-words';
 	import type { Snippet } from 'svelte';
 	import { page } from '$app/state';
 
@@ -28,6 +29,7 @@
 		return String(h).padStart(4, '0');
 	});
 	const letters = $derived([...title]);
+	const words = $derived(titleWords(title));
 	// When the last letter lands: the stamp and the rest follow it.
 	const landed = $derived(0.25 + letters.length * 0.045 + 0.35);
 </script>
@@ -37,11 +39,10 @@
 
 	<div class="title-row">
 		<h1 class="font-display text-ink" aria-label={title}>
-			{#each letters as ch, i (i)}<span
-					class="ch"
-					class:sp={ch === ' '}
-					style="--i: {i}"
-					aria-hidden="true">{ch}</span
+			{#each words as word, w (w)}<span class="word" aria-hidden="true"
+					>{#each word as { ch, i } (i)}<span class="ch" class:sp={ch === ' '} style="--i: {i}"
+							>{ch}</span
+						>{/each}</span
 				>{/each}
 		</h1>
 		<span class="stamp" aria-hidden="true">{stamp}</span>
@@ -84,6 +85,9 @@
 	}
 	.sp {
 		width: 0.28em;
+	}
+	.word {
+		white-space: nowrap;
 	}
 	@keyframes letter {
 		from {
