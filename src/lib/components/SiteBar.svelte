@@ -211,16 +211,21 @@
 				<span class="menu-name">案件板</span>
 			</a>
 			{#each bookmarks as b, i (b.id)}
-				<a
-					href={b.href}
-					class="menu-item"
-					class:is-open={open === b.id}
-					style="--i: {i + 1}; --c: {b.color}"
-				>
-					<span class="menu-pin" aria-hidden="true"></span>
-					<span class="menu-no">{b.no ?? '目'}</span>
-					<span class="menu-name">{b.label}</span>
-				</a>
+				<div class="menu-group" style="--i: {i + 1}; --c: {b.color}">
+					<a href={b.href} class="menu-item" class:is-open={open === b.id}>
+						<span class="menu-pin" aria-hidden="true"></span>
+						<span class="menu-no">{b.no ?? '目'}</span>
+						<span class="menu-name">{b.label}</span>
+					</a>
+					<!-- What's filed under the chapter, one tap away. -->
+					{#if b.cards.length}
+						<div class="menu-subs">
+							{#each b.cards as c (c.href)}
+								<a href={c.href} class="menu-sub">{c.label}</a>
+							{/each}
+						</div>
+					{/if}
+				</div>
 			{/each}
 		</div>
 		<!-- eslint-enable svelte/no-navigation-without-resolve -->
@@ -579,9 +584,27 @@
 		align-items: baseline;
 		gap: 0.9rem;
 		padding: 0.75rem 0;
-		border-bottom: 1px solid var(--b-hair);
 		color: var(--b-ink);
+	}
+	.menu-list > .menu-item,
+	.menu-group {
+		border-bottom: 1px solid var(--b-hair);
 		animation: menu-item 0.5s cubic-bezier(0.34, 1.4, 0.64, 1) calc(0.08s + var(--i) * 0.06s) both;
+	}
+	.menu-subs {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.15rem 1rem;
+		margin: -0.35rem 0 0.8rem 2.5rem;
+	}
+	.menu-sub {
+		padding: 0.25rem 0;
+		color: var(--b-muted);
+		font-size: 0.85rem;
+	}
+	.menu-sub:active,
+	.menu-sub:hover {
+		color: var(--b-red);
 	}
 	@keyframes menu-item {
 		from {
@@ -602,7 +625,8 @@
 	}
 	.menu-no {
 		width: 1.6rem;
-		color: var(--c, var(--b-muted));
+		/* The chapter's colour, lifted toward the ink so it reads on the dark board. */
+		color: color-mix(in srgb, var(--c, var(--b-muted)) 55%, var(--b-ink));
 		font-family: var(--font-mono-hack);
 		font-size: 0.8rem;
 	}
@@ -622,7 +646,8 @@
 			transition: none;
 		}
 		.menu-thread,
-		.menu-item {
+		.menu-item,
+		.menu-group {
 			animation: none;
 		}
 	}
