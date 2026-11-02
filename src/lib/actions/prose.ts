@@ -196,7 +196,12 @@ function zoomImage(img: HTMLImageElement) {
 	const h = naturalH * scale;
 	const left = (window.innerWidth - w) / 2;
 	const top = (window.innerHeight - h - (img.alt ? 56 : 0)) / 2;
-	Object.assign(big.style, { width: `${w}px`, height: `${h}px`, left: `${left}px`, top: `${top}px` });
+	Object.assign(big.style, {
+		width: `${w}px`,
+		height: `${h}px`,
+		left: `${left}px`,
+		top: `${top}px`
+	});
 	pin.style.left = `${left + w / 2}px`;
 	pin.style.top = `${top - 14}px`;
 	if (cap) cap.style.top = `${top + h + 22}px`;

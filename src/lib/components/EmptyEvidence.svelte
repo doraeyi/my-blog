@@ -6,11 +6,7 @@
 <script lang="ts">
 	import { reveal } from '$lib/actions/reveal';
 
-	let {
-		title,
-		note = '',
-		tag = '待補'
-	}: { title: string; note?: string; tag?: string } = $props();
+	let { title, note = '', tag = '待補' }: { title: string; note?: string; tag?: string } = $props();
 </script>
 
 <div class="empty" use:reveal>
