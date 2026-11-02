@@ -48,7 +48,8 @@ const RULES: Rule[] = [
 		// SOME_TOKEN=value / SOME_TOKEN: value — upper-case names only, so prose
 		// like "session: 存在 cookie" is left alone. Keeps the name, drops the value.
 		pattern: new RegExp(
-			String.raw`(\b${SECRET_NAME}\s*[:=]\s*)(?!["']?\s*(?:$|\[已移除|<|\$\{|""|''))(["']?)[^\s"',}]+\2`,
+			// A backtick ends the value too: `X_TOKEN=` in Markdown inline code has no value at all.
+			String.raw`(\b${SECRET_NAME}\s*[:=]\s*)(?!["']?\s*(?:$|\[已移除|<|\$\{|""|''|${'`'}))(["']?)[^\s"'${'`'},}]+\2`,
 			'gm'
 		),
 		replace: (_m, lead, quote) => `${lead}${quote}[已移除]${quote}`
