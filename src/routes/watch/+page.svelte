@@ -104,7 +104,13 @@
 						class="photo group flex flex-col"
 					>
 						{#if item.posterUrl}
-							<img src={item.posterUrl} alt={item.title} class="aspect-[2/3] w-full object-cover" />
+							<img
+								src={item.posterUrl}
+								alt={item.title}
+								loading="lazy"
+								decoding="async"
+								class="aspect-[2/3] w-full object-cover"
+							/>
 						{:else}
 							<div class="flex aspect-[2/3] w-full items-center justify-center bg-surface-alt">
 								<Clapperboard class="size-8 text-ink-muted" />

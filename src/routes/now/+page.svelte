@@ -93,7 +93,13 @@
 					{#each data.recentlyWatched as w (w.id)}
 						<a href={resolve('/watch/[id]', { id: w.id })} title={w.title}>
 							{#if w.posterUrl}
-								<img src={w.posterUrl} alt={w.title} class="h-16 w-11 rounded object-cover" />
+								<img
+									src={w.posterUrl}
+									alt={w.title}
+									loading="lazy"
+									decoding="async"
+									class="h-16 w-11 rounded object-cover"
+								/>
 							{:else}
 								<span
 									class="flex h-16 w-11 items-center justify-center rounded bg-surface-alt text-[0.6rem] text-ink-muted"
