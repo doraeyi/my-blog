@@ -74,9 +74,17 @@
 	//
 	// Every move also carries the red pushpin: it leaves from where you clicked
 	// and flies to the pin on the next page (.pin-target), pinning it down.
+	//
+	// Opening a card (on the board, or one pinned up on a page) takes that card
+	// down and it becomes the next sheet: the card and the new .case-paper share
+	// a view-transition name, so the card grows into the page.
+	const CARD = '.card, .pin-card, .case-card, .case-map .node';
 	let lastClick: { x: number; y: number } | null = null;
+	let lastCard: HTMLElement | null = null;
 	function onClickCapture(e: MouseEvent) {
 		lastClick = { x: e.clientX, y: e.clientY };
+		const link = (e.target as Element | null)?.closest('a');
+		lastCard = link?.closest<HTMLElement>(CARD) ?? null;
 	}
 	onNavigate((navigation) => {
 		if (!document.startViewTransition) return;
@@ -98,15 +106,31 @@
 		}
 		lastClick = null;
 
+		const card = to !== '/' && lastCard?.isConnected ? lastCard : null;
+		lastCard = null;
+		let sheet: HTMLElement | null = null;
+		if (card) {
+			card.style.viewTransitionName = 'case-file';
+			root.dataset.morph = '';
+		}
+
 		return new Promise((resolve) => {
 			const t = document.startViewTransition(async () => {
 				resolve();
 				await navigation.complete;
 				pin?.remove();
 				delete root.dataset.traveling;
+				if (card) {
+					card.style.viewTransitionName = '';
+					sheet = document.querySelector<HTMLElement>('.case-paper');
+					if (sheet) sheet.style.viewTransitionName = 'case-file';
+				}
 			});
 			t.finished.finally(() => {
 				delete root.dataset.nav;
+				delete root.dataset.morph;
+				if (card) card.style.viewTransitionName = '';
+				if (sheet) sheet.style.viewTransitionName = '';
 				pin?.remove();
 				delete root.dataset.traveling;
 			});

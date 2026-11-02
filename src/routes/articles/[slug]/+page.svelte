@@ -13,6 +13,7 @@
 	import ReadingProgress from '$lib/components/ReadingProgress.svelte';
 	import { page } from '$app/state';
 	import PostToc from '$lib/components/PostToc.svelte';
+	import CaseMap from '$lib/components/CaseMap.svelte';
 	import { proseEnhance } from '$lib/actions/prose';
 	import type { ActionData, PageData } from './$types';
 
@@ -88,6 +89,9 @@
 	</div>
 
 	<aside class="hidden w-56 shrink-0 lg:block">
+		{#if data.nav}
+			<CaseMap title={data.post.title} kind="article" nav={data.nav} />
+		{/if}
 		<div class="sticky top-28">
 			<PostToc container={body} variant="side" />
 		</div>

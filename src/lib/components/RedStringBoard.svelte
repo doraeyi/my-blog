@@ -286,18 +286,28 @@
 	});
 	let touched = $state(false);
 
-	// ── Opening a card: the board zooms into it, then the page turns ──
+	// ── Opening a card: it's lifted off the board as the rest falls back, then
+	// it grows into the page (the "case-file" view transition in +layout.svelte) ──
 	let diving = $state<{ x: number; y: number } | null>(null);
 	function dive(e: MouseEvent, id: string, href: string) {
 		if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 		if (still || !boardEl) return;
 		e.preventDefault();
-		const card = (e.currentTarget as HTMLElement).getBoundingClientRect();
+		const el = e.currentTarget as HTMLElement;
+		el.classList.add('lifted');
+		const card = el.getBoundingClientRect();
 		const r = boardEl.getBoundingClientRect();
 		diving = { x: card.left + card.width / 2 - r.left, y: card.top + card.height / 2 - r.top };
 		hot = id;
-		// eslint-disable-next-line svelte/no-navigation-without-resolve -- static app path from site-nav
-		setTimeout(() => goto(href).finally(() => (diving = null)), 460);
+		setTimeout(
+			() =>
+				// eslint-disable-next-line svelte/no-navigation-without-resolve -- static app path from site-nav
+				goto(href).finally(() => {
+					diving = null;
+					el.classList.remove('lifted');
+				}),
+			280
+		);
 	}
 
 	// ── Liam's card: search the files ──
@@ -620,8 +630,26 @@
 			opacity 0.45s ease-in;
 	}
 	.diving .stage {
-		transform: scale(2.1);
-		opacity: 0;
+		transform: scale(1.04);
+	}
+	/* Everything but the card being opened falls back out of focus. */
+	.diving :global(:is(.card, .friend-card, .file-card):not(.lifted)),
+	.diving .strings {
+		opacity: 0.35;
+		filter: blur(1.5px);
+		transition:
+			opacity 0.25s,
+			filter 0.25s;
+	}
+	.stage :global(.lifted) {
+		z-index: 20;
+		scale: 1.06;
+		translate: 0 -8px;
+		box-shadow: 0 30px 50px -20px rgb(20 10 0 / 0.55);
+		transition:
+			scale 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+			translate 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+			box-shadow 0.28s;
 	}
 	.strings {
 		position: absolute;
