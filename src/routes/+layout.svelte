@@ -270,46 +270,33 @@
 						<span class="ch-tab" style="--c: {section?.color ?? '#8e1d12'}"></span>{sheetLabel}
 					</p>
 					{#if section?.cards.length && !isPost}
-						<!-- What else is in this chapter -->
-						<nav class="chapter-entries" aria-label="{section.label}這一章">
-							<!-- eslint-disable svelte/no-navigation-without-resolve -- static app paths (some with a query) from site-nav -->
-							{#each section.cards as c (c.href)}
-								{@const here = isEntryActive(page.url, c.href)}
-								<a
-									href={c.href}
-									title={c.note}
-									class:is-here={here}
-									aria-current={here ? 'page' : undefined}>{c.label}</a
-								>
-							{/each}
-							<!-- eslint-enable svelte/no-navigation-without-resolve -->
+						<!-- The rest of the chapter on a sticky note stuck to the sheet: the same
+						     kind of note it was taken down from. The page you're on is ticked. -->
+						<nav class="chapter-note" aria-label="{section.label}這一章還有">
+							<p class="cn-head">這一章還有</p>
+							<ul>
+								<!-- eslint-disable svelte/no-navigation-without-resolve -- static app paths (some with a query) from site-nav -->
+								{#each section.cards as c (c.href)}
+									{@const here = isEntryActive(page.url, c.href)}
+									<li>
+										<a
+											href={c.href}
+											title={c.note}
+											class:is-here={here}
+											aria-current={here ? 'page' : undefined}
+											><span class="cn-mark" aria-hidden="true">{here ? '✓' : '·'}</span
+											>{c.label}</a
+										>
+									</li>
+								{/each}
+								<!-- eslint-enable svelte/no-navigation-without-resolve -->
+							</ul>
 						</nav>
 					{/if}
 				</div>
 				{@render children()}
 				{#if !page.error && !page.url.pathname.startsWith('/admin')}<CaseEnd quiet={isPost} />{/if}
 			</div>
-			{#if section?.cards.length && !isPost}
-				<!-- Wide screens: the chapter's pages are index tabs sticking out of the
-				     file's right edge (the row in the sheet's head stands in below that). -->
-				<nav class="folder-tabs" aria-label="{section.label}這一章的頁面">
-					<div class="ft-stick">
-						<!-- eslint-disable svelte/no-navigation-without-resolve -- static app paths (some with a query) from site-nav -->
-						{#each section.cards as c, i (c.href)}
-							{@const here = isEntryActive(page.url, c.href)}
-							<a
-								href={c.href}
-								title={c.note}
-								class="ft"
-								class:is-here={here}
-								aria-current={here ? 'page' : undefined}
-								style="--c: {section.color ?? '#8e1d12'}; --i: {i}">{c.label}</a
-							>
-						{/each}
-						<!-- eslint-enable svelte/no-navigation-without-resolve -->
-					</div>
-				</nav>
-			{/if}
 		</div>
 	{:else}
 		{@render children()}

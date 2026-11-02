@@ -112,7 +112,7 @@
 	folders colliding with the text.
 -->
 <div class="relative mx-auto max-w-5xl px-6 pt-28 pb-24">
-	<p class="mb-6 text-right text-sm">
+	<p class="mb-6 text-sm">
 		<a
 			href={resolve('/english')}
 			class="text-ink-muted underline-offset-4 hover:text-accent hover:underline"

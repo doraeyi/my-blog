@@ -1098,37 +1098,83 @@ html {
 }
 
 /* The chapter's other pages, typed along the top of the sheet */
-.chapter-entries {
+/* The rest of the chapter, on a sticky note stuck to the sheet. On a phone and
+   narrow windows it sits across the top of the sheet; with room beside the text
+   it's stuck crooked on the top-right corner, a little over the edge. */
+.chapter-note {
+	position: relative;
+	flex-basis: 100%;
+	padding: 0.65rem 0.9rem 0.7rem;
+	background: linear-gradient(175deg, #fbf0b6, #f5e49a);
+	box-shadow:
+		0 1px 1px rgb(60 40 10 / 0.12),
+		0 10px 18px -12px rgb(60 40 10 / 0.5);
+	color: #4a3a1c;
+	font-family: 'LXGW WenKai TC', ui-sans-serif, system-ui, sans-serif;
+	rotate: -0.6deg;
+}
+/* A strip of tape holding it on. */
+.chapter-note::before {
+	content: '';
+	position: absolute;
+	top: -9px;
+	left: 50%;
+	width: 58px;
+	height: 18px;
+	translate: -50% 0;
+	background: rgb(255 255 255 / 0.55);
+	box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+	rotate: -3deg;
+}
+.cn-head {
+	color: #7a6430;
+	font-size: 0.75rem;
+	letter-spacing: 0.1em;
+}
+.chapter-note ul {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 4px 18px;
-	font-family: var(--font-mono-hack);
-	font-size: 0.78rem;
-	letter-spacing: 0.08em;
+	gap: 0.15rem 1.1rem;
+	margin-top: 0.3rem;
 }
-.chapter-entries a {
-	position: relative;
-	color: #5e4a30;
+.chapter-note a {
+	display: inline-flex;
+	gap: 0.35rem;
+	color: #3d2f16;
+	font-size: 0.92rem;
 	transition: color 0.15s;
 }
-/* They're links: an underline on hover says so. */
-.chapter-entries a:hover {
-	color: #2c2118;
+.chapter-note a:hover {
+	color: #8e1d12;
 	text-decoration: underline;
 	text-underline-offset: 4px;
 }
-.chapter-entries a.is-here {
+.chapter-note a.is-here {
 	color: #8e1d12;
+	font-weight: 700;
 }
-.chapter-entries a.is-here::after {
-	content: '';
-	position: absolute;
-	right: 0;
-	bottom: -3px;
-	left: 0;
-	height: 2px;
-	background: #b3261e;
-	border-radius: 2px;
+.cn-mark {
+	width: 0.8em;
+	color: #b3261e;
+}
+@media (min-width: 1180px) {
+	.chapter-note {
+		position: absolute;
+		top: 64px;
+		right: -18px;
+		z-index: 3;
+		width: 9.5rem;
+		padding: 0.9rem 0.9rem 0.85rem 1rem;
+		rotate: 2.2deg;
+		transition: rotate 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+	}
+	.chapter-note:hover {
+		rotate: 0.6deg;
+	}
+	.chapter-note ul {
+		flex-direction: column;
+		gap: 0.2rem;
+	}
 }
 
 /* ───────── Lights off: the room goes dark except the detective's torch, which follows the cursor ───────── */
@@ -1234,7 +1280,7 @@ main:focus {
 	.travel-pin,
 	.reading-thread,
 	.page-pin,
-	.chapter-entries,
+	.chapter-note,
 	aside,
 	#comments,
 	.dispatch-slip,
@@ -1289,94 +1335,5 @@ main:focus {
 	.prose h2,
 	.prose h3 {
 		break-after: avoid;
-	}
-}
-
-/* ───────── Index tabs: the chapter's pages, sticking out of the file's right edge ─────────
-   Tucked behind the sheet so only the tabs show; the open page's tab is the
-   paper's own colour, as if it were the sheet you're looking at. They follow
-   you down the page. Wide screens only; narrower ones use the row in the head. */
-.folder-tabs {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 100%;
-	z-index: 0;
-	display: none;
-	width: 3rem;
-	margin-left: -8px;
-}
-.ft-stick {
-	position: sticky;
-	top: 6.5rem;
-	display: flex;
-	flex-direction: column;
-	gap: 5px;
-	padding-top: 4.5rem;
-}
-.ft {
-	display: block;
-	width: fit-content;
-	padding: 0.85rem 0.45rem 0.85rem 0.85rem;
-	border: 1px solid #d4c39f;
-	border-left: none;
-	border-right: 3px solid color-mix(in srgb, var(--c) 55%, #d4c39f);
-	border-radius: 0 7px 7px 0;
-	background: linear-gradient(90deg, #e6d9bb, #f1e7cf 40%);
-	box-shadow: 3px 5px 10px -7px rgb(40 25 10 / 0.5);
-	color: #5e4a30;
-	font-size: 0.82rem;
-	letter-spacing: 0.14em;
-	writing-mode: vertical-rl;
-	translate: -5px 0;
-	transition:
-		translate 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
-		color 0.2s,
-		background 0.2s;
-	/* Hung one after another when the page opens. */
-	animation: ft-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) calc(0.35s + var(--i) * 0.06s) backwards;
-}
-.ft:hover,
-.ft:focus-visible {
-	translate: 3px 0;
-	color: #2c2118;
-}
-.ft.is-here {
-	background: #fbf6e9;
-	border-right-color: #b3261e;
-	color: #8e1d12;
-	font-weight: 600;
-	translate: 0 0;
-}
-@keyframes ft-in {
-	from {
-		translate: -2.5rem 0;
-		opacity: 0;
-	}
-}
-/* Short laptop screens: the longest chapter (eight pages) still fits top to bottom. */
-@media (max-height: 860px) {
-	.ft-stick {
-		top: 5rem;
-		gap: 4px;
-		padding-top: 1.5rem;
-	}
-	.ft {
-		padding: 0.6rem 0.4rem 0.6rem 0.75rem;
-		font-size: 0.78rem;
-	}
-}
-@media (min-width: 1180px) {
-	.folder-tabs {
-		display: block;
-	}
-	.chapter-entries {
-		display: none;
-	}
-}
-@media (prefers-reduced-motion: reduce) {
-	.ft {
-		animation: none;
-		transition: none;
 	}
 }
