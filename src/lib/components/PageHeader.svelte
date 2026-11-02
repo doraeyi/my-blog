@@ -146,7 +146,7 @@
 		color: var(--color-ink-muted);
 		font-size: clamp(0.9rem, 1.6vw, 1.02rem);
 		line-height: 1.75;
-		animation: rise 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s both;
+		/* No entrance: the line that says what the page is, there from the first paint. */
 	}
 	.extra {
 		animation: rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) calc(var(--landed) - 0.1s) both;
