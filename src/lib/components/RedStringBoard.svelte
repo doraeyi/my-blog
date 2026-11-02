@@ -827,7 +827,7 @@
 		justify-content: space-between;
 		color: var(--muted);
 		font-family: var(--font-mono-hack);
-		font-size: 0.72rem;
+		font-size: 0.75rem;
 		letter-spacing: 0.14em;
 	}
 	.live {
@@ -970,7 +970,7 @@
 		gap: 0.5rem;
 		color: var(--muted);
 		font-family: var(--font-mono-hack);
-		font-size: 0.7rem;
+		font-size: 0.75rem;
 		letter-spacing: 0.14em;
 	}
 	/* The chapter's bookmark colour, same ribbon as inside the book. */
@@ -1003,7 +1003,7 @@
 		margin-top: 0.55rem;
 		color: var(--red);
 		font-family: var(--font-mono-hack);
-		font-size: 0.72rem;
+		font-size: 0.75rem;
 		letter-spacing: 0.1em;
 		/* Always there, so a card reads as something to open; it leans in on hover. */
 		opacity: 0.75;
@@ -1109,7 +1109,7 @@
 		padding: 0.9rem clamp(1rem, 3vw, 2.2rem);
 		color: var(--muted);
 		font-family: var(--font-mono-hack);
-		font-size: 0.72rem;
+		font-size: 0.75rem;
 		letter-spacing: 0.08em;
 		pointer-events: none;
 	}
@@ -1128,7 +1128,7 @@
 	}
 	.friend-plain {
 		color: var(--muted);
-		font-size: 0.66rem;
+		font-size: 0.75rem;
 		white-space: nowrap;
 	}
 
@@ -1176,7 +1176,7 @@
 			font-size: 1.3rem;
 		}
 		.ch-sub {
-			font-size: 0.74rem;
+			font-size: 0.78rem;
 		}
 		.hint {
 			display: none;
