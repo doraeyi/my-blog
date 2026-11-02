@@ -81,11 +81,36 @@
 			// Front: two pointed buttons with the wheel notch between; left: the G8/G7
 			// corner, then the thumb-rest bulge; rear: a round palm.
 			const OUTLINE: [number, number][] = [
-				[0.14, 0.07], [0.2, 0.04], [0.32, 0.02], [0.45, 0.012], [0.555, 0.03], [0.595, 0.1],
-				[0.635, 0.012], [0.73, 0.004], [0.82, 0.025], [0.9, 0.075], [0.955, 0.18], [0.985, 0.33],
-				[1.0, 0.5], [0.995, 0.64], [0.97, 0.76], [0.91, 0.865], [0.82, 0.94], [0.7, 0.985],
-				[0.56, 1.0], [0.42, 0.99], [0.28, 0.955], [0.15, 0.895], [0.055, 0.815], [0.005, 0.7],
-				[-0.01, 0.58], [0.005, 0.47], [0.04, 0.39], [0.04, 0.3], [0.035, 0.24], [0.07, 0.14]
+				[0.14, 0.07],
+				[0.2, 0.04],
+				[0.32, 0.02],
+				[0.45, 0.012],
+				[0.555, 0.03],
+				[0.595, 0.1],
+				[0.635, 0.012],
+				[0.73, 0.004],
+				[0.82, 0.025],
+				[0.9, 0.075],
+				[0.955, 0.18],
+				[0.985, 0.33],
+				[1.0, 0.5],
+				[0.995, 0.64],
+				[0.97, 0.76],
+				[0.91, 0.865],
+				[0.82, 0.94],
+				[0.7, 0.985],
+				[0.56, 1.0],
+				[0.42, 0.99],
+				[0.28, 0.955],
+				[0.15, 0.895],
+				[0.055, 0.815],
+				[0.005, 0.7],
+				[-0.01, 0.58],
+				[0.005, 0.47],
+				[0.04, 0.39],
+				[0.04, 0.3],
+				[0.035, 0.24],
+				[0.07, 0.14]
 			];
 			const outlinePts = OUTLINE.map(([u, v]) => new THREE.Vector2(toX(u), toZ(v)));
 			const outlineCurve = new THREE.SplineCurve([...outlinePts, outlinePts[0]]);
@@ -105,11 +130,15 @@
 			const RINGS = 40;
 			const SEGS = 200;
 			const WALL_K = 10;
-			const edges = Array.from({ length: SEGS + 1 }, (_, s) => outlineCurve.getPoint((s % SEGS) / SEGS));
+			const edges = Array.from({ length: SEGS + 1 }, (_, s) =>
+				outlineCurve.getPoint((s % SEGS) / SEGS)
+			);
 			// The wall rises to ~45% of the crown, then the dome rounds over to the top.
 			const wallTop = edges.map((e) => crown(e.x, e.y) * 0.45);
 			// How far the wall tucks in at the floor: deep under the palm and thumb rest, shallow at the button tips.
-			const undercut = edges.map((e) => 0.12 + 0.38 * Math.min(1, Math.max(0, (e.y / L + 0.5 - 0.25) / 0.4)));
+			const undercut = edges.map(
+				(e) => 0.12 + 0.38 * Math.min(1, Math.max(0, (e.y / L + 0.5 - 0.25) / 0.4))
+			);
 
 			const pos: number[] = [];
 			const uvs: number[] = [];
@@ -185,7 +214,12 @@
 				t.anisotropy = renderer.capabilities.getMaxAnisotropy();
 				return t;
 			}
-			const line = (ctx: CanvasRenderingContext2D, pts: [number, number][], width: number, color: string) => {
+			const line = (
+				ctx: CanvasRenderingContext2D,
+				pts: [number, number][],
+				width: number,
+				color: string
+			) => {
 				ctx.strokeStyle = color;
 				ctx.lineWidth = width;
 				ctx.lineJoin = 'round';
@@ -197,17 +231,30 @@
 			// A dark groove with a thin lit lip, for every seam between parts.
 			const groove = (ctx: CanvasRenderingContext2D, pts: [number, number][]) => {
 				line(ctx, pts, 13, '#030304');
-				line(ctx, pts.map(([u, v]) => [u, v + 0.006] as [number, number]), 3, '#55555d');
+				line(
+					ctx,
+					pts.map(([u, v]) => [u, v + 0.006] as [number, number]),
+					3,
+					'#55555d'
+				);
 			};
 			// Where the two main buttons end and the palm shell begins.
-			const SPLIT_PALM: [number, number][] = [[0.0, 0.6], [0.2, 0.575], [0.46, 0.56], [0.64, 0.52], [1.0, 0.49]];
+			const SPLIT_PALM: [number, number][] = [
+				[0.0, 0.6],
+				[0.2, 0.575],
+				[0.46, 0.56],
+				[0.64, 0.52],
+				[1.0, 0.49]
+			];
 			const colorTex = canvas2d(TW, TH, (ctx) => {
 				ctx.fillStyle = '#161619';
 				ctx.fillRect(0, 0, TW, TH);
 				// The palm shell is a touch lighter than the matte buttons.
 				ctx.fillStyle = '#1b1b1f';
 				ctx.beginPath();
-				SPLIT_PALM.forEach(([u, v], i) => (i ? ctx.lineTo(px(u), py(v)) : ctx.moveTo(px(u), py(v))));
+				SPLIT_PALM.forEach(([u, v], i) =>
+					i ? ctx.lineTo(px(u), py(v)) : ctx.moveTo(px(u), py(v))
+				);
 				ctx.lineTo(TW, TH);
 				ctx.lineTo(0, TH);
 				ctx.fill();
@@ -240,13 +287,32 @@
 				ctx.textBaseline = 'middle';
 				ctx.fillText('DPI', px(0.5525), py(0.471));
 				// Button splits and the rear palm seam.
-				groove(ctx, [[0.465, 0.03], [0.465, 0.56]]);
-				groove(ctx, [[0.64, 0.0], [0.64, 0.52]]);
-				groove(ctx, [[0.13, 0.08], [0.19, 0.31], [0.2, 0.575]]);
+				groove(ctx, [
+					[0.465, 0.03],
+					[0.465, 0.56]
+				]);
+				groove(ctx, [
+					[0.64, 0.0],
+					[0.64, 0.52]
+				]);
+				groove(ctx, [
+					[0.13, 0.08],
+					[0.19, 0.31],
+					[0.2, 0.575]
+				]);
 				groove(ctx, SPLIT_PALM);
-				groove(ctx, [[0.12, 0.88], [0.3, 0.86], [0.5, 0.865], [0.66, 0.83], [0.82, 0.76]]);
+				groove(ctx, [
+					[0.12, 0.88],
+					[0.3, 0.86],
+					[0.5, 0.865],
+					[0.66, 0.83],
+					[0.82, 0.76]
+				]);
 				// G8 / G7: angled buttons on the left corner.
-				for (const [v, name] of [[0.185, 'G8'], [0.245, 'G7']] as const) {
+				for (const [v, name] of [
+					[0.185, 'G8'],
+					[0.245, 'G7']
+				] as const) {
 					ctx.fillStyle = '#1f1f24';
 					ctx.beginPath();
 					ctx.moveTo(px(0.06), py(v + 0.008));
@@ -260,7 +326,10 @@
 				}
 				// Tilt arrows either side of the wheel.
 				ctx.fillStyle = '#56565c';
-				for (const [u, dir] of [[0.39, -1], [0.71, 1]] as const) {
+				for (const [u, dir] of [
+					[0.39, -1],
+					[0.71, 1]
+				] as const) {
 					ctx.beginPath();
 					ctx.moveTo(px(u), py(0.25) - 9);
 					ctx.lineTo(px(u) + dir * 11, py(0.25));
@@ -361,7 +430,11 @@
 			tread.rotation.z = Math.PI / 2;
 			tread.position.set(wheelX, wheelY, wheelZ);
 			mouse.add(tread);
-			const metal = new THREE.MeshStandardMaterial({ color: '#8d8f96', metalness: 1, roughness: 0.28 });
+			const metal = new THREE.MeshStandardMaterial({
+				color: '#8d8f96',
+				metalness: 1,
+				roughness: 0.28
+			});
 			for (const side of [-1, 1]) {
 				const rimDisc = new THREE.Mesh(
 					new THREE.CylinderGeometry(WHEEL_R - 0.03, WHEEL_R - 0.03, 0.08, 56),
@@ -373,7 +446,11 @@
 			}
 
 			// ── thumb buttons (G4, G5) along the top of the left wall, sniper button below ──
-			const sideMat = new THREE.MeshPhysicalMaterial({ color: '#1c1c20', roughness: 0.3, clearcoat: 0.6 });
+			const sideMat = new THREE.MeshPhysicalMaterial({
+				color: '#1c1c20',
+				roughness: 0.3,
+				clearcoat: 0.6
+			});
 			/** The left-wall outline point nearest depth v. */
 			const leftEdge = (v: number) =>
 				edges
@@ -458,7 +535,10 @@
 					resize();
 				}
 			});
-			liteObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-lite'] });
+			liteObserver.observe(document.documentElement, {
+				attributes: true,
+				attributeFilter: ['data-lite']
+			});
 
 			resize();
 			ready = true;

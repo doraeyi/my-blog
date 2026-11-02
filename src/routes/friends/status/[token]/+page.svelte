@@ -67,7 +67,7 @@
 	{/if}
 
 	{#if a.status !== 'rejected'}
-		<h2 class="mt-10 section-title">自動檢查</h2>
+		<h2 class="section-title mt-10">自動檢查</h2>
 		{#if !a.checkedAt}
 			<p class="mt-2 text-sm text-ink-muted">還在檢查，過幾分鐘再重新整理看看。</p>
 		{:else}

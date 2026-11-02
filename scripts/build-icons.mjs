@@ -6,7 +6,8 @@ import { Resvg } from '@resvg/resvg-js';
 
 const read = (p) => readFileSync(new URL(`../${p}`, import.meta.url), 'utf8');
 const write = (p, data) => writeFileSync(new URL(`../${p}`, import.meta.url), data);
-const png = (svg, size) => new Resvg(svg, { fitTo: { mode: 'width', value: size } }).render().asPng();
+const png = (svg, size) =>
+	new Resvg(svg, { fitTo: { mode: 'width', value: size } }).render().asPng();
 
 const small = read('src/lib/assets/brand/seal-small.svg');
 const icon = read('src/lib/assets/brand/app-icon.svg');

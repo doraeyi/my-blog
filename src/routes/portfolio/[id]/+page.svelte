@@ -57,7 +57,7 @@
 			{#if data.report}
 				<CaseReport {...data.report} />
 				{#if data.project.readmeHtml}
-					<h2 class="mt-10 section-title">附件：README</h2>
+					<h2 class="section-title mt-10">附件：README</h2>
 				{/if}
 			{/if}
 
