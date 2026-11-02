@@ -71,8 +71,9 @@
 	// Page changes via the View Transitions API: from the board into a sheet
 	// ("into"), from a sheet back to the board ("out"), or swapping one sheet
 	// for the next ("turn"). Falls back to an
-	// instant swap on browsers without support; reduced motion skips the
-	// animation (layout.css).
+	// instant swap on browsers without support, and for reduced motion (no
+	// transition at all: even the browser's default one would still morph the
+	// card into the sheet).
 	//
 	// Every move also carries the red pushpin: it leaves from where you clicked
 	// and flies to the pin on the next page (.pin-target), pinning it down.
@@ -89,23 +90,24 @@
 		lastCard = link?.closest<HTMLElement>(CARD) ?? null;
 	}
 	onNavigate((navigation) => {
-		if (!document.startViewTransition) return;
+		if (
+			!document.startViewTransition ||
+			window.matchMedia('(prefers-reduced-motion: reduce)').matches
+		)
+			return;
 		const from = navigation.from?.url.pathname;
 		const to = navigation.to?.url.pathname;
 		if (from === to) return;
 		const root = document.documentElement;
 		root.dataset.nav = to === '/' ? 'out' : from === '/' ? 'into' : 'turn';
 
-		let pin: HTMLElement | null = null;
-		if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-			const at = lastClick ?? { x: innerWidth / 2, y: innerHeight / 2 };
-			pin = document.createElement('span');
-			pin.className = 'travel-pin';
-			pin.style.left = `${at.x}px`;
-			pin.style.top = `${at.y}px`;
-			document.body.append(pin);
-			root.dataset.traveling = '';
-		}
+		const at = lastClick ?? { x: innerWidth / 2, y: innerHeight / 2 };
+		const pin = document.createElement('span');
+		pin.className = 'travel-pin';
+		pin.style.left = `${at.x}px`;
+		pin.style.top = `${at.y}px`;
+		document.body.append(pin);
+		root.dataset.traveling = '';
 		lastClick = null;
 
 		// Into a page: the clicked card becomes the sheet. Back to the board: the
