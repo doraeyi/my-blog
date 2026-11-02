@@ -62,8 +62,10 @@
 		}).replace(/</g, '\\u003c')}</` + `script>`
 	);
 
+	let themed = $state(false);
 	$effect(() => {
 		theme.sync();
+		themed = true;
 	});
 
 	// Page changes via the View Transitions API: from the board into a sheet
@@ -201,8 +203,14 @@
 	<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 	<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 	<link rel="manifest" href="/site.webmanifest" />
-	<meta name="theme-color" content="#fdfaf3" media="(prefers-color-scheme: light)" />
-	<meta name="theme-color" content="#120d0a" media="(prefers-color-scheme: dark)" />
+	<!-- The browser chrome takes the board's colour: by the system setting until the
+	     app knows the visitor's own choice, then by that. -->
+	{#if themed}
+		<meta name="theme-color" content={theme.current === 'dark' ? '#15110e' : '#ebe4d6'} />
+	{:else}
+		<meta name="theme-color" content="#ebe4d6" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#15110e" media="(prefers-color-scheme: dark)" />
+	{/if}
 	<!-- eslint-disable-next-line svelte/no-at-html-tags -- static JSON-LD built from site constants -->
 	{@html structuredData}
 	<link rel="alternate" type="application/rss+xml" title={SITE_TITLE} href="/rss.xml" />
