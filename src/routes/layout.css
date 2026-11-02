@@ -160,11 +160,17 @@ html {
 		animation-duration: 0.62s;
 		animation-timing-function: cubic-bezier(0.3, 0.9, 0.25, 1);
 	}
+	/* The card's snapshot keeps its own size (not stretched with the box, which
+	   blew its text up into a blur) and fades as the sheet takes over. The sheet
+	   is opaque early, so there's no dim moment with neither on screen. */
 	::view-transition-old(case-file) {
-		animation: case-fade-out 0.3s ease-out both;
+		height: 100%;
+		object-fit: none;
+		object-position: 50% 0;
+		animation: case-fade-out 0.22s ease-out both;
 	}
 	::view-transition-new(case-file) {
-		animation: vt-paper-in 0.4s ease-out 0.08s both;
+		animation: vt-paper-in 0.22s ease-out both;
 	}
 	::view-transition-image-pair(case-file) {
 		isolation: auto;
@@ -173,7 +179,7 @@ html {
 		animation: case-fade-out 0.25s ease-out forwards;
 	}
 	:root[data-morph]::view-transition-new(root) {
-		animation: case-fade-in 0.4s ease-out 0.3s both;
+		animation: case-fade-in 0.4s ease-out 0.2s both;
 	}
 	/* Back to the board: the board comes up at once and the sheet shrinks back into its card. */
 	:root[data-morph='back']::view-transition-new(root) {
