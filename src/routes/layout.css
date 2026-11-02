@@ -1167,3 +1167,26 @@ html {
 :root[data-lite] .diving :is(.card, .friend-card, .file-card, .strings) {
 	filter: none !important;
 }
+
+/* ───────── Skip link: hidden until a keyboard reaches it, then a slip at the top ───────── */
+.skip-link {
+	position: fixed;
+	top: 0.75rem;
+	left: 50%;
+	z-index: 300;
+	padding: 0.5rem 1rem;
+	translate: -50% calc(-100% - 1rem);
+	background: #f3e6c2;
+	box-shadow: 0 8px 18px -8px rgb(0 0 0 / 0.5);
+	color: #4a3a26;
+	font-family: var(--font-mono-hack);
+	font-size: 0.8rem;
+	letter-spacing: 0.1em;
+	transition: translate 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.skip-link:focus {
+	translate: -50% 0;
+}
+main:focus {
+	outline: none;
+}

@@ -215,10 +215,12 @@
 <GlobalFx />
 
 <BoardBackdrop />
+<!-- For keyboards: the first Tab offers a way past the bar, straight to the page. -->
+<a href="#main" class="skip-link">跳到內容</a>
 <SiteBar user={data.user} unread={data.unread} />
 <SearchPalette />
 
-<main class:sheet-desk={onPaper}>
+<main id="main" tabindex="-1" class:sheet-desk={onPaper}>
 	{#if onPaper}
 		<div class="sheet-wrap">
 			<ReadingThread sheet={sheetEl} />
