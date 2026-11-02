@@ -113,6 +113,17 @@
 	let boardEl: HTMLElement | undefined = $state();
 	const nodeEls: Record<string, HTMLElement> = {};
 	const pathEls: Record<string, SVGPathElement> = {};
+	// The frame loop reads these every frame, so they're plain maps, not state;
+	// an attachment files each element under its id (bind:this can't target a
+	// non-reactive object without Svelte warning on every render).
+	function keep<E extends Element>(map: Record<string, E>, id: string) {
+		return (el: E) => {
+			map[id] = el;
+			return () => {
+				if (map[id] === el) delete map[id];
+			};
+		};
+	}
 	let size = $state({ w: 0, h: 0 });
 	interface Spring {
 		ox: number;
@@ -418,7 +429,7 @@
 			</defs>
 			{#each strings as n (n.id)}
 				<path
-					bind:this={pathEls[n.id]}
+					{@attach keep(pathEls, n.id)}
 					class="string {n.kind}"
 					class:hot={hot && hotChain.includes(n.id) && hotChain.includes(n.parent ?? '')}
 					class:dim={hot && !(hotChain.includes(n.id) && hotChain.includes(n.parent ?? ''))}
@@ -431,7 +442,7 @@
 
 		{#each nodes as n (n.id)}
 			<div
-				bind:this={nodeEls[n.id]}
+				{@attach keep(nodeEls, n.id)}
 				class="node {n.kind}"
 				class:dim={!lit(n)}
 				style="--x: {n.at[0]}%; --y: {n.at[1]}%; --tx: {n.at[2]}%; --ty: {n

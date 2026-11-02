@@ -142,14 +142,19 @@
 					if (toEl) toEl.style.viewTransitionName = 'case-file';
 				}
 			});
-			t.finished.finally(() => {
-				delete root.dataset.nav;
-				delete root.dataset.morph;
-				if (fromEl) fromEl.style.viewTransitionName = '';
-				if (toEl) toEl.style.viewTransitionName = '';
-				pin?.remove();
-				delete root.dataset.traveling;
-			});
+			// A transition the browser skips (a hidden tab, a click mid-transition)
+			// rejects `ready`; the page still changes, so there's nothing to report.
+			t.ready.catch(() => {});
+			t.finished
+				.catch(() => {})
+				.finally(() => {
+					delete root.dataset.nav;
+					delete root.dataset.morph;
+					if (fromEl) fromEl.style.viewTransitionName = '';
+					if (toEl) toEl.style.viewTransitionName = '';
+					pin?.remove();
+					delete root.dataset.traveling;
+				});
 		});
 	});
 
