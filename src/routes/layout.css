@@ -1190,13 +1190,10 @@ html {
 }
 
 /* ───────── Light-effects mode (GlobalFx's frame-rate guard sets data-lite) ─────────
-   On a device that can't keep up, the costliest paint goes first: frosted glass,
-   the out-of-focus board beside the sheet, and the blur when a card is opened. */
+   On a device that can't keep up, the costliest paint goes first: frosted glass
+   and the blur when a card is opened. */
 :root[data-lite] * {
 	backdrop-filter: none !important;
-}
-:root[data-lite] .ghost {
-	display: none !important;
 }
 :root[data-lite] .diving :is(.card, .friend-card, .file-card, .strings) {
 	filter: none !important;

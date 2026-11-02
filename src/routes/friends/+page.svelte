@@ -72,6 +72,13 @@
 	let sending = $state(false);
 	const applied = $derived(form && 'applied' in form ? form.applied : null);
 	const applyError = $derived(form && 'applyError' in form ? form.applyError : '');
+	// Open when asked for, or when there's a result or an error from the form to show.
+	let applyClicked = $state(false);
+	const applyOpen = $derived(applyClicked || !!applied || !!applyError);
+	// A link straight to #apply arrives with the form open.
+	$effect(() => {
+		if (location.hash === '#apply') applyClicked = true;
+	});
 	const statusUrl = $derived(
 		applied?.token ? `${page.url.origin}/friends/status/${applied.token}` : null
 	);
@@ -218,6 +225,7 @@
 		</button>
 		<a
 			href="#apply"
+			onclick={() => (applyClicked = true)}
 			class="inline-flex items-center gap-1.5 rounded-full border border-border-case px-4 py-1.5 text-sm text-ink-muted transition hover:border-accent hover:text-accent"
 			>申請友鏈 ↓</a
 		>
@@ -286,213 +294,228 @@
 	<!-- ───── 申請 ───── -->
 	<section id="apply" class="mt-16 scroll-mt-24" use:reveal={{ delay: 80 }}>
 		<h2 class="section-title">申請友鏈</h2>
-		<ul class="mt-4 space-y-2 text-sm text-ink-muted">
-			{#each requirements as r (r)}
-				<li class="flex gap-2"><span class="text-accent">✦</span>{r}</li>
-			{/each}
-		</ul>
-
-		<div class="mt-6 rounded-2xl border border-border-case bg-surface-alt/60 p-5">
-			<div class="flex items-center justify-between">
-				<p class="text-sm font-medium text-ink">本站資料（先掛上這個）</p>
-				<button
-					type="button"
-					onclick={() => copy(card.map(([k, v]) => `${k}：${v}`).join('\n'), 'card')}
-					class="flex items-center gap-1.5 rounded-full border border-border-case px-3 py-1 text-xs text-ink-muted transition hover:border-accent hover:text-accent"
-				>
-					{#if copied === 'card'}<Check class="size-3.5" /> 已複製{:else}<Copy class="size-3.5" />
-						複製{/if}
-				</button>
-			</div>
-			<dl class="mt-4 space-y-2 font-mono-hack text-sm">
-				{#each card as [k, v] (k)}
-					<div class="flex gap-3">
-						<dt class="w-10 shrink-0 text-ink-muted">{k}</dt>
-						<dd class="min-w-0 break-all text-ink">{v}</dd>
-					</div>
-				{/each}
-			</dl>
-		</div>
-
-		{#if applied}
-			<div class="mt-6 rounded-2xl border border-brass/60 bg-surface-alt p-6 text-center">
-				<p class="font-display text-xl text-ink">收到了，{applied.name}！</p>
-				<p class="mt-2 text-sm text-ink-muted">
-					我會盡快看。審核結果會出現在下面這個專屬連結，存起來隨時回來看。
-				</p>
-				{#if statusUrl}
-					<div
-						class="mx-auto mt-4 flex max-w-lg items-center gap-2 rounded-lg border border-border-case bg-surface px-3 py-2"
-					>
-						<code class="min-w-0 flex-1 truncate text-left text-xs text-ink">{statusUrl}</code>
-						<button
-							type="button"
-							onclick={() => copy(statusUrl, 'status')}
-							class="shrink-0 text-xs text-accent"
-						>
-							{copied === 'status' ? '已複製' : '複製'}
-						</button>
-					</div>
-				{/if}
-			</div>
+		{#if !applyOpen}
+			<!-- The form is long: it waits behind one button until someone wants it. -->
+			<p class="mt-4 text-sm text-ink-muted">想交換連結？看一下條件、填張表就好。</p>
+			<button
+				type="button"
+				onclick={() => (applyClicked = true)}
+				class="mt-4 inline-flex items-center gap-1.5 rounded-full border border-accent px-4 py-1.5 text-sm text-accent transition hover:bg-accent hover:text-white"
+			>
+				填寫申請
+			</button>
 		{:else}
-			<div class="mt-6 grid gap-6 lg:grid-cols-[1fr_18rem]">
-				<form
-					method="post"
-					action="?/apply"
-					use:enhance={() => {
-						sending = true;
-						return async ({ update }) => {
-							await update({ reset: false });
-							sending = false;
-						};
-					}}
-					class="relative grid gap-4 sm:grid-cols-2"
-				>
-					<label class="text-sm text-ink"
-						>網站名稱 *<input
-							name="name"
-							required
-							maxlength="40"
-							bind:value={app.name}
-							class={input}
-						/></label
-					>
-					<label class="text-sm text-ink"
-						>網站網址 *<input
-							name="url"
-							required
-							type="url"
-							placeholder="https://"
-							bind:value={app.url}
-							class={input}
-						/></label
-					>
-					<label class="text-sm text-ink"
-						>頭像網址 *<input
-							name="avatar"
-							required
-							type="url"
-							placeholder="https://…/avatar.png"
-							bind:value={app.avatar}
-							oninput={() => (avatarBroken = false)}
-							class={input}
-						/></label
-					>
-					<label class="text-sm text-ink"
-						>Email（不公開）*<input
-							name="email"
-							required
-							type="email"
-							bind:value={app.email}
-							class={input}
-						/></label
-					>
-					<label class="text-sm text-ink sm:col-span-2"
-						>一句話介紹 *<input
-							name="description"
-							required
-							maxlength="120"
-							bind:value={app.description}
-							class={input}
-						/>
-						<span class="mt-1 block text-right text-[11px] text-ink-muted"
-							>{app.description.length}/120</span
-						></label
-					>
-					<label class="text-sm text-ink"
-						>RSS / Atom（選填，留空會自動找）<input
-							name="feedUrl"
-							type="url"
-							bind:value={app.feedUrl}
-							class={input}
-						/></label
-					>
-					<label class="text-sm text-ink"
-						>掛本站連結的頁面（選填）<input
-							name="backlinkUrl"
-							type="url"
-							bind:value={app.backlinkUrl}
-							class={input}
-						/></label
-					>
-					<!-- Honeypot for bots; hidden from people and screen readers. -->
-					<input
-						name="nickname"
-						tabindex="-1"
-						autocomplete="off"
-						aria-hidden="true"
-						class="absolute -left-[9999px] h-0 w-0 opacity-0"
-					/>
-					<label class="flex items-center gap-2 text-sm text-ink sm:col-span-2">
-						<input
-							type="checkbox"
-							name="joinCircle"
-							bind:checked={app.joinCircle}
-							class="accent-accent"
-						/>
-						加入朋友圈（在這裡顯示你的最新文章）
-					</label>
-					<div class="flex items-center justify-between gap-3 sm:col-span-2">
-						<p class="text-sm text-stamp-500" role="alert">{applyError}</p>
-						<button
-							type="submit"
-							disabled={sending}
-							class="shrink-0 rounded-lg bg-accent px-5 py-2 text-sm font-medium text-white transition hover:bg-accent-strong disabled:opacity-60"
-						>
-							{sending ? '送出中…' : '送出申請'}
-						</button>
-					</div>
-				</form>
+			<ul class="mt-4 space-y-2 text-sm text-ink-muted">
+				{#each requirements as r (r)}
+					<li class="flex gap-2"><span class="text-accent">✦</span>{r}</li>
+				{/each}
+			</ul>
 
-				<aside aria-label="卡片預覽">
-					<p class="mb-2 font-mono-hack text-xs tracking-widest text-ink-muted">
-						PREVIEW · 掛上去長這樣
-					</p>
-					<div class="rounded-2xl border border-border-case bg-surface-alt/70 p-4">
-						<div class="flex items-start gap-3">
-							<span
-								class="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border-case bg-surface font-display text-lg text-ink"
-							>
-								{#if app.avatar && !avatarBroken}
-									<img
-										src={app.avatar}
-										alt=""
-										referrerpolicy="no-referrer"
-										class="size-full object-cover"
-										onerror={() => (avatarBroken = true)}
-									/>
-								{:else}
-									{app.name.charAt(0) || '?'}
-								{/if}
-							</span>
-							<div class="min-w-0">
-								<p class="truncate font-medium text-ink">{app.name || '你的網站'}</p>
-								<p class="truncate font-mono-hack text-[11px] text-ink-muted">
-									{host(app.url) || 'example.com'}
-								</p>
-							</div>
+			<div class="mt-6 rounded-2xl border border-border-case bg-surface-alt/60 p-5">
+				<div class="flex items-center justify-between">
+					<p class="text-sm font-medium text-ink">本站資料（先掛上這個）</p>
+					<button
+						type="button"
+						onclick={() => copy(card.map(([k, v]) => `${k}：${v}`).join('\n'), 'card')}
+						class="flex items-center gap-1.5 rounded-full border border-border-case px-3 py-1 text-xs text-ink-muted transition hover:border-accent hover:text-accent"
+					>
+						{#if copied === 'card'}<Check class="size-3.5" /> 已複製{:else}<Copy class="size-3.5" />
+							複製{/if}
+					</button>
+				</div>
+				<dl class="mt-4 space-y-2 font-mono-hack text-sm">
+					{#each card as [k, v] (k)}
+						<div class="flex gap-3">
+							<dt class="w-10 shrink-0 text-ink-muted">{k}</dt>
+							<dd class="min-w-0 break-all text-ink">{v}</dd>
 						</div>
-						<p class="mt-3 line-clamp-2 text-sm text-ink-muted">
-							{app.description || '一句話介紹會出現在這裡。'}
-						</p>
-					</div>
-					{#if app.avatar && avatarBroken}
-						<p class="mt-2 text-xs text-stamp-500">頭像讀不到，確認一下網址？</p>
-					{/if}
-				</aside>
+					{/each}
+				</dl>
 			</div>
+
+			{#if applied}
+				<div class="mt-6 rounded-2xl border border-brass/60 bg-surface-alt p-6 text-center">
+					<p class="font-display text-xl text-ink">收到了，{applied.name}！</p>
+					<p class="mt-2 text-sm text-ink-muted">
+						我會盡快看。審核結果會出現在下面這個專屬連結，存起來隨時回來看。
+					</p>
+					{#if statusUrl}
+						<div
+							class="mx-auto mt-4 flex max-w-lg items-center gap-2 rounded-lg border border-border-case bg-surface px-3 py-2"
+						>
+							<code class="min-w-0 flex-1 truncate text-left text-xs text-ink">{statusUrl}</code>
+							<button
+								type="button"
+								onclick={() => copy(statusUrl, 'status')}
+								class="shrink-0 text-xs text-accent"
+							>
+								{copied === 'status' ? '已複製' : '複製'}
+							</button>
+						</div>
+					{/if}
+				</div>
+			{:else}
+				<div class="mt-6 grid gap-6 lg:grid-cols-[1fr_18rem]">
+					<form
+						method="post"
+						action="?/apply"
+						use:enhance={() => {
+							sending = true;
+							return async ({ update }) => {
+								await update({ reset: false });
+								sending = false;
+							};
+						}}
+						class="relative grid gap-4 sm:grid-cols-2"
+					>
+						<label class="text-sm text-ink"
+							>網站名稱 *<input
+								name="name"
+								required
+								maxlength="40"
+								bind:value={app.name}
+								class={input}
+							/></label
+						>
+						<label class="text-sm text-ink"
+							>網站網址 *<input
+								name="url"
+								required
+								type="url"
+								placeholder="https://"
+								bind:value={app.url}
+								class={input}
+							/></label
+						>
+						<label class="text-sm text-ink"
+							>頭像網址 *<input
+								name="avatar"
+								required
+								type="url"
+								placeholder="https://…/avatar.png"
+								bind:value={app.avatar}
+								oninput={() => (avatarBroken = false)}
+								class={input}
+							/></label
+						>
+						<label class="text-sm text-ink"
+							>Email（不公開）*<input
+								name="email"
+								required
+								type="email"
+								bind:value={app.email}
+								class={input}
+							/></label
+						>
+						<label class="text-sm text-ink sm:col-span-2"
+							>一句話介紹 *<input
+								name="description"
+								required
+								maxlength="120"
+								bind:value={app.description}
+								class={input}
+							/>
+							<span class="mt-1 block text-right text-[11px] text-ink-muted"
+								>{app.description.length}/120</span
+							></label
+						>
+						<label class="text-sm text-ink"
+							>RSS / Atom（選填，留空會自動找）<input
+								name="feedUrl"
+								type="url"
+								bind:value={app.feedUrl}
+								class={input}
+							/></label
+						>
+						<label class="text-sm text-ink"
+							>掛本站連結的頁面（選填）<input
+								name="backlinkUrl"
+								type="url"
+								bind:value={app.backlinkUrl}
+								class={input}
+							/></label
+						>
+						<!-- Honeypot for bots; hidden from people and screen readers. -->
+						<input
+							name="nickname"
+							tabindex="-1"
+							autocomplete="off"
+							aria-hidden="true"
+							class="absolute -left-[9999px] h-0 w-0 opacity-0"
+						/>
+						<label class="flex items-center gap-2 text-sm text-ink sm:col-span-2">
+							<input
+								type="checkbox"
+								name="joinCircle"
+								bind:checked={app.joinCircle}
+								class="accent-accent"
+							/>
+							加入朋友圈（在這裡顯示你的最新文章）
+						</label>
+						<div class="flex items-center justify-between gap-3 sm:col-span-2">
+							<p class="text-sm text-stamp-500" role="alert">{applyError}</p>
+							<button
+								type="submit"
+								disabled={sending}
+								class="shrink-0 rounded-lg bg-accent px-5 py-2 text-sm font-medium text-white transition hover:bg-accent-strong disabled:opacity-60"
+							>
+								{sending ? '送出中…' : '送出申請'}
+							</button>
+						</div>
+					</form>
+
+					<aside aria-label="卡片預覽">
+						<p class="mb-2 font-mono-hack text-xs tracking-widest text-ink-muted">
+							PREVIEW · 掛上去長這樣
+						</p>
+						<div class="rounded-2xl border border-border-case bg-surface-alt/70 p-4">
+							<div class="flex items-start gap-3">
+								<span
+									class="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border-case bg-surface font-display text-lg text-ink"
+								>
+									{#if app.avatar && !avatarBroken}
+										<img
+											src={app.avatar}
+											alt=""
+											referrerpolicy="no-referrer"
+											class="size-full object-cover"
+											onerror={() => (avatarBroken = true)}
+										/>
+									{:else}
+										{app.name.charAt(0) || '?'}
+									{/if}
+								</span>
+								<div class="min-w-0">
+									<p class="truncate font-medium text-ink">{app.name || '你的網站'}</p>
+									<p class="truncate font-mono-hack text-[11px] text-ink-muted">
+										{host(app.url) || 'example.com'}
+									</p>
+								</div>
+							</div>
+							<p class="mt-3 line-clamp-2 text-sm text-ink-muted">
+								{app.description || '一句話介紹會出現在這裡。'}
+							</p>
+						</div>
+						{#if app.avatar && avatarBroken}
+							<p class="mt-2 text-xs text-stamp-500">頭像讀不到，確認一下網址？</p>
+						{/if}
+					</aside>
+				</div>
+			{/if}
 		{/if}
 	</section>
 
-	<div class="mx-auto max-w-3xl">
-		<CommentThread
-			comments={data.comments}
-			message={form && 'message' in form ? form.message : undefined}
-			title="想說點什麼"
-			placeholder="打聲招呼，或問問友鏈的事…"
-		/>
-	</div>
+	<!-- Only when someone has written here; new notes go to the guestbook. -->
+	{#if data.comments.length}
+		<div class="mx-auto max-w-3xl">
+			<CommentThread
+				comments={data.comments}
+				message={form && 'message' in form ? form.message : undefined}
+				title="想說點什麼"
+				placeholder="打聲招呼，或問問友鏈的事…"
+			/>
+		</div>
+	{/if}
 </div>
 
 <style>

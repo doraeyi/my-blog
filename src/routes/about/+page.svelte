@@ -361,28 +361,4 @@
 			{/each}
 		</div>
 	</section>
-
-	<!-- ── Closing ──────────────────────────────────────────────────── -->
-	<section
-		use:reveal
-		class="relative mt-24 overflow-hidden rounded-md bg-case-950 px-8 py-12 text-center"
-	>
-		<div
-			aria-hidden="true"
-			class="pointer-events-none absolute inset-0 opacity-[0.12] [background:repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(240,180,41,0.4)_3px)]"
-		></div>
-		<p class="relative font-mono-hack text-xs tracking-[0.3em] text-phosphor-400/90 uppercase">
-			Open a new case
-		</p>
-		<p class="relative mt-3 font-display text-2xl text-cream-100 sm:text-3xl">
-			有想法想聊聊？寄封信給我。
-		</p>
-		<a
-			href="mailto:{contactEmail}"
-			class="relative mt-6 inline-flex items-center gap-2 rounded-full border border-phosphor-400/40 px-5 py-2 font-mono-hack text-sm text-phosphor-300 transition hover:border-phosphor-400 hover:bg-phosphor-400/10"
-		>
-			<Mail class="size-4" />
-			{contactEmail}
-		</a>
-	</section>
 </div>

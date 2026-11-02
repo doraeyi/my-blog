@@ -91,5 +91,8 @@
 		— 站點走過的路
 	</p>
 
-	<CommentThread comments={data.comments} message={form?.message} />
+	<!-- Only when someone has written here; new notes go to the guestbook (證詞). -->
+	{#if data.comments.length}
+		<CommentThread comments={data.comments} message={form?.message} />
+	{/if}
 </div>
