@@ -116,7 +116,7 @@
 	}
 	.entry-note {
 		overflow: hidden;
-		color: #8a7458;
+		color: #76603f;
 		font-size: 0.8rem;
 		text-overflow: ellipsis;
 		white-space: nowrap;

@@ -76,7 +76,7 @@
 	.slip-time {
 		display: flex;
 		justify-content: space-between;
-		color: #8a7458;
+		color: #76603f;
 		font-size: 0.7rem;
 		letter-spacing: 0.1em;
 	}

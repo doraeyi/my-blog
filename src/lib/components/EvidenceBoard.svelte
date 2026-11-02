@@ -509,7 +509,7 @@
 	.tag-count {
 		margin-left: auto;
 		padding-left: 0.4rem;
-		color: #6b5336;
+		color: #4a3820;
 		font-size: 0.7rem;
 	}
 
