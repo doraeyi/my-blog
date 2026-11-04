@@ -26,6 +26,16 @@
 	// A post is for reading: its sheet leaves out the chapter's other entries and
 	// the closing stamp (the post has its own 結案), so the text is the one thing on it.
 	const isPost = $derived(/^\/(blog|articles|moods)\/[^/]+/.test(page.url.pathname));
+
+	/** On the one-line note (narrow screens) the page you're on may sit past the edge: bring it in. */
+	function showHere(note: HTMLElement) {
+		void page.url.href;
+		const list = note.querySelector('ul');
+		const here = note.querySelector<HTMLElement>('.is-here');
+		if (list && here && list.scrollWidth > list.clientWidth) {
+			list.scrollLeft = here.offsetLeft - list.offsetLeft - 12;
+		}
+	}
 	// What the sheet is, typed across its top: CH.03 · 參 · 文章.
 	const sheetLabel = $derived.by(() => {
 		if (page.url.pathname.startsWith('/admin')) return '後台';
@@ -272,7 +282,7 @@
 					{#if section?.cards.length && !isPost}
 						<!-- The rest of the chapter on a sticky note stuck to the sheet: the same
 						     kind of note it was taken down from. The page you're on is ticked. -->
-						<nav class="chapter-note" aria-label="{section.label}這一章還有">
+						<nav class="chapter-note" aria-label="{section.label}這一章還有" {@attach showHere}>
 							<p class="cn-head">這一章還有</p>
 							<ul>
 								<!-- eslint-disable svelte/no-navigation-without-resolve -- static app paths (some with a query) from site-nav -->

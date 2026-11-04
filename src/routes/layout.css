@@ -1158,6 +1158,36 @@ html {
 	width: 0.8em;
 	color: #b3261e;
 }
+/* Narrower screens: one line you swipe along, so the chapter's pages don't
+   push the page itself below the fold. */
+@media (max-width: 1179px) {
+	.chapter-note {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		min-width: 0;
+		max-width: 100%;
+		padding: 0.5rem 0 0.5rem 0.85rem;
+	}
+	.cn-head {
+		flex: none;
+	}
+	.chapter-note ul {
+		flex-wrap: nowrap;
+		min-width: 0;
+		margin-top: 0;
+		padding-right: 1.2rem;
+		overflow-x: auto;
+		scrollbar-width: none;
+		mask-image: linear-gradient(90deg, #000 calc(100% - 1.5rem), transparent);
+	}
+	.chapter-note ul::-webkit-scrollbar {
+		display: none;
+	}
+	.chapter-note a {
+		white-space: nowrap;
+	}
+}
 @media (min-width: 1180px) {
 	.chapter-note {
 		position: absolute;

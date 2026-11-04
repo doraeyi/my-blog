@@ -3,8 +3,6 @@
 	import Seo from '$lib/components/Seo.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import CommentThread from '$lib/components/CommentThread.svelte';
-	import PinString from '$lib/components/PinString.svelte';
-	import { pinned } from '$lib/actions/pinned';
 	import { reveal } from '$lib/actions/reveal';
 	import { contactEmail } from '$lib/social-links';
 	import type { ActionData, PageData } from './$types';
@@ -12,10 +10,10 @@
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 
 	const rules = [
-		['用真實一點的暱稱', '不限本名，只是別叫「123」或「test」，不然我分不出誰是誰。'],
+		['暱稱用真實一點的', '不限本名，只是別叫「123」或「test」，不然我分不出誰是誰。'],
 		['登入會自動帶頭像', '用 GitHub 或帳號登入後，頭像跟暱稱會自動填好。'],
-		['我會看每一則', '廣告、spam 或惡意留言會被我隱藏，其他都會留著。'],
-		['想說什麼都可以', '閒聊、技術問題、合作邀請，或單純路過留個記號，都歡迎。']
+		['廣告和惡意留言會被隱藏', '其他都會留著，我會看每一則。'],
+		['閒聊、問問題、路過都歡迎', '技術問題、合作邀請，或單純路過留個記號都可以。']
 	];
 </script>
 
@@ -28,24 +26,17 @@
 		description="這裡是留言板。不一定要跟文章有關，路過留個記號也很好。"
 	/>
 
-	<section>
-		<h2 class="section-title">幾個小規則</h2>
-		<PinString class="rules">
-			{#each rules as [title, body], i (title)}
-				<div
-					class="index-card rounded-sm px-5 pt-5 pb-5"
-					use:pinned={{ delay: (i % 2) * 100, tilt: [-0.7, 0.9, 0.5, -0.6][i] }}
-				>
-					<p class="border-b-2 border-stamp-400/60 pb-1 font-display text-lg text-case-900">
-						{title}
-					</p>
-					<p class="mt-2 text-sm leading-7 text-case-700">{body}</p>
-				</div>
-			{/each}
-		</PinString>
-	</section>
+	<!-- The board is what the page is for: the few house rules ride along in
+	     one short note above it instead of a wall of cards to scroll past. -->
+	<ul class="rules-note" aria-label="留言前看一下">
+		{#each rules as [title, body] (title)}
+			<li title={body}>{title}</li>
+		{/each}
+	</ul>
 
-	<section class="mt-10" use:reveal={{ delay: 120 }}>
+	<CommentThread comments={data.comments} message={form?.message} placeholder="想說點什麼？" />
+
+	<section class="mt-12" use:reveal={{ delay: 120 }}>
 		<h2 class="section-title">想私下聊？</h2>
 		<p class="mt-3 text-sm leading-relaxed text-ink-muted">
 			不適合公開的事，直接寄信到
@@ -59,19 +50,22 @@
 			看看。
 		</p>
 	</section>
-
-	<CommentThread comments={data.comments} message={form?.message} placeholder="想說點什麼？" />
 </div>
 
 <style>
-	:global(.rules) {
-		display: grid;
-		gap: 2.2rem 1.5rem;
-		margin-top: 2rem;
+	.rules-note {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.3rem 1.1rem;
+		margin-top: 1.2rem;
+		padding: 0.7rem 0.95rem;
+		border-left: 3px solid var(--color-stamp-400, #c0392b);
+		background: rgb(60 40 20 / 0.04);
+		color: var(--color-case-700, #5a4632);
+		font-size: 0.85rem;
 	}
-	@media (min-width: 640px) {
-		:global(.rules) {
-			grid-template-columns: 1fr 1fr;
-		}
+	.rules-note li::before {
+		content: '✓ ';
+		color: var(--color-accent, #8e1d12);
 	}
 </style>
