@@ -504,6 +504,23 @@ html {
 .prose > h1:first-child {
 	display: none;
 }
+/* Ink on the paper: the typography plugin's greys are cool blue-greys, which
+   read as a foreign print on warm stock. */
+.case-paper .prose {
+	--tw-prose-body: #3b2d20;
+	--tw-prose-headings: var(--color-case-900);
+	--tw-prose-lead: var(--color-case-700);
+	--tw-prose-bold: var(--color-case-900);
+	--tw-prose-counters: var(--color-case-600);
+	--tw-prose-bullets: var(--color-case-500);
+	--tw-prose-hr: rgb(60 40 20 / 0.16);
+	--tw-prose-quotes: var(--color-case-800);
+	--tw-prose-quote-borders: var(--color-stamp-400);
+	--tw-prose-captions: var(--color-ink-muted);
+	--tw-prose-code: var(--color-case-900);
+	--tw-prose-th-borders: rgb(60 40 20 / 0.22);
+	--tw-prose-td-borders: rgb(60 40 20 / 0.12);
+}
 @media (min-width: 640px) {
 	.case-paper .prose {
 		font-size: 1.0625rem;

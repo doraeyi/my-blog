@@ -5,7 +5,8 @@
 -->
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
+	import { loginHref } from '$lib/login-next';
 
 	let { liked, count, signedIn }: { liked: boolean; count: number; signedIn: boolean } = $props();
 
@@ -51,7 +52,8 @@
 		</button>
 	</form>
 {:else}
-	<a href={resolve('/login')} class="stamp-btn" title="登入後就能蓋章推薦">
+	<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- loginHref() builds an app path -->
+	<a href={loginHref(page.url.pathname)} class="stamp-btn" title="登入後就能蓋章推薦">
 		{@render seal(false)}
 		<span class="stamp-hint">登入後蓋章</span>
 	</a>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Seo from '$lib/components/Seo.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
+	import EmptyEvidence from '$lib/components/EmptyEvidence.svelte';
 	import PinString from '$lib/components/PinString.svelte';
 	import { pinned } from '$lib/actions/pinned';
 	import { timeAgo } from '$lib/format';
@@ -17,7 +18,7 @@
 	<PageHeader title="現場筆記" stamp="速記" description="想到什麼寫什麼，看完什麼順手丟上來。" />
 
 	{#if data.thoughts.length === 0}
-		<p class="py-16 text-center text-sm text-ink-muted">還沒有碎念。安靜也是一種狀態。</p>
+		<EmptyEvidence title="還沒有碎念" note="安靜也是一種狀態，下次來可能就有了。" />
 	{:else}
 		<!-- Slips pinned down the board, left and right, on one string -->
 		<PinString class="slips">

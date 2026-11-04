@@ -51,10 +51,12 @@
 
 <div class="mx-auto max-w-5xl px-6 pb-16">
 	<PageHeader title="參考卷宗" stamp="館藏" description="讀過的、正在讀的、還在清單上的。">
-		<p class="font-mono-hack text-sm text-ink-muted">
-			館藏清點：{#each stats as st, i (st.label)}{i ? ' · ' : ''}{st.label}
-				<span class="text-ink">{st.value}</span>{/each}
-		</p>
+		{#if books.length}
+			<p class="font-mono-hack text-sm text-ink-muted">
+				館藏清點：{#each stats as st, i (st.label)}{i ? ' · ' : ''}{st.label}
+					<span class="text-ink">{st.value}</span>{/each}
+			</p>
+		{/if}
 	</PageHeader>
 
 	{#if books.length === 0}

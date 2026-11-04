@@ -108,50 +108,58 @@
 					class="w-full border-0 border-b border-dashed border-border-case bg-transparent px-0 py-1 font-sans text-base text-ink placeholder:text-ink-muted/60 focus:border-accent focus:ring-0"
 				/>
 			</label>
-			<p class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-				<span class="tracking-widest">排序：</span>
-				{#each sorts as s, i (s.key)}
-					{#if i > 0}<span aria-hidden="true">/</span>{/if}
-					<!-- eslint-disable svelte/no-navigation-without-resolve -- withParams() builds on resolve('/blog') -->
-					<a
-						href={withParams({ sort: s.key === 'new' ? null : s.key })}
-						data-sveltekit-noscroll
-						class="underline-offset-4 {data.sort === s.key
-							? 'text-ink underline decoration-accent decoration-2'
-							: 'hover:text-ink'}"
+			<!-- Sorting and the clue tags are the second thing you reach for: folded
+			     away until asked for (or already in use), so the list starts sooner. -->
+			<details class="more" open={data.sort !== 'new' || !!data.tag}>
+				<summary class="tracking-widest">
+					排序與線索<span class="more-hint">
+						共 {data.totals.posts} 件 · 線索 {data.totals.tags} 條 · 翻閱 {data.totals.views} 次</span
 					>
-						{s.label}
-					</a>
-					<!-- eslint-enable svelte/no-navigation-without-resolve -->
-				{/each}
-				<span class="ml-auto text-xs">
-					共 {data.totals.posts} 件 · 線索 {data.totals.tags} 條 · 翻閱 {data.totals.views} 次
-				</span>
-			</p>
-			{#if data.tags.length}
-				<p class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-					<span class="tracking-widest">線索：</span>
-					{#each visibleTags as t (t.name)}
-						<!-- eslint-disable svelte/no-navigation-without-resolve -- withParams() builds on resolve('/blog') -->
-						<a
-							href={withParams({ tag: data.tag === t.name ? null : t.name })}
-							class="clue {data.tag === t.name ? 'is-on' : ''}"
-						>
-							#{t.name}<sup class="ml-0.5 text-[0.6rem] opacity-60">{t.count}</sup>
-						</a>
-						<!-- eslint-enable svelte/no-navigation-without-resolve -->
-					{/each}
-					{#if data.tags.length > 10}
-						<button
-							type="button"
-							class="text-xs underline underline-offset-4 hover:text-ink"
-							onclick={() => (showAllTags = !showAllTags)}
-						>
-							{showAllTags ? '收起' : `其餘 ${data.tags.length - 10} 條`}
-						</button>
+				</summary>
+				<div class="mt-3 space-y-4">
+					<p class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+						<span class="tracking-widest">排序：</span>
+						{#each sorts as s, i (s.key)}
+							{#if i > 0}<span aria-hidden="true">/</span>{/if}
+							<!-- eslint-disable svelte/no-navigation-without-resolve -- withParams() builds on resolve('/blog') -->
+							<a
+								href={withParams({ sort: s.key === 'new' ? null : s.key })}
+								data-sveltekit-noscroll
+								class="underline-offset-4 {data.sort === s.key
+									? 'text-ink underline decoration-accent decoration-2'
+									: 'hover:text-ink'}"
+							>
+								{s.label}
+							</a>
+							<!-- eslint-enable svelte/no-navigation-without-resolve -->
+						{/each}
+					</p>
+					{#if data.tags.length}
+						<p class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+							<span class="tracking-widest">線索：</span>
+							{#each visibleTags as t (t.name)}
+								<!-- eslint-disable svelte/no-navigation-without-resolve -- withParams() builds on resolve('/blog') -->
+								<a
+									href={withParams({ tag: data.tag === t.name ? null : t.name })}
+									class="clue {data.tag === t.name ? 'is-on' : ''}"
+								>
+									#{t.name}<sup class="ml-0.5 text-[0.6rem] opacity-60">{t.count}</sup>
+								</a>
+								<!-- eslint-enable svelte/no-navigation-without-resolve -->
+							{/each}
+							{#if data.tags.length > 10}
+								<button
+									type="button"
+									class="text-xs underline underline-offset-4 hover:text-ink"
+									onclick={() => (showAllTags = !showAllTags)}
+								>
+									{showAllTags ? '收起' : `其餘 ${data.tags.length - 10} 條`}
+								</button>
+							{/if}
+						</p>
 					{/if}
-				</p>
-			{/if}
+				</div>
+			</details>
 		</div>
 	</PageHeader>
 
@@ -258,6 +266,36 @@
 </div>
 
 <style>
+	.more > summary {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.3rem 0.8rem;
+		width: fit-content;
+		cursor: pointer;
+		list-style: none;
+		transition: color 0.15s;
+	}
+	.more > summary::-webkit-details-marker {
+		display: none;
+	}
+	.more > summary::before {
+		content: '▸';
+		display: inline-block;
+		margin-right: -0.4rem;
+		transition: rotate 0.2s;
+	}
+	.more[open] > summary::before {
+		rotate: 90deg;
+	}
+	.more > summary:hover {
+		color: var(--color-ink);
+	}
+	.more-hint {
+		font-size: 0.75rem;
+		letter-spacing: 0;
+		opacity: 0.8;
+	}
 	.clue {
 		transition: color 0.15s ease;
 	}

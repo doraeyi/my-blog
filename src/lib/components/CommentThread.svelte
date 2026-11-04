@@ -7,8 +7,8 @@
 -->
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import { loginHref } from '$lib/login-next';
 	import { reveal } from '$lib/actions/reveal';
 	import { timeAgo } from '$lib/format';
 	import Send from '@lucide/svelte/icons/send';
@@ -183,12 +183,14 @@
 			class="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-sm border-2 border-dashed border-[#c9b48a] p-4"
 		>
 			<p class="text-sm text-ink-muted">登入後就能留言和回覆，頭像跟暱稱會自動帶入。</p>
+			<!-- eslint-disable svelte/no-navigation-without-resolve -- loginHref() builds an app path -->
 			<a
-				href={resolve('/login')}
+				href={loginHref(`${page.url.pathname}#comments`)}
 				class="rounded-sm border border-[#b9a682] bg-[#f8f1df] px-4 py-1.5 text-sm font-medium text-ink transition hover:border-accent hover:text-accent"
 			>
 				登入留言
 			</a>
+			<!-- eslint-enable svelte/no-navigation-without-resolve -->
 		</div>
 	{/if}
 
