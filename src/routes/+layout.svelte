@@ -13,6 +13,7 @@
 	import DetectiveDepth from '$lib/components/DetectiveDepth.svelte';
 	import SearchPalette from '$lib/components/SearchPalette.svelte';
 	import CaseEnd from '$lib/components/CaseEnd.svelte';
+	import BackToTop from '$lib/components/BackToTop.svelte';
 	import GlobalFx from '$lib/components/GlobalFx.svelte';
 	import { theme } from '$lib/theme.svelte';
 	import { chapters, drawerFor, isEntryActive } from '$lib/site-nav';
@@ -308,6 +309,7 @@
 				{#if !page.error && !page.url.pathname.startsWith('/admin')}<CaseEnd quiet={isPost} />{/if}
 			</div>
 		</div>
+		<BackToTop />
 	{:else}
 		{@render children()}
 	{/if}

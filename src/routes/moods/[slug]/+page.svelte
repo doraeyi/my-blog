@@ -8,6 +8,7 @@
 	import SeriesBox from '$lib/components/SeriesBox.svelte';
 	import PostFooterNav from '$lib/components/PostFooterNav.svelte';
 	import LikeButton from '$lib/components/LikeButton.svelte';
+	import ShareButton from '$lib/components/ShareButton.svelte';
 	import PostMentions from '$lib/components/PostMentions.svelte';
 	import ReadingProgress from '$lib/components/ReadingProgress.svelte';
 	import { page } from '$app/state';
@@ -66,8 +67,9 @@
 
 			<CaseClosed />
 
-			<div class="mt-2 flex justify-center">
+			<div class="mt-2 flex flex-wrap items-center justify-center gap-5">
 				<LikeButton liked={data.liked} count={data.likeCount} signedIn={!!data.user} />
+				<ShareButton title={data.post.title} />
 			</div>
 
 			{#if data.nav}

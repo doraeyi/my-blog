@@ -5,6 +5,7 @@
 	import { reveal } from '$lib/actions/reveal';
 	import Star from '@lucide/svelte/icons/star';
 	import LikeButton from '$lib/components/LikeButton.svelte';
+	import ShareButton from '$lib/components/ShareButton.svelte';
 	import type { ActionData, PageData } from './$types';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -60,8 +61,9 @@
 				<p class="mt-4 text-sm leading-relaxed text-ink-muted">{data.item.overview}</p>
 			{/if}
 
-			<div class="mt-4">
+			<div class="mt-4 flex flex-wrap items-center gap-5">
 				<LikeButton liked={data.liked} count={data.likeCount} signedIn={!!data.user} />
+				<ShareButton title={data.item.title} />
 			</div>
 		</article>
 	</div>

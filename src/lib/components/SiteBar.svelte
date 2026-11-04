@@ -17,6 +17,7 @@
 	import mark from '$lib/assets/logo-mark.jpg';
 	import { bookmarks, drawerFor, entryName, isEntryActive, onRoute } from '$lib/site-nav';
 	import { search } from '$lib/search.svelte';
+	import { loginHref } from '$lib/login-next';
 	import { theme } from '$lib/theme.svelte';
 
 	let { user, unread = 0 }: { user?: { name: string; role?: string | null }; unread?: number } =
@@ -200,7 +201,8 @@
 					</div>
 				{/if}
 			{:else}
-				<a href={resolve('/login')} class="tool">登入</a>
+				<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- loginHref() builds an app path -->
+				<a href={loginHref(page.url.pathname + page.url.search)} class="tool">登入</a>
 			{/if}
 		</div>
 		<button
