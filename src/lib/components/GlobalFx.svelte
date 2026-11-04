@@ -1,23 +1,23 @@
 <!--
 	Page-wide effects driven from one place:
-	- lights off (by hand): the room goes dark except the detective's torch,
-	  which follows the cursor (or stays put on touch screens) and lifts while
-	  you read;
+	- lights off (by hand): while the cursor moves, the room goes dark except
+	  the detective's torch around it; once it's still, the dark lifts;
 	- a frame-rate guard that switches slow devices to light-effects mode.
 	Only CSS custom properties and data attributes are written here; the look
 	lives in layout.css.
 -->
 <script lang="ts">
 	let dark: HTMLDivElement | undefined = $state();
-	// Reading rather than looking around: scrolling, or the cursor left still.
-	let resting = $state(false);
+	// The torch is only out while the cursor moves: still (or scrolling, or a
+	// touch screen with no cursor at all), the room's lights stay as they are.
+	let resting = $state(true);
 
 	$effect(() => {
 		let frame = 0;
 		let idle = 0;
 		const restSoon = () => {
 			clearTimeout(idle);
-			idle = window.setTimeout(() => (resting = true), 4000);
+			idle = window.setTimeout(() => (resting = true), 900);
 		};
 		const onMove = (e: PointerEvent) => {
 			if (e.pointerType !== 'mouse') return;
