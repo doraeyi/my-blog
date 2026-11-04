@@ -15,7 +15,7 @@
 	import { enhance } from '$app/forms';
 	import { fly } from 'svelte/transition';
 	import mark from '$lib/assets/logo-mark.jpg';
-	import { bookmarks, drawerFor, onRoute } from '$lib/site-nav';
+	import { bookmarks, drawerFor, entryName, isEntryActive, onRoute } from '$lib/site-nav';
 	import { search } from '$lib/search.svelte';
 	import { theme } from '$lib/theme.svelte';
 
@@ -98,20 +98,43 @@
 	<!-- eslint-disable svelte/no-navigation-without-resolve -- static app paths from site-nav -->
 	<nav bind:this={navEl} class="chapters" aria-label="章節" onpointerleave={() => (pointed = null)}>
 		{#each bookmarks as b (b.id)}
-			<a
-				href={b.href}
-				data-id={b.id}
-				data-c={b.color}
-				class="chapter"
-				class:is-open={open === b.id}
-				aria-current={open === b.id ? 'page' : undefined}
-				onpointerenter={() => (pointed = b.id)}
-				onfocus={() => (pointed = b.id)}
-				onblur={() => (pointed = null)}
-				title={b.plain ?? b.blurb}
-			>
-				<span class="tab" style="--c: {b.color}"></span>{b.label}
-			</a>
+			<div class="chapter-wrap" data-id={b.id} data-c={b.color}>
+				<a
+					href={b.href}
+					class="chapter"
+					class:is-open={open === b.id}
+					aria-current={open === b.id ? 'page' : undefined}
+					onpointerenter={() => (pointed = b.id)}
+					onfocus={() => (pointed = b.id)}
+					onblur={() => (pointed = null)}
+					title={b.cards.length ? undefined : (b.plain ?? b.blurb)}
+				>
+					<span class="tab" style="--c: {b.color}"></span>{b.label}
+				</a>
+				<!-- What's in the chapter, on a sticky note that drops under it: so you can
+				     find 在看的劇 without first guessing it's filed under 作品收藏. -->
+				{#if b.cards.length}
+					<div class="drop">
+						<div class="drop-note" style="--c: {b.color}">
+							{#if b.plain}<p class="drop-head">{b.plain}</p>{/if}
+							<ul>
+								{#each b.cards as c (c.href)}
+									{@const n = entryName(c)}
+									{@const here = isEntryActive(page.url, c.href)}
+									<li>
+										<a href={c.href} class:is-here={here} aria-current={here ? 'page' : undefined}>
+											<span class="drop-name"
+												>{n.plain}{#if n.label}<span class="drop-alias">{n.label}</span>{/if}</span
+											>
+											<span class="drop-desc">{c.note}</span>
+										</a>
+									</li>
+								{/each}
+							</ul>
+						</div>
+					</div>
+				{/if}
+			</div>
 		{/each}
 		{#if thread}
 			<span
@@ -222,8 +245,11 @@
 					{#if b.cards.length}
 						<div class="menu-subs">
 							{#each b.cards as c (c.href)}
+								{@const n = entryName(c)}
 								<a href={c.href} class="menu-sub"
-									>{c.label}<span class="menu-note">{c.note}</span></a
+									>{n.plain}{#if n.label}<span class="menu-alias">{n.label}</span>{/if}<span
+										class="menu-note">{c.note}</span
+									></a
 								>
 							{/each}
 						</div>
@@ -371,6 +397,110 @@
 	}
 	.thread::after {
 		right: -3px;
+	}
+
+	/* ── A chapter's pages, on a sticky note dropped under it ── */
+	.chapter-wrap {
+		position: relative;
+	}
+	.drop {
+		position: absolute;
+		top: 100%;
+		left: 50%;
+		z-index: 2;
+		/* The gap over the note still counts as the chapter, so the pointer can cross it. */
+		padding-top: 0.7rem;
+		translate: -50% -6px;
+		opacity: 0;
+		visibility: hidden;
+		pointer-events: none;
+		transition:
+			opacity 0.16s,
+			translate 0.3s cubic-bezier(0.34, 1.4, 0.64, 1),
+			visibility 0s 0.16s;
+	}
+	.chapter-wrap:focus-within .drop {
+		translate: -50% 0;
+		opacity: 1;
+		visibility: visible;
+		pointer-events: auto;
+		transition-delay: 0s;
+	}
+	@media (hover: hover) {
+		/* A short pause before it drops, so sweeping across the bar doesn't flash every note. */
+		.chapter-wrap:hover .drop {
+			translate: -50% 0;
+			opacity: 1;
+			visibility: visible;
+			pointer-events: auto;
+			transition-delay: 0.08s;
+		}
+	}
+	.drop-note {
+		position: relative;
+		width: 17rem;
+		padding: 0.95rem 0.6rem 0.6rem;
+		border-top: 3px solid var(--c);
+		background: linear-gradient(175deg, #fbf0b6, #f5e49a);
+		box-shadow:
+			0 1px 1px rgb(60 40 10 / 0.14),
+			0 18px 30px -14px rgb(0 0 0 / 0.55);
+		color: #3d2f16;
+		rotate: -0.8deg;
+	}
+	/* A strip of tape holding it on. */
+	.drop-note::before {
+		content: '';
+		position: absolute;
+		top: -11px;
+		left: 50%;
+		width: 54px;
+		height: 18px;
+		translate: -50% 0;
+		background: rgb(255 255 255 / 0.55);
+		box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+		rotate: -3deg;
+	}
+	.drop-head {
+		padding: 0 0.5rem 0.4rem;
+		color: #6b5530;
+		font-size: 0.75rem;
+		line-height: 1.5;
+	}
+	.drop-note ul {
+		display: grid;
+		gap: 0.05rem;
+	}
+	.drop-note a {
+		display: grid;
+		gap: 0.1rem;
+		padding: 0.4rem 0.5rem;
+		border-radius: 3px;
+		transition: background-color 0.15s;
+	}
+	.drop-note a:hover,
+	.drop-note a:focus-visible {
+		background: rgb(120 90 20 / 0.12);
+	}
+	.drop-name {
+		display: flex;
+		align-items: baseline;
+		gap: 0.5rem;
+		font-size: 0.92rem;
+		font-weight: 700;
+	}
+	.drop-note a.is-here .drop-name {
+		color: #8e1d12;
+	}
+	.drop-alias {
+		color: #7a6430;
+		font-family: var(--font-mono-hack);
+		font-size: 0.72rem;
+		font-weight: 400;
+	}
+	.drop-desc {
+		color: #6b5530;
+		font-size: 0.75rem;
 	}
 
 	/* ── Tools ── */
@@ -603,15 +733,25 @@
 	}
 	.menu-sub {
 		display: flex;
+		flex-wrap: wrap;
 		align-items: baseline;
-		gap: 0.6rem;
+		gap: 0 0.6rem;
+		white-space: nowrap;
 		padding: 0.3rem 0;
 		color: var(--b-ink);
 		font-size: 0.9rem;
 	}
+	/* What it is drops under the names when the line runs out, instead of breaking them. */
 	.menu-note {
 		color: var(--b-muted);
 		font-size: 0.75rem;
+		white-space: normal;
+	}
+	.menu-alias {
+		margin-left: -0.25rem;
+		color: color-mix(in srgb, var(--b-muted) 80%, transparent);
+		font-family: var(--font-mono-hack);
+		font-size: 0.72rem;
 	}
 	.menu-sub:active,
 	.menu-sub:hover {
@@ -652,6 +792,7 @@
 	@media (prefers-reduced-motion: reduce) {
 		.site-bar,
 		.thread,
+		.drop,
 		.tool,
 		.burger i {
 			transition: none;

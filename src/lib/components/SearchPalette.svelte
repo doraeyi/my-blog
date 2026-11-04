@@ -3,7 +3,7 @@
 	import { fade, scale } from 'svelte/transition';
 	import Search from '@lucide/svelte/icons/search';
 	import CornerDownLeft from '@lucide/svelte/icons/corner-down-left';
-	import { search, loadIndex, runSearch, type SearchDoc } from '$lib/search.svelte';
+	import { search, loadIndex, runSearch, PAGE, type SearchDoc } from '$lib/search.svelte';
 
 	let query = $state('');
 	let docs = $state<SearchDoc[]>([]);
@@ -11,7 +11,12 @@
 	let active = $state(0);
 	let listEl: HTMLUListElement | undefined = $state();
 
-	const hits = $derived(runSearch(docs, query));
+	// Nothing typed yet: the site's pages, so you can see what's here before guessing a word.
+	const hits = $derived(
+		query.trim()
+			? runSearch(docs, query)
+			: docs.filter((d) => d.type === PAGE).map((doc) => ({ doc, snippet: doc.excerpt ?? '' }))
+	);
 
 	$effect(() => {
 		if (!search.open) return;
@@ -133,7 +138,7 @@
 					onkeydown={onInputKeydown}
 					autofocus
 					type="search"
-					placeholder="搜尋文章、心情、作品、追劇…"
+					placeholder="想找什麼？頁面、文章、追劇、作品…"
 					aria-label="搜尋關鍵字"
 					aria-controls="search-results"
 					class="h-14 w-full border-0 bg-transparent p-0 text-base text-ink placeholder:text-ink-muted/70 focus:ring-0 focus:outline-none"
@@ -152,13 +157,6 @@
 			>
 				{#if loading}
 					<li class="px-3 py-8 text-center font-mono-hack text-sm text-ink-muted">調閱卷宗中…</li>
-				{:else if query.trim() === ''}
-					<li class="px-3 py-8 text-center text-sm text-ink-muted">
-						輸入關鍵字開始搜查
-						<span class="mt-2 hidden font-mono-hack text-xs text-ink-muted/70 sm:block">
-							↑↓ 選擇 · Enter 開啟 · Ctrl/⌘ K 或 / 隨時呼叫
-						</span>
-					</li>
 				{:else if hits.length === 0}
 					<li class="px-3 py-8 text-center font-mono-hack text-sm text-ink-muted">
 						NO MATCH — 找不到「{query}」

@@ -32,7 +32,11 @@
 						{#each d.cards as c (c.href)}
 							<li>
 								<a href={c.href} class="entry">
-									<span class="entry-name">{c.label}</span>
+									<span class="entry-name"
+										>{c.plain ?? c.label}{#if c.plain && c.plain !== c.label}<span
+												class="entry-alias">{c.label}</span
+											>{/if}</span
+									>
 									<span class="entry-note">{c.note}</span>
 								</a>
 							</li>
@@ -110,6 +114,12 @@
 	}
 	.entry-name {
 		flex: none;
+	}
+	.entry-alias {
+		margin-left: 0.45rem;
+		color: #76603f;
+		font-family: var(--font-mono-hack);
+		font-size: 0.75rem;
 	}
 	.entry:hover .entry-name {
 		color: #8e1d12;

@@ -12,6 +12,9 @@ export interface SearchHit {
 	snippet: string;
 }
 
+/** The `type` of the site's own pages in the index. */
+export const PAGE = '頁面';
+
 /** Global open/close state so the navbar button and the keyboard shortcut drive one palette. */
 export const search = $state({ open: false });
 
@@ -61,6 +64,8 @@ export function runSearch(docs: SearchDoc[], query: string, limit = 12): SearchH
 			score += s;
 		}
 		if (!matchedAll) continue;
+		// Someone typing 劇 most likely wants the page about dramas, not one show.
+		if (doc.type === PAGE) score += 8;
 
 		const at = text.indexOf(terms[0]);
 		const snippet =

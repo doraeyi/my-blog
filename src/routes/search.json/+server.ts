@@ -3,17 +3,41 @@ import type { RequestHandler } from './$types';
 import { kindLabel, listEntries } from '$lib/server/content-index';
 import { listProjects } from '$lib/server/services/projects-service';
 import { getCurrentlyWatching, listWatched } from '$lib/server/services/watch-service';
-import type { SearchDoc } from '$lib/search.svelte';
+import { PAGE, type SearchDoc } from '$lib/search.svelte';
+import { drawers, entryName } from '$lib/site-nav';
 
-const pages: SearchDoc[] = [
-	{ type: '頁面', title: '首頁', path: '/', text: '' },
-	{ type: '頁面', title: '關於我', path: '/about', text: '李俊逸 前端工程師 MSI 微星科技' },
-	{ type: '頁面', title: '現在 Now', path: '/now', text: '最近在做 在學 在看' },
-	{ type: '頁面', title: '案件時間軸', path: '/archive', text: '歸檔 archive timeline' },
-	{ type: '頁面', title: '標籤', path: '/tags', text: 'tags' },
-	{ type: '頁面', title: '作品集', path: '/portfolio', text: 'portfolio projects' },
-	{ type: '頁面', title: '追劇紀錄', path: '/watch', text: 'watch movies tv' }
-];
+// Every page in the site's chapters, findable by what it is in plain words
+// ("劇" finds 監視紀錄) as well as by its case-file name.
+const pages: SearchDoc[] = drawers
+	.filter((d) => d.id !== 'cover')
+	.flatMap((d) => {
+		const own: SearchDoc[] = d.cards.length
+			? []
+			: [
+					{
+						type: PAGE,
+						title: d.label,
+						path: d.href,
+						excerpt: d.blurb ?? d.plain,
+						tags: d.keywords?.split(' '),
+						text: ''
+					}
+				];
+		return [
+			...own,
+			...d.cards.map((c) => {
+				const { plain, label } = entryName(c);
+				return {
+					type: PAGE,
+					title: label ? `${plain} · ${label}` : plain,
+					path: c.href,
+					excerpt: `${d.label} › ${c.note}`,
+					tags: c.keywords?.split(' '),
+					text: ''
+				};
+			})
+		];
+	});
 
 export const GET: RequestHandler = async () => {
 	const [entries, projects, watching, watched] = await Promise.all([
@@ -24,6 +48,7 @@ export const GET: RequestHandler = async () => {
 	]);
 
 	const docs: SearchDoc[] = [
+		...pages,
 		...entries.map((e) => ({
 			type: kindLabel[e.kind],
 			title: e.title,
@@ -45,8 +70,7 @@ export const GET: RequestHandler = async () => {
 			path: `/watch/${w.id}`,
 			excerpt: w.overview ?? undefined,
 			text: ''
-		})),
-		...pages
+		}))
 	];
 
 	return json(docs, { headers: { 'Cache-Control': 'public, max-age=300' } });

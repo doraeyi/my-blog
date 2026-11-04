@@ -281,11 +281,11 @@
 									<li>
 										<a
 											href={c.href}
-											title={c.note}
+											title={c.plain && c.plain !== c.label ? `${c.label} · ${c.note}` : c.note}
 											class:is-here={here}
 											aria-current={here ? 'page' : undefined}
-											><span class="cn-mark" aria-hidden="true">{here ? '✓' : '·'}</span
-											>{c.label}</a
+											><span class="cn-mark" aria-hidden="true">{here ? '✓' : '·'}</span>{c.plain ??
+												c.label}</a
 										>
 									</li>
 								{/each}
