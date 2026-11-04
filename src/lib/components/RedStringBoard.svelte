@@ -16,7 +16,7 @@
 	import { fly } from 'svelte/transition';
 	import mark from '$lib/assets/logo-mark.jpg';
 	import { loadIndex, runSearch, search, type SearchHit } from '$lib/search.svelte';
-	import { chapters } from '$lib/site-nav';
+	import { chapters, entryName } from '$lib/site-nav';
 	import type { SuspectBoardData } from '$lib/suspect-board';
 
 	interface FriendPin {
@@ -503,21 +503,42 @@
 				{:else if n.kind === 'chapter'}
 					{@const c = chapters.find((x) => x.id === n.id)!}
 					{@const i = chapters.indexOf(c)}
-					<a
-						href={c.href}
-						class="card chapter-card"
-						style="--c: {c.color}"
-						onpointerenter={() => (hot = n.id)}
-						onpointerleave={() => (hot = null)}
-						onfocus={() => (hot = n.id)}
-						onblur={() => (hot = null)}
-						onclick={(e) => dive(e, n.id, c.href)}
-					>
-						<span class="ch-meta"><span class="ch-tab"></span>CH.{roman[i]} · {c.no}</span>
-						<strong class="ch-title">{c.label}</strong>
-						<span class="ch-sub">{c.plain ?? c.blurb}</span>
-						<span class="ch-go" aria-hidden="true">打開 →</span>
-					</a>
+					<!-- The pages in the chapter peek out on a sticky note while you point at
+					     it, so you can go straight to one (the lower cards open it upward). -->
+					<div class="ch-wrap" class:up={n.at[1] > 40} style="--c: {c.color}">
+						<a
+							href={c.href}
+							class="card chapter-card"
+							onpointerenter={() => (hot = n.id)}
+							onpointerleave={() => (hot = null)}
+							onfocus={() => (hot = n.id)}
+							onblur={() => (hot = null)}
+							onclick={(e) => dive(e, n.id, c.href)}
+						>
+							<span class="ch-meta"><span class="ch-tab"></span>CH.{roman[i]} · {c.no}</span>
+							<strong class="ch-title">{c.label}</strong>
+							<span class="ch-sub">{c.plain ?? c.blurb}</span>
+							<span class="ch-go" aria-hidden="true">打開 →</span>
+						</a>
+						{#if c.cards.length}
+							<div class="peek">
+								<div class="peek-note">
+									<p class="peek-head">這一章有</p>
+									<ul>
+										{#each c.cards as p (p.href)}
+											{@const name = entryName(p)}
+											<li>
+												<a href={p.href} title={p.note}
+													>{name.plain}{#if name.label}<span class="peek-alias">{name.label}</span
+														>{/if}</a
+												>
+											</li>
+										{/each}
+									</ul>
+								</div>
+							</div>
+						{/if}
+					</div>
 				{:else if n.kind === 'file'}
 					{@const f = latest[Number(n.id.slice(5))]}
 					<a
@@ -809,7 +830,9 @@
 			border-color 0.3s;
 	}
 	.open .node > a.card:hover,
-	.open .node > a.card:focus-visible {
+	.open .node > a.card:focus-visible,
+	.open .ch-wrap:hover > a.card,
+	.open .ch-wrap > a.card:focus-visible {
 		transform: translateY(-6px) scale(1.035);
 		border-color: color-mix(in srgb, var(--red) 45%, var(--hair));
 		box-shadow:
@@ -1015,6 +1038,104 @@
 	.chapter-card:focus-visible .ch-go {
 		opacity: 1;
 		transform: translateX(4px);
+	}
+
+	/* What's in the chapter: a sticky note that peeks out from under the card.
+	   Pointer screens only; on phones the chapter menu lists the pages. */
+	.peek {
+		display: none;
+	}
+	@media (hover: hover) and (min-width: 900px) {
+		.peek {
+			position: absolute;
+			top: 100%;
+			left: 50%;
+			display: block;
+			/* The gap over the note still counts as the card, so the pointer can cross it. */
+			padding-top: 0.5rem;
+			translate: -50% -10px;
+			opacity: 0;
+			visibility: hidden;
+			pointer-events: none;
+			transition:
+				opacity 0.18s,
+				translate 0.35s cubic-bezier(0.34, 1.4, 0.64, 1),
+				visibility 0s 0.18s;
+		}
+		.up .peek {
+			top: auto;
+			bottom: 100%;
+			padding: 0 0 0.5rem;
+			translate: -50% 10px;
+		}
+		.ch-wrap:is(:hover, :focus-within) .peek {
+			translate: -50% 0;
+			opacity: 1;
+			visibility: visible;
+			pointer-events: auto;
+			transition-delay: 0.12s;
+		}
+		/* The pointed-at chapter comes to the front, so its note lies over the rest. */
+		.node:has(.ch-wrap:is(:hover, :focus-within)) {
+			z-index: 30;
+		}
+	}
+	.peek-note {
+		position: relative;
+		width: 14rem;
+		padding: 0.85rem 0.55rem 0.55rem;
+		border-top: 3px solid var(--c);
+		background: linear-gradient(175deg, #fbf0b6, #f5e49a);
+		box-shadow:
+			0 1px 1px rgb(60 40 10 / 0.14),
+			0 18px 30px -14px rgb(0 0 0 / 0.55);
+		color: #3d2f16;
+		rotate: 1.2deg;
+	}
+	.up .peek-note {
+		rotate: -1.2deg;
+	}
+	/* A strip of tape holding it on. */
+	.peek-note::before {
+		content: '';
+		position: absolute;
+		top: -11px;
+		left: 50%;
+		width: 54px;
+		height: 18px;
+		translate: -50% 0;
+		background: rgb(255 255 255 / 0.55);
+		box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+		rotate: -3deg;
+	}
+	.peek-head {
+		padding: 0 0.45rem 0.25rem;
+		color: #6b5530;
+		font-size: 0.75rem;
+		letter-spacing: 0.1em;
+	}
+	.peek-note a {
+		display: flex;
+		align-items: baseline;
+		gap: 0.45rem;
+		padding: 0.3rem 0.45rem;
+		border-radius: 3px;
+		font-size: 0.92rem;
+		font-weight: 700;
+		transition:
+			background-color 0.15s,
+			color 0.15s;
+	}
+	.peek-note a:hover,
+	.peek-note a:focus-visible {
+		background: rgb(120 90 20 / 0.12);
+		color: #8e1d12;
+	}
+	.peek-alias {
+		color: #7a6430;
+		font-family: var(--font-mono-hack);
+		font-size: 0.72rem;
+		font-weight: 400;
 	}
 
 	/* Newest files: index cards */
@@ -1241,7 +1362,9 @@
 		}
 		.string,
 		.node > a.card,
-		.node > .friend-card {
+		.ch-wrap > a.card,
+		.node > .friend-card,
+		.peek {
 			transition: none;
 		}
 		.live i {
