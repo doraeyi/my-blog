@@ -10,6 +10,8 @@
 @theme {
 	--font-display: 'Instrument Serif', 'LXGW WenKai TC', ui-serif, Georgia, serif;
 	--font-mono-hack: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+	/* Pencil handwriting, for what's written on the board and its sticky notes. */
+	--font-hand: 'Iansui', 'LXGW WenKai TC', ui-sans-serif, system-ui, sans-serif;
 
 	--color-case-50: #fdfaf3;
 	--color-case-100: #f7efd9;
@@ -1109,7 +1111,7 @@ html {
 		0 1px 1px rgb(60 40 10 / 0.12),
 		0 10px 18px -12px rgb(60 40 10 / 0.5);
 	color: #4a3a1c;
-	font-family: 'LXGW WenKai TC', ui-sans-serif, system-ui, sans-serif;
+	font-family: var(--font-hand);
 	rotate: -0.6deg;
 }
 /* A strip of tape holding it on. */

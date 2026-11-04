@@ -446,6 +446,7 @@
 			0 1px 1px rgb(60 40 10 / 0.14),
 			0 18px 30px -14px rgb(0 0 0 / 0.55);
 		color: #3d2f16;
+		font-family: var(--font-hand);
 		rotate: -0.8deg;
 	}
 	/* A strip of tape holding it on. */
@@ -486,8 +487,7 @@
 		display: flex;
 		align-items: baseline;
 		gap: 0.5rem;
-		font-size: 0.92rem;
-		font-weight: 700;
+		font-size: 0.98rem;
 	}
 	.drop-note a.is-here .drop-name {
 		color: #8e1d12;
@@ -496,7 +496,6 @@
 		color: #7a6430;
 		font-family: var(--font-mono-hack);
 		font-size: 0.72rem;
-		font-weight: 400;
 	}
 	.drop-desc {
 		color: #6b5530;

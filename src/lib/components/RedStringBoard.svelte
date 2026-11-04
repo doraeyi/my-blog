@@ -622,7 +622,8 @@
 		min-height: max(100svh, 840px);
 		overflow: hidden;
 		color: var(--ink);
-		font-family: 'LXGW WenKai TC', ui-sans-serif, system-ui, sans-serif;
+		/* Everything on the board is written by hand. */
+		font-family: var(--font-hand);
 		isolation: isolate;
 	}
 
@@ -1006,8 +1007,9 @@
 	.ch-title {
 		display: block;
 		margin-top: 0.45rem;
-		font-size: 1.55rem;
-		font-weight: 700;
+		font-size: 1.65rem;
+		/* The hand has one weight; a faked bold smears the pencil strokes. */
+		font-weight: 400;
 		line-height: 1.15;
 	}
 	.ch-sub {
@@ -1120,8 +1122,7 @@
 		gap: 0.45rem;
 		padding: 0.3rem 0.45rem;
 		border-radius: 3px;
-		font-size: 0.92rem;
-		font-weight: 700;
+		font-size: 0.98rem;
 		transition:
 			background-color 0.15s,
 			color 0.15s;
@@ -1135,7 +1136,6 @@
 		color: #7a6430;
 		font-family: var(--font-mono-hack);
 		font-size: 0.72rem;
-		font-weight: 400;
 	}
 
 	/* Newest files: index cards */
