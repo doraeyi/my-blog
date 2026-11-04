@@ -48,6 +48,9 @@
 								? 'dark'
 								: 'light';
 					document.documentElement.setAttribute('data-theme', theme);
+					// The torch is for someone who turned the lights off themselves, not
+					// everyone whose system happens to be dark.
+					if (stored === 'dark') document.documentElement.dataset.torch = '';
 					// Devices that measured slow before start straight in light-effects mode.
 					if (localStorage.getItem('fx-lite') === '1') document.documentElement.dataset.lite = '1';
 				} catch (e) {}

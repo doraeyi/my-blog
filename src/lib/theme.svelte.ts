@@ -18,7 +18,11 @@ class ThemeStore {
 
 	set(theme: Theme) {
 		this.current = theme;
-		document.documentElement.setAttribute('data-theme', theme);
+		const root = document.documentElement;
+		root.setAttribute('data-theme', theme);
+		// Turning the lights off by hand is what lights the torch.
+		if (theme === 'dark') root.dataset.torch = '';
+		else delete root.dataset.torch;
 		try {
 			localStorage.setItem(STORAGE_KEY, theme);
 		} catch {

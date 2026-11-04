@@ -1,28 +1,42 @@
 <!--
 	Page-wide effects driven from one place:
-	- lights off: the room goes dark except the detective's torch, which follows
-	  the cursor (or stays put on touch screens);
+	- lights off (by hand): the room goes dark except the detective's torch,
+	  which follows the cursor (or stays put on touch screens) and lifts while
+	  you read;
 	- a frame-rate guard that switches slow devices to light-effects mode.
 	Only CSS custom properties and data attributes are written here; the look
 	lives in layout.css.
 -->
 <script lang="ts">
 	let dark: HTMLDivElement | undefined = $state();
+	// Reading rather than looking around: scrolling, or the cursor left still.
+	let resting = $state(false);
 
 	$effect(() => {
 		let frame = 0;
+		let idle = 0;
+		const restSoon = () => {
+			clearTimeout(idle);
+			idle = window.setTimeout(() => (resting = true), 4000);
+		};
 		const onMove = (e: PointerEvent) => {
 			if (e.pointerType !== 'mouse') return;
+			resting = false;
+			restSoon();
 			cancelAnimationFrame(frame);
 			frame = requestAnimationFrame(() => {
 				dark?.style.setProperty('--fx', `${e.clientX}px`);
 				dark?.style.setProperty('--fy', `${e.clientY}px`);
 			});
 		};
+		const onScroll = () => (resting = true);
 		window.addEventListener('pointermove', onMove, { passive: true });
+		window.addEventListener('scroll', onScroll, { passive: true });
 		return () => {
 			cancelAnimationFrame(frame);
+			clearTimeout(idle);
 			window.removeEventListener('pointermove', onMove);
+			window.removeEventListener('scroll', onScroll);
 		};
 	});
 
@@ -62,4 +76,4 @@
 	});
 </script>
 
-<div bind:this={dark} class="room-dark" aria-hidden="true"></div>
+<div bind:this={dark} class="room-dark" class:resting aria-hidden="true"></div>

@@ -1193,21 +1193,22 @@ html {
 	transform: translate3d(var(--fx, 50vw), var(--fy, 34vh), 0);
 	will-change: transform;
 	transition: opacity 0.6s ease;
+	/* Dim enough to feel like a torch, never so dark the page can't be read. */
 	background: radial-gradient(
 		circle at center,
 		rgba(255, 196, 120, 0.05) 0,
-		transparent 220px,
-		rgba(10, 6, 3, 0.5) 560px,
-		rgba(10, 6, 3, 0.66) 1000px
+		transparent 240px,
+		rgba(10, 6, 3, 0.3) 600px,
+		rgba(10, 6, 3, 0.4) 1000px
 	);
 }
-:root[data-theme='dark'] .room-dark {
+:root[data-theme='dark'][data-torch] .room-dark {
 	opacity: 1;
 }
-@media (prefers-color-scheme: dark) {
-	:root:not([data-theme]) .room-dark {
-		opacity: 1;
-	}
+/* Reading (scrolling, or the cursor left still): the dark lifts off the page. */
+:root[data-theme='dark'][data-torch] .room-dark.resting {
+	opacity: 0;
+	transition-duration: 1.2s;
 }
 /* The homepage board has its own light. */
 :root:has(.board) .room-dark {
@@ -1223,8 +1224,8 @@ html {
 			circle at center,
 			rgba(255, 196, 120, 0.04) 0,
 			transparent 420px,
-			rgba(10, 6, 3, 0.28) 820px,
-			rgba(10, 6, 3, 0.42) 1200px
+			rgba(10, 6, 3, 0.2) 820px,
+			rgba(10, 6, 3, 0.3) 1200px
 		);
 	}
 }
